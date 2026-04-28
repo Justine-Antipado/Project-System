@@ -5,6 +5,7 @@ import './App.css';
 const App = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false); 
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   
@@ -19,10 +20,11 @@ const App = () => {
 
   const handleToggleMode = () => {
     setIsAnimating(true);
-    // Mas mahabang timeout para sumabay sa smooth CSS transition
     setTimeout(() => {
       setIsLogin(!isLogin);
       setIsAnimating(false);
+      setShowPass(false);
+      setShowConfirmPass(false);
     }, 400); 
   };
 
@@ -66,7 +68,6 @@ const App = () => {
 
       <div className={`auth-card ${isLogin ? '' : 'reverse'}`}>
         
-        {/* FORM SIDE */}
         <div className={`form-container ${isAnimating ? 'fade-out' : 'fade-in'}`}>
           <div className="header-section">
             <div className="logo-icon">
@@ -85,15 +86,16 @@ const App = () => {
                 </div>
                 <div className="field-group relative">
                   <label className="label-text">Password</label>
-                  <input type={showPass ? "text" : "password"} className="form-input" placeholder="••••••••" />
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="eye-btn">
-                    {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
+                  <div className="input-with-icon">
+                    <input type={showPass ? "text" : "password"} className="form-input" placeholder="••••••••" />
+                    <button type="button" onClick={() => setShowPass(!showPass)} className="eye-btn">
+                      {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
               <div className="registration-stack">
-                {/* Vertical Names */}
                 <div className="field-group">
                   <label className="label-text">First Name</label>
                   <input type="text" className="form-input" placeholder="Juan" />
@@ -107,29 +109,28 @@ const App = () => {
                   <input type="text" className="form-input" placeholder="Protasio" />
                 </div>
 
-                {/* Flex Course and Year Level */}
                 <div className="input-row-flex">
-                  <CustomDropdown 
-                    label="Course" 
-                    name="course" 
-                    options={courses} 
-                    value={formData.course} 
-                  />
-                  <CustomDropdown 
-                    label="Year Level" 
-                    name="yearLevel" 
-                    options={years} 
-                    value={formData.yearLevel} 
-                  />
+                  <CustomDropdown label="Course" name="course" options={courses} value={formData.course} />
+                  <CustomDropdown label="Year Level" name="yearLevel" options={years} value={formData.yearLevel} />
                 </div>
 
-                <div className="field-group">
+                <div className="field-group relative">
                   <label className="label-text">Create Password</label>
-                  <input type="password" className="form-input" placeholder="••••••••" />
+                  <div className="input-with-icon">
+                    <input type={showPass ? "text" : "password"} className="form-input" placeholder="••••••••" />
+                    <button type="button" onClick={() => setShowPass(!showPass)} className="eye-btn">
+                      {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
-                <div className="field-group">
+                <div className="field-group relative">
                   <label className="label-text">Confirm Password</label>
-                  <input type="password" className="form-input" placeholder="••••••••" />
+                  <div className="input-with-icon">
+                    <input type={showConfirmPass ? "text" : "password"} className="form-input" placeholder="••••••••" />
+                    <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="eye-btn">
+                      {showConfirmPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -149,7 +150,6 @@ const App = () => {
           <div className="footer-credits">© 2026-2027 Group 1 Inc.</div>
         </div>
 
-        {/* INFO PANEL SIDE */}
         <div className="info-panel">
           <div className="info-content">
             <p className="top-note">Sign in to view upcoming school events and track your attendance.</p>
