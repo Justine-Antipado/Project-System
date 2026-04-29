@@ -10,6 +10,7 @@
 
 * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
 
+/* LAYOUT CONTAINERS */
 .page-container {
   min-height: 100vh;
   background-color: var(--bg-soft);
@@ -32,7 +33,6 @@
 .blob-left { top: -10%; left: -10%; background: rgba(167, 243, 208, 0.4); }
 .blob-right { bottom: -10%; right: -10%; background: rgba(191, 219, 254, 0.3); }
 
-/* Binuwasan ang max-width at min-height ng container */
 .auth-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
@@ -60,8 +60,8 @@
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
+/* TYPOGRAPHY & HEADERS */
 .header-section { text-align: center; margin-bottom: 1.2rem; }
-
 .logo-icon {
   width: 65px;
   height: 65px;
@@ -73,16 +73,11 @@
   justify-content: center;
   margin: 0 auto 1rem;
 }
-
 .main-title { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
 .sub-title { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem; }
 
-.field-group { 
-  margin-bottom: 0.8rem; 
-  position: relative; 
-  width: 100%;
-}
-
+/* INPUT STYLING */
+.field-group { margin-bottom: 0.8rem; position: relative; width: 100%; }
 .label-text {
   display: block;
   font-size: 11px;
@@ -105,12 +100,7 @@
   align-items: center;
 }
 
-/* Field Hover & Focus: White background */
-.form-input:hover { 
-  background: #ffffff; 
-  border-color: #dcdcdc;
-}
-
+.form-input:hover { background: #ffffff; border-color: #dcdcdc; }
 .form-input:focus, .form-input:focus-within {
   outline: none;
   background: #ffffff;
@@ -118,35 +108,29 @@
   box-shadow: 0 0 0 4px rgba(94, 125, 99, 0.08);
 }
 
-.input-with-icon {
-  position: relative;
-  width: 100%;
-}
-
-.eye-btn {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  transition: color 0.2s ease;
-}
-
-.eye-btn:hover { color: var(--primary-green); }
-
+/* FLEX ROWS & GRID */
 .input-row-flex {
   display: flex;
   gap: 1rem;
   width: 100%;
 }
 
+/* ITO ANG NAGPAPAPANTAY SA DROPDOWNS */
+.input-row-flex .field-group {
+  flex: 1; 
+  min-width: 0;
+}
+
+/* DROPDOWN SPECIFIC */
 .custom-dropdown-container { cursor: pointer; z-index: 20; }
-.dropdown-trigger { justify-content: space-between; user-select: none; }
+.dropdown-trigger { 
+  width: 100%;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  user-select: none; 
+}
+
 .chevron { transition: transform 0.3s ease; color: var(--text-muted); }
 .chevron.rotate { transform: rotate(180deg); }
 
@@ -160,7 +144,7 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   overflow: hidden;
   border: 1px solid #eee;
-  animation: dropdownFade 0.2s ease-out;
+  z-index: 9999; 
 }
 
 .dropdown-item {
@@ -172,9 +156,9 @@
   align-items: center;
   transition: background 0.2s;
 }
-
 .dropdown-item:hover { background: var(--bg-soft); color: var(--primary-green); }
 
+/* BUTTONS */
 .btn {
   width: 100%;
   height: 46px;
@@ -184,8 +168,6 @@
   transition: all 0.3s ease;
   border: none;
 }
-
-/* Button Hover Effects */
 .btn-submit { background: #9ab495; color: #2e3b2b; margin-top: 0.5rem; }
 .btn-submit:hover { 
   background: var(--primary-green); 
@@ -193,7 +175,6 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(94, 125, 99, 0.2);
 }
-
 .btn-toggle { background: #f1f8e9; color: var(--primary-green); margin-top: 0.8rem; }
 .btn-toggle:hover { 
   background: #e8f5e1; 
@@ -201,9 +182,24 @@
   transform: translateY(-1px);
 }
 
+/* UTILS */
+.eye-btn {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}
+.input-with-icon { position: relative; width: 100%; }
 .or-divider { text-align: center; margin: 0.6rem 0; font-size: 11px; font-weight: 800; color: #bbb; }
 .footer-credits { text-align: center; font-size: 10px; color: #aaa; margin-top: 1.2rem; }
 
+/* INFO PANEL */
 .info-panel {
   flex: 1;
   background: var(--primary-green);
@@ -213,11 +209,11 @@
   justify-content: center;
   padding: 2.5rem;
 }
-
 .top-note { font-size: 0.7rem; text-align: center; margin-bottom: 1.2rem; opacity: 0.9; }
 .hero-heading { font-size: 2.5rem; font-weight: 900; text-align: center; }
 .green-divider { width: 50px; height: 3px; background: var(--accent-emerald); margin: 0.8rem auto 2rem; border-radius: 2px; }
 
+/* PHONE MOCKUP */
 .phone-preview {
   width: 180px;
   height: 360px;
@@ -227,13 +223,13 @@
   margin: 0 auto;
   padding: 8px;
 }
-
 .phone-inner { height: 100%; background: white; border-radius: 22px; padding: 12px; display: flex; flex-direction: column; }
 .mock-login-text { color: #3b82f6; font-weight: 800; text-align: center; margin-bottom: 8px; font-size: 0.75rem; }
 .mock-widget { height: 30px; background: #f0f0f0; border-radius: 5px; margin-bottom: 6px; }
 .mock-widget.primary { height: 45px; background: #f8f8f8; border: 1px solid #eee; }
 .mock-btn { margin-top: auto; background: #3b82f6; color: white; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; }
 
+/* ANIMATIONS */
 .fade-in { opacity: 1; transform: translateX(0); }
 .fade-out { opacity: 0; transform: translateX(20px); }
 
