@@ -144,7 +144,7 @@ const App = () => {
                    <CustomDropdown label="Dept" name="deptID" options={departments} value={formData.deptID} />
                    <CustomDropdown label="Program" name="program" options={programs} value={formData.program} />
                    <CustomDropdown label="Year" name="yearLevel" options={years} value={formData.yearLevel} />
-                </div>
+                </div>//customize the dropdown arrow
 
                 <div className="input-row-flex">
                   <div className="field-group relative">
@@ -152,7 +152,7 @@ const App = () => {
                     <div className="input-with-icon">
                       <input type={showPass ? "text" : "password"} className="form-input" placeholder="••••••••" />
                       <button type="button" onClick={() => setShowPass(!showPass)} className="eye-btn">
-                        {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {showPass ? <EyeOff size={20} /> : <Eye size={20} />}//add a logic that will pop up kapag kinilick ang password at confirm field kulay green na may x at mag gi green kapag na meet na yung requirement automatic mag hide kapag nag leave sa field 
                       </button>
                     </div>
                   </div>
@@ -188,14 +188,14 @@ const App = () => {
             <p className="top-note">Sign in to view upcoming school events and track your attendance.</p>
             <h1 className="hero-heading">Welcome Back!</h1>
             <div className="green-divider"></div>
-            <div className="phone-preview">
+            {/*<div className="phone-preview">
               <div className="phone-inner">
                 <div className="mock-login-text">Login</div>
                 <div className="mock-widget"></div>
                 <div className="mock-widget primary"></div>
                 <div className="mock-btn">Log In</div>
               </div>
-            </div>
+            </div>   change this into image*/}
           </div>
         </div>
 
@@ -205,3 +205,6 @@ const App = () => {
 };
 
 export default App;
+
+//mag add ka ng email field at error message na mag aappear na dapat hindi empty lahat ng field kapag nag login
+// add ka rin ng duplicate error message sa sa id number at email para kapag nag database nako
