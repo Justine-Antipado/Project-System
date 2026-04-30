@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Check, X } from 'lucide-react';
 import './Auth.css';
+import omscLogo from './assets/omsc.logo.png';
 
 // 0. MOCK DATABASE (For duplicating checks)
 const MOCK_DATABASE_USERS = [
@@ -16,7 +17,7 @@ const Auth = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   
-  // New States for Password Validation UI
+  // States for Password Validation UI
   const [focusedField, setFocusedField] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -32,7 +33,7 @@ const Auth = () => {
     confirmPassword: ''
   });
 
-  // New States for Error/Success Messages
+  // States for Error/Success Messages
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -53,10 +54,8 @@ const Auth = () => {
   const passwordReqs = validatePassword(formData.password);
   const allPasswordReqsMet = Object.values(passwordReqs).every(Boolean);
 
-  // --- NEW LOGIC: Show popup only if focused AND requirements are NOT yet met ---
   const shouldShowPopup = focusedField === 'password' && !allPasswordReqsMet;
 
-  // --- NEW LOGIC: Clear error when field is focused/clicked ---
   const handleInputFocus = (fieldName) => {
     setFocusedField(fieldName);
     if (errors[fieldName]) {
@@ -88,6 +87,12 @@ const Auth = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
     setActiveDropdown(null);
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  // Logic for Google Login
+  const handleGoogleLogin = () => {
+    console.log("Redirecting to Google OAuth...");
+    // Add your Firebase or Auth0 Google logic here
   };
 
   // 4. FORM SUBMISSION
@@ -138,7 +143,7 @@ const Auth = () => {
         className={`form-input dropdown-trigger ${activeDropdown === name ? 'active' : ''}`}
         onClick={() => {
           setActiveDropdown(activeDropdown === name ? null : name);
-          handleInputFocus(name); // Clears error on click
+          handleInputFocus(name);
         }}
       >
         <span className="dropdown-value">{value}</span>
@@ -223,6 +228,7 @@ const Auth = () => {
                       value={formData.password}
                       onChange={handleInputChange}
                       onFocus={() => handleInputFocus('password')}
+                      onBlur={() => setFocusedField(null)}
                       className="form-input" placeholder="••••••••" 
                     />
                     <button type="button" onClick={() => setShowPass(!showPass)} className="eye-btn">
@@ -344,6 +350,20 @@ const Auth = () => {
               <button type="submit" className="btn btn-submit">
                 {isLogin ? 'Sign In' : 'Sign Up'}
               </button>
+
+              <button 
+                type="button" 
+                className="btn btn-google" 
+                onClick={handleGoogleLogin}
+              >
+                <img 
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                  alt="Google" 
+                  className="google-icon"
+                />
+                Continue with Google
+              </button>
+
               <div className="or-divider">OR</div>
               <button type="button" onClick={handleToggleMode} className="btn btn-toggle">
                 {isLogin ? 'Create Account' : 'Already have an account? Sign In'}
@@ -356,7 +376,7 @@ const Auth = () => {
         <div className="info-panel">
           <div className="info-content">
             <div className="college-logo-container">
-              <img src="path_to_your_omsc_logo.png" alt="OMSC Logo" className="college-logo" />
+              <img src={omscLogo} alt="OMSC Logo" className="college-logo" />
             </div>
             <p className="top-note">Educate. Empower. Excel.</p>
             <h1 className="hero-heading">Welcome Back!</h1>

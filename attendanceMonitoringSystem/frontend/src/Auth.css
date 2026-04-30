@@ -310,6 +310,27 @@
   margin-top: 0.6rem; 
   font-size: 0.8rem;
 }
+.btn-google {
+  background: white;
+  color: var(--text-main);
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+}
+
+.btn-google:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+}
 .btn-toggle:hover { 
   background: #e2e8f0; 
 }
