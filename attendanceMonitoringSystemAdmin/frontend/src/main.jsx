@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './Auth.jsx'
+//import './index.css'
+import AdminAuth from './AdminAuth.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Auth />
+    <AdminAuth />
   </StrictMode>,
 )

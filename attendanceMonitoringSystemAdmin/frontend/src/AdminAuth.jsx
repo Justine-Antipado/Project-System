@@ -1,6 +1,6 @@
 //import React, { useState } from 'react';
 import { Eye, EyeOff, User, Check, X } from 'lucide-react';
-import './Auth.css';
+import './AdminAuth.css';
 import omscLogo from './assets/omsc.logo.png';
 import React, { useState, useEffect, useRef } from 'react';
 
@@ -10,7 +10,7 @@ const MOCK_DATABASE_USERS = [
   { idNo: '2024-22222', email: 'user@omsc.edu.ph' },
 ];
 
-const Auth = () => {
+const AdminAuth = () => {
   // 1. STATE MANAGEMENT
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
@@ -30,6 +30,9 @@ const Auth = () => {
     deptID: 'Select Dept',
     program: 'Select Program',
     yearLevel: 'Select Year',
+    organization: 'Select Org/Club',
+    position: 'Select Position',
+    term_year: 'Select Term/Year', 
     password: '',
     confirmPassword: ''
   });
@@ -43,6 +46,19 @@ const Auth = () => {
   const programs = ['BSIT', 'BSCS', 'BSHM', 'BSBA', 'BEED'];
   const years = ['1', '2', '3', '4'];
 
+  const organizations = ['PADC', 'YMO', 'CBAM', 'SSG', 'Club'];
+  const termYears = ['2024-2025', '2025-2026', '2026-2027'];
+
+  const positionOptions = {
+    'PADC': ['Mayor', 'Vice Mayor', 'Secretary', 'Treasurer', 'Auditor', 'Councilor', 'Other'],
+    'YMO': ['Mayor', 'Vice Mayor', 'Secretary', 'Treasurer', 'Auditor', 'Councilor', 'Other'],
+    'CBAM': ['Mayor', 'Vice Mayor', 'Secretary', 'Treasurer', 'Auditor', 'Councilor', 'Other'],
+    'SSG': ['Governor', 'Vice Governor', 'Secretary', 'Treasurer', 'Auditor', 'Other'],
+    'Club': ['President', 'Vice President', 'Secretary', 'Treasurer', 'Other'],
+    'Select Org/Club': [] 
+  };
+
+
   const validatePassword = (pass) => {
     return {
       length: pass.length >= 8,
@@ -54,7 +70,6 @@ const Auth = () => {
 
   const passwordReqs = validatePassword(formData.password);
   const allPasswordReqsMet = Object.values(passwordReqs).every(Boolean);
-
   const shouldShowPopup = focusedField === 'password' && !allPasswordReqsMet;
 
   const handleInputFocus = (fieldName) => {
@@ -81,14 +96,23 @@ const Auth = () => {
       setErrors({});
       setSuccessMsg('');
       setFocusedField(null);
+      setFormData({
+        schoolIDNo: '', email: '', lastName: '', firstName: '', middleName: '',
+        deptID: 'Select Dept', program: 'Select Program', yearLevel: 'Select Year',
+        organization: 'Select Org/Club', position: 'Select Position', term_year: 'Select Term/Year',
+        password: '', confirmPassword: ''
+      });
     }, 400); 
   };
 
-  const dropdownRef = useRef(null);
+  const dropdownRefs = useRef({});
 
-  useEffect(() => {
+useEffect(() => {
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const refs = Object.values(dropdownRefs.current);
+    const clickedInside = refs.some(ref => ref && ref.contains(event.target));
+
+    if (!clickedInside) {
       setActiveDropdown(null);
     }
   };
@@ -100,15 +124,17 @@ const Auth = () => {
 }, []);
 
   const selectOption = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      if (name === 'organization') newData.position = 'Select Position';
+      return newData;
+    });
     setActiveDropdown(null);
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  // Logic for Google Login
   const handleGoogleLogin = () => {
     console.log("Redirecting to Google OAuth...");
-    // Add your Firebase or Auth0 Google logic here
   };
 
   // 4. FORM SUBMISSION
@@ -127,15 +153,16 @@ const Auth = () => {
       if (formData.deptID === 'Select Dept') newErrors.deptID = 'Select Dept.';
       if (formData.program === 'Select Program') newErrors.program = 'Select Program.';
       if (formData.yearLevel === 'Select Year') newErrors.yearLevel = 'Select Year.';
+      if (formData.organization === 'Select Org/Club') newErrors.organization = 'Required.';
+      if (formData.position === 'Select Position') newErrors.position = 'Required.';
+      if (formData.term_year === 'Select Term/Year') newErrors.term_year = 'Required.';
 
       if (!allPasswordReqsMet) {
         newErrors.password = 'Password does not meet requirements.';
       }
-
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match.';
       }
-
       if (!newErrors.schoolIDNo && MOCK_DATABASE_USERS.some(u => u.idNo === formData.schoolIDNo)) {
         newErrors.schoolIDNo = 'School ID is already registered.';
       }
@@ -145,7 +172,6 @@ const Auth = () => {
     }
 
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length === 0) {
       setSuccessMsg(isLogin ? 'Login Successful!' : 'Registration Successful! You can now sign in.');
     }
@@ -153,8 +179,8 @@ const Auth = () => {
 
   // 6. SUB-COMPONENTS
   const CustomDropdown = ({ label, name, options, value }) => (
-  <div 
-    ref={dropdownRef}
+  <div
+    ref={(el) => (dropdownRefs.current[name] = el)}
     className={`field-group custom-dropdown-container ${errors[name] ? 'has-error' : ''}`}
   >
     <label className="label-text">{label}</label>
@@ -187,7 +213,6 @@ const Auth = () => {
     {errors[name] && <span className="error-text">{errors[name]}</span>}
   </div>
 );
-
   const PasswordRequirements = ({ reqs, visible }) => (
     <div className={`password-requirements-popup ${visible ? 'visible' : ''}`}>
       <div className="popup-arrow"></div>
@@ -327,6 +352,13 @@ const Auth = () => {
                    <CustomDropdown label="Year" name="yearLevel" options={years} value={formData.yearLevel} />
                 </div>
 
+                <div className="input-row-flex dropdown-row">
+                  <CustomDropdown label="Org/Club" name="organization" options={organizations} value={formData.organization} />
+                  <CustomDropdown label="Position" name="position" options={positionOptions[formData.organization] || []} value={formData.position} />
+                  <CustomDropdown label="Term/Year" name="term_year" options={termYears} value={formData.term_year} />
+                </div>
+
+
                 <div className="input-row-flex relative">
                   <div className={`field-group relative ${errors.password ? 'has-error' : ''}`}>
                     <label className="label-text">Password</label>
@@ -411,4 +443,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default AdminAuth;
