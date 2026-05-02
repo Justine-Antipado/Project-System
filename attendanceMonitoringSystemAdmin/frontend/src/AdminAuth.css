@@ -139,28 +139,41 @@
 }
 
 .input-row-flex .field-group {
-  flex: 1; 
-  min-width: 0;
+  flex: 1;           /* Hahatiin ang space nang pantay-pantay */
+  min-width: 0;      /* Importante ito para gumana ang ellipsis */
+  width: 100%;
 }
 
 /* DROPDOWN SPECIFIC (Arrow Customization) */
-.custom-dropdown-container { cursor: pointer; z-index: 20; }
+.custom-dropdown-container { 
+  cursor: pointer; 
+  position: relative; /* Essential for absolute positioning of menu */
+  width: 100%;        /* Forces it to follow the flex-basis of the row */
+  min-width: 0;
+}
 .dropdown-trigger { 
   width: 100%;
   display: flex;
-  justify-content: space-between; 
   align-items: center;
-  user-select: none; 
-  position: relative; /* Needed for ::after arrow */
-  padding-right: 2.5rem; /* Space for the arrow */
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 1rem;
+  height: 44px;
+  overflow: hidden;
+  box-sizing: border-box;
+  
+  position: relative;
 }
 
 .dropdown-value {
   font-size: 0.75rem; 
   overflow: hidden; 
-  text-overflow: ellipsis; 
   white-space: nowrap;
-  flex: 1;
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  display: block; 
+  width: 100%;
+  text-align: left;
 }
 
 /* --- THE CUSTOM ARROW (Replaces ChevronDown icon) --- */
@@ -174,7 +187,7 @@
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid var(--text-muted); /* Downward Triangle */
+  border-top: 6px solid var(--text-muted);
   transition: transform 0.3s ease, border-top-color 0.3s ease;
   pointer-events: none;
 }
@@ -187,25 +200,27 @@
 
 .dropdown-menu {
   position: absolute;
-  top: 105%;
+  top: calc(100% + 5px); /* Small gap */
   left: 0;
-  width: 100%;
+  width: 100%;           /* Exactly the same width as the trigger */
   background: white;
-  border-radius: 15px;
+  border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  overflow: hidden;
+  overflow-y: auto;      /* Scroll if too many items */
+  max-height: 200px;     /* Prevents menu from covering the whole screen */
   border: 1px solid #eee;
-  z-index: 9999; 
+  z-index: 9999;
+  
 }
 
-.dropdown-item {
-  padding: 10px 20px;
+.dropdown-item {padding: 10px 15px;
   font-size: 0.85rem;
   color: var(--text-main);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  white-space: nowrap;   /* Keep items on one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background 0.2s;
+  
 }
 .dropdown-item:hover { background: var(--bg-page); color: var(--omsc-dark-blue); }
 
