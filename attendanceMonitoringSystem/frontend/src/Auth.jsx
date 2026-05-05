@@ -88,15 +88,14 @@ const Auth = () => {
 
   useEffect(() => {
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    // If the click is NOT on a dropdown trigger or menu, close all
+    if (!event.target.closest('.custom-dropdown-container')) {
       setActiveDropdown(null);
     }
   };
 
   document.addEventListener('mousedown', handleClickOutside);
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
-  };
+  return () => document.removeEventListener('mousedown', handleClickOutside);
 }, []);
 
   const selectOption = (name, value) => {
@@ -154,14 +153,14 @@ const Auth = () => {
   // 6. SUB-COMPONENTS
   const CustomDropdown = ({ label, name, options, value }) => (
   <div 
-    ref={dropdownRef}
     className={`field-group custom-dropdown-container ${errors[name] ? 'has-error' : ''}`}
   >
     <label className="label-text">{label}</label>
 
     <div 
       className={`form-input dropdown-trigger ${activeDropdown === name ? 'active' : ''}`}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation(); // Stop bubbling
         setActiveDropdown(activeDropdown === name ? null : name);
         handleInputFocus(name);
       }}
@@ -175,7 +174,11 @@ const Auth = () => {
           <div 
             key={opt} 
             className="dropdown-item" 
-            onClick={() => selectOption(name, opt)}
+            // Change onClick to onMouseDown to ensure it fires before the blur/close logic
+            onMouseDown={(e) => {
+              e.preventDefault(); 
+              selectOption(name, opt);
+            }}
           >
             {opt}
             {value === opt && <Check size={14} className="check-icon" />}
