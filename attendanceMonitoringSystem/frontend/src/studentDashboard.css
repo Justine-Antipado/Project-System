@@ -1,0 +1,248 @@
+@import url("style.css");
+
+
+/* --- Dashboard Layout & Animation --- */
+.dashboard-view {
+  padding: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fade-in {
+  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Welcome Header --- */
+.welcome-header {
+  margin-bottom: 2.5rem;
+}
+
+.sub-text {
+  color: var(--omsc-yellow);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  /* Gradient text para sa "DASHBOARD" */
+  color: #000000;
+  letter-spacing: -1px;
+}
+
+/* --- Bento Grid System --- */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, minmax(180px, auto));
+  gap: 1.5rem;
+}
+
+/* --- Base Bento Card (Glass Effect) --- */
+.bento-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.card-header span {
+  color: black; /* Para hindi "agaw-eksena" ang header text */
+}
+
+/* --- Special Card Sizes --- */
+.profile-info-card {
+  grid-column: span 2;
+  grid-row: span 2;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(10, 29, 55, 0.9) 100%);
+}
+
+.qr-card {
+  grid-column: span 1;
+  grid-row: span 2;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* --- Profile Details Styling --- */
+.student-name {
+  font-size: 2.2rem;
+  line-height: 1.1;
+  margin-bottom: 2rem;
+  color: #fff;
+  font-weight: 800;
+}
+
+.detail-group {
+  margin-bottom: 1.2rem;
+}
+
+.detail-group label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--omsc-yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+}
+
+.detail-group p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+/* --- QR Code Interactive Section --- */
+.qr-wrapper {
+  background: #fff;
+  padding: 15px;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.qr-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-image {
+  width: 100%;
+  height: auto;
+}
+
+.qr-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--omsc-yellow);
+  box-shadow: 0 0 15px var(--omsc-yellow);
+  animation: scan 2s infinite linear;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+.btn-action-small {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.btn-action-small:hover {
+  background: var(--omsc-yellow);
+  color: var(--omsc-dark);
+}
+
+/* --- Stats Cards --- */
+.stats-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0.5rem 0;
+}
+
+.stats-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--omsc-yellow), #fde047);
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+  border-radius: 10px;
+}
+
+/* --- Modal Styling --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 32px;
+  text-align: center;
+  position: relative;
+  max-width: 400px;
+  width: 90%;
+}
+
+.qr-large {
+  width: 100%;
+  max-width: 250px;
+}
+
+.close-modal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+}

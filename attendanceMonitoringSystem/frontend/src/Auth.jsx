@@ -3,6 +3,7 @@ import { Eye, EyeOff, User, Check, X } from 'lucide-react';
 import './Auth.css';
 import omscLogo from './assets/omsc.logo.png';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // 0. MOCK DATABASE (For duplicating checks)
 const MOCK_DATABASE_USERS = [
@@ -10,7 +11,8 @@ const MOCK_DATABASE_USERS = [
   { idNo: '2024-22222', email: 'user@omsc.edu.ph' },
 ];
 
-const Auth = () => {
+export default function StudentDashboard() {
+  const navigate = useNavigate();
   // 1. STATE MANAGEMENT
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
@@ -412,6 +414,4 @@ const Auth = () => {
       </div>
     </div>
   );
-};
-
-export default Auth;
+}

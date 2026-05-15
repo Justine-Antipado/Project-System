@@ -1,0 +1,24 @@
+:root {
+  /* Premium Dark Navy & Midnight Theme */
+  --omsc-dark: #0a1d37;
+  --omsc-dark-muted: #1e293b;
+  --omsc-yellow: #facc15;
+  --omsc-yellow-glow: rgba(250, 204, 21, 0.15);
+  
+  /* Backgrounds & Glass Layers */
+  --bg-page: #0f172a; /* Slate 900 - Mas bagay sa premium dark mode look */
+  --bg-card: rgba(30, 41, 59, 0.7); /* Translucent Slate 800 */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  
+  /* Typography */
+  --text-main: #f8fafc; /* Near White */
+  --text-muted: #94a3b8; /* Slate 400 */
+  --input-bg: #334155;
+  --color-error: #f43f5e; /* Rose 500 */
+  --color-error-glow: rgba(244, 63, 94, 0.1);
+
+  /* Micro-interactions */
+  --transition-bounce: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
