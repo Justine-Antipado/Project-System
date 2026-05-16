@@ -31,7 +31,7 @@ export default function StudentDashboard() {
             <button className="close-modal" onClick={() => setShowQRModal(false)}>
               <X />
             </button>
-            <h2 style={{ marginBottom: '1rem', color: 'var(--omsc-dark)' }}>
+            <h2 style={{ marginBottom: '1rem', color: 'white' }}>
               Student QR Code
             </h2>
             <img src="/qr-placeholder.png" alt="Full QR" className="qr-large" />
@@ -91,7 +91,7 @@ export default function StudentDashboard() {
         {/* Total Events Attended */}
         <div
           className="bento-card stats-card interactive-card accent-sky"
-          onClick={() => navigate('/history')}
+          
         >
           <div className="card-header">
             <CalendarCheck size={18} className="icon-blue" />
@@ -101,7 +101,7 @@ export default function StudentDashboard() {
             <h2 className="stats-value">{STUDENT.totalEvents}</h2>
             <p className="stats-label">Events</p>
           </div>
-          <div className="card-footer-info">Go to History →</div>
+          <div className="card-footer-info" onClick={() => navigate('/attendanceHistory')}>Go to History →</div>
         </div>
 
         {/* Attendance Rating */}
