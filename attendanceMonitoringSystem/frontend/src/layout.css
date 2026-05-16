@@ -2,18 +2,16 @@
 @import url("color.css");
 
 
-/* Sidebar Container - Premium Futuristic Glassmorphism */
+/* Sidebar Container - 100% Solid Premium Dark Tech Layout */
 .sidebar {
   width: 280px;
-  background: var(--bg-card); 
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-card); /* Gumagamit na ng purong solid color mula sa variables mo */
   height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 2rem 1.25rem;
-  border-right: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  border-right: 1px solid var(--omsc-dark-muted); /* Pinalitan ang glass-border ng solid dark border */
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.100); /* Direktang solid deep shadow */
   z-index: 10;
   position: fixed;
   left: 0;
@@ -27,7 +25,7 @@
   gap: 16px;
   padding-bottom: 2rem;
   margin-bottom: 2rem;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--omsc-dark-muted); /* Solid border separator */
 }
 
 .sidebar-logo-img {
@@ -38,7 +36,7 @@
   transition: var(--transition-bounce);
 }
 
-/* interactive Header Effect */
+/* Interactive Header Effect */
 .sidebar-header:hover .sidebar-logo-img {
   transform: rotate(-10deg) scale(1.15);
 }
@@ -102,7 +100,7 @@
 
 /* Sophisticated Hover State */
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover, var(--omsc-dark-muted)); /* Gumagamit na ng solid dark-muted block on hover */
   border-color: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
   padding-left: 24px; /* Gumagalaw pakanan para sa interaction feedback */
@@ -160,7 +158,7 @@
   flex-direction: column;
   gap: 1.25rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1px solid var(--omsc-dark-muted); /* Solid separator */
 }
 
 /* Slick Profile Card */
@@ -169,7 +167,7 @@
   align-items: center;
   gap: 14px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-profile, var(--omsc-dark-muted)); /* Solid card background block */
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 16px;
   transition: var(--transition-smooth);

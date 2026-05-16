@@ -8,8 +8,6 @@
   /* Backgrounds & Glass Layers */
   --bg-page: #0f172a; /* Slate 900 - Mas bagay sa premium dark mode look */
   --bg-card: rgba(30, 41, 59, 0.7); /* Translucent Slate 800 */
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
   
   /* Typography */
   --text-main: #f8fafc; /* Near White */

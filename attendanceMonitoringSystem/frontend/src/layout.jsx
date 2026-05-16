@@ -30,7 +30,7 @@ export default function Layout() {
             </div>
             <div className="header-text">
               <h2 className="system-name">Events Attendance</h2>
-              <p className="sub-name">OMSC Student Portal</p>
+              <p className="sub-name">OMSC EasyLog</p>
             </div>
           </div>
 

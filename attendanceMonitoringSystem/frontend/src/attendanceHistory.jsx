@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
-import { User, Info } from 'lucide-react';
-//import './dashboard.css';
-import './style.css';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, Calendar, ChevronDown, Check } from 'lucide-react';
+import './attendanceHistory.css';
 
-
-// Mock data — replace with API call later
 const ATTENDANCE_RECORDS = [
   {
     id: 1,
@@ -30,6 +27,46 @@ const ATTENDANCE_RECORDS = [
     timeIn: '08 : 00 AM',
     accent: 'accent-green',
   },
+  {
+    id: 4,
+    date: 'September 02, 2025',
+    event: 'Student General Assembly',
+    venue: 'OMSC Gymnasium',
+    timeIn: '07 : 55 AM',
+    accent: 'accent-blue',
+  },
+  {
+    id: 5,
+    date: 'September 02, 2025',
+    event: 'Student General Assembly',
+    venue: 'OMSC Gymnasium',
+    timeIn: '07 : 55 AM',
+    accent: 'accent-blue',
+  },
+  {
+    id: 6,
+    date: 'September 02, 2025',
+    event: 'Student General Assembly',
+    venue: 'OMSC Gymnasium',
+    timeIn: '07 : 55 AM',
+    accent: 'accent-blue',
+  },
+  {
+    id: 7,
+    date: 'September 02, 2025',
+    event: 'Student General Assembly',
+    venue: 'OMSC Gymnasium',
+    timeIn: '07 : 55 AM',
+    accent: 'accent-blue',
+  },
+  {
+    id: 8,
+    date: 'September 02, 2025',
+    event: 'Student General Assembly',
+    venue: 'OMSC Gymnasium',
+    timeIn: '07 : 55 AM',
+    accent: 'accent-blue',
+  }
 ];
 
 const MONTHS = [
@@ -40,27 +77,36 @@ const MONTHS = [
 export default function AttendanceHistory() {
   const [search, setSearch] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown pag nag-click sa labas
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filtered = ATTENDANCE_RECORDS.filter(r => {
-    const matchesSearch =
-      r.event.toLowerCase().includes(search.toLowerCase()) ||
-      r.venue.toLowerCase().includes(search.toLowerCase());
-    const matchesMonth = selectedMonth
-      ? r.date.startsWith(selectedMonth)
-      : true;
+    const matchesSearch = r.event.toLowerCase().includes(search.toLowerCase()) || 
+                          r.venue.toLowerCase().includes(search.toLowerCase());
+    const matchesMonth = selectedMonth ? r.date.startsWith(selectedMonth) : true;
     return matchesSearch && matchesMonth;
   });
 
   return (
     <div className="history-view fade-in">
-      {/* ── HEADER ── */}
       <header className="history-header">
         <h1 className="main-title">ATTENDANCE HISTORY</h1>
       </header>
 
-      {/* ── FILTERS ── */}
       <div className="filter-container">
         <div className="search-wrapper">
+          <Search size={18} className="search-icon" />
           <input
             type="text"
             placeholder="Search event..."
@@ -68,24 +114,39 @@ export default function AttendanceHistory() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <div className="search-icon-box">
-            <Info size={18} style={{ transform: 'rotate(180deg)' }} />
-          </div>
         </div>
 
-        <div className="dropdown-wrapper">
-          <select
-            className="month-dropdown"
-            value={selectedMonth}
-            onChange={e => setSelectedMonth(e.target.value)}
+        {/* ── CUSTOM DROPDOWN ── */}
+        <div className="custom-dropdown" ref={dropdownRef}>
+          <div 
+            className={`dropdown-trigger ${isOpen ? 'active' : ''}`} 
+            onClick={() => setIsOpen(!isOpen)}
           >
-            <option value="">Month</option>
-            {MONTHS.map(m => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+            <Calendar size={18} className="icon-left" />
+            <span>{selectedMonth || 'Select Month'}</span>
+            <ChevronDown size={16} className={`arrow ${isOpen ? 'rotate' : ''}`} />
+          </div>
+
+          {isOpen && (
+            <div className="dropdown-menu fade-in-up">
+              <div 
+                className={`dropdown-item ${selectedMonth === '' ? 'selected' : ''}`}
+                onClick={() => { setSelectedMonth(''); setIsOpen(false); }}
+              >
+                All Months
+              </div>
+              {MONTHS.map(m => (
+                <div 
+                  key={m} 
+                  className={`dropdown-item ${selectedMonth === m ? 'selected' : ''}`}
+                  onClick={() => { setSelectedMonth(m); setIsOpen(false); }}
+                >
+                  {m}
+                  {selectedMonth === m && <Check size={14} className="check-icon" />}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

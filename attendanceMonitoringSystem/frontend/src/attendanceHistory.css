@@ -1,0 +1,460 @@
+@import url("style.css");
+@import url("color.css");
+
+/* ==========================================
+   1. LAYOUT, BASE & TYPOGRAPHY
+   ========================================== */
+.history-view {
+  min-height: 100vh;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ── HEADER ── */
+.history-header {
+  margin-bottom: 2.5rem;
+}
+
+.history-header .main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #ffffff, var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+/* ==========================================
+   2. FILTER CONTAINER & CONTROLS
+   ========================================== */
+.filter-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 1200px;
+}
+
+
+/* ==========================================
+   3. SEARCH BAR STYLING
+   ========================================== */
+.search-group {
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05); /* Darker glass base */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 0.85rem;
+  padding: 0 1.2rem; /* Sapat na space sa gilid */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 50px; /* Standard height para sa interactive feel */
+  flex: 1;
+}
+
+/* Search Bar Hover & Focus States */
+.search-wrapper:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.search-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--omsc-yellow);
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.15);
+}
+
+/* Search Inputs and Icons */
+.search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0.85rem 0;
+  color: #ffffff !important; /* Siguradong puti ang text */
+  font-size: 1rem;
+  outline: none;
+  font-weight: 500;
+}
+
+.search-input::placeholder {
+  color: rgba(148, 163, 184, 0.7); /* Slate 400 with opacity */
+}
+
+.search-icon-box {
+  padding-right: 1rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  color: var(--text-muted);
+  margin-right: 1rem; /* Space sa pagitan ng icon at text */
+  flex-shrink: 0;
+  transition: color 0.3s;
+}
+
+.search-wrapper:focus-within .search-icon {
+  color: var(--omsc-yellow); /* Mag-iiba kulay icon pag active */
+}
+
+
+/* ==========================================
+   4. NATIVE & CUSTOM DROPDOWN STYLING
+   ========================================== */
+.dropdown-wrapper {
+  min-width: 160px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 0.85rem;
+  transition: var(--transition-smooth);
+  position: relative;
+}
+
+.dropdown-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.03);
+}
+
+/* ── Native Month Dropdown ── */
+.month-dropdown {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0.85rem 1rem;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* Tinatanggal ang default arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.month-dropdown option {
+  background-color: var(--omsc-dark-muted);
+  color: var(--text-main);
+}
+
+/* ── Custom Dropdown Menu Components ── */
+.custom-dropdown {
+  position: relative;
+  min-width: 200px;
+  user-select: none;
+}
+
+.dropdown-trigger {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 0.85rem;
+  padding: 0 1.2rem;
+  height: 50px; /* Kapareho ng search bar height */
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 200px;
+  cursor: pointer;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.dropdown-trigger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.dropdown-trigger.active {
+  border-color: var(--omsc-yellow);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-trigger .arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+  color: var(--text-muted);
+}
+
+.dropdown-trigger .arrow.rotate {
+  transform: rotate(180deg);
+}
+
+.icon-left {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.dropdown-trigger:hover .icon-left, 
+.dropdown-trigger.active .icon-left {
+  color: var(--omsc-yellow);
+}
+
+.selected-text {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ── Dropdown Open Menu ── */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #1e293b; /* Solid dark para hindi magulo basahin */
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  z-index: 100;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 10px;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.dropdown-item.selected {
+  background: var(--omsc-yellow-glow);
+  color: var(--omsc-yellow);
+  font-weight: 600;
+}
+
+.check-icon {
+  color: var(--omsc-yellow);
+}
+
+/* Dropdown Animation */
+.fade-in-up {
+  animation: fadeInUp 0.25s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ==========================================
+   5. MODERN GRID TABLE & ROWS
+   ========================================== */
+.history-table-container {
+  max-width: 1200px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pinag-isang grid structural setup para sa header at rows */
+.table-header-grid, .history-row {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr 1.5fr 1fr;
+  padding: 1.1rem 1.5rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.table-header-grid {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--card-border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── INTERACTIVE ROWS ── */
+.history-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: transparent;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+/* Interactive Hover state */
+.history-row:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  transform: scale(1.01) translateX(5px); /* Konting angat at usog */
+  box-shadow: -5px 0 0 var(--omsc-yellow); /* Highlight sa gilid pag na-hover */
+  cursor: pointer;
+}
+
+/* Left indicator border (Accent Lines) */
+.history-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  opacity: 0.6;
+  transition: var(--transition-smooth);
+}
+
+.history-row:hover::before {
+  opacity: 1;
+  height: 100%;
+  top: 0;
+}
+
+.history-row.accent-blue::before { background-color: var(--accent-blue, #38bdf8); }
+.history-row.accent-yellow::before { background-color: var(--omsc-yellow); }
+.history-row.accent-green::before { background-color: var(--accent-green, #10b981); }
+
+/* Row Typography & Badges */
+.row-date {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.row-event {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.row-venue {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.row-time {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--omsc-yellow);
+  background: var(--omsc-yellow-glow);
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+  font-size: 0.85rem;
+}
+
+
+/* ==========================================
+   6. RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================== */
+
+/* Para sa katamtamang screen o Tablet */
+@media (max-width: 900px) {
+  .table-header-grid, .history-row {
+    grid-template-columns: 1.5fr 2fr 1.5fr; /* Tinanggal muna si Time In sa grid space */
+  }
+  
+  /* Nilagay si Time In sa ilalim ng Event Name para tipid sa space */
+  .row-event {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .table-header-grid span:last-child, .row-time {
+    display: none; /* Tinago ang default column header */
+  }
+
+  /* Inline badge na lang si Time sa loob ng Event column */
+  .row-event::after {
+    content: attr(data-time-fallback);
+    font-family: monospace;
+    color: var(--omsc-yellow);
+    background: var(--omsc-yellow-glow);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    width: fit-content;
+  }
+}
+
+/* Para sa Maliit na Screen o Mobile (Max 650px pababa) */
+@media (max-width: 650px) {
+  .filter-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-group, 
+  .custom-dropdown, 
+  .dropdown-wrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .history-view {
+    padding: 1rem;
+  }
+
+  /* Itago ang table header sa mobile */
+  .table-header-grid {
+    display: none;
+  }
+
+  /* Gawing card-style list ang bawat row */
+  .history-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .history-row::before {
+    height: 100%;
+    top: 0;
+    width: 3px;
+  }
+
+  .row-time {
+    display: inline-block; /* Ipakita ulit bilang badge sa ilalim */
+    margin-top: 0.25rem;
+  }
+}

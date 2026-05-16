@@ -1,248 +1,324 @@
 @import url("style.css");
+@import url("color.css");
 
-
-/* --- Dashboard Layout & Animation --- */
+/* ── LAYOUT & BASE ── */
 .dashboard-view {
-  padding: 10px;
+  min-height: 100vh;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Fade-in Animation */
+.fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── HEADER ── */
+.welcome-header {
+  margin-bottom: 2rem;
+}
+
+.welcome-header .sub-text {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.welcome-header .main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #ffffff, var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── BENTO GRID LAYOUT ── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.fade-in {
-  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+/* Profile card taking 2 rows for layout balance if needed */
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .profile-info-card {
+    grid-row: span 2;
+  }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- Welcome Header --- */
-.welcome-header {
-  margin-bottom: 2.5rem;
-}
-
-.sub-text {
-  color: var(--omsc-yellow);
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-}
-
-.main-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  /* Gradient text para sa "DASHBOARD" */
-  color: #000000;
-  letter-spacing: -1px;
-}
-
-/* --- Bento Grid System --- */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, minmax(180px, auto));
-  gap: 1.5rem;
-}
-
-/* --- Base Bento Card (Glass Effect) --- */
+/* ── BENTO CARDS (INTERACTIVE) ── */
 .bento-card {
-  background: rgba(30, 41, 59, 0.5);
+  background: var(--bg-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  justify-content: space-between;
   position: relative;
   overflow: hidden;
+  transition: var(--transition-bounce);
+}
+
+/* Hover Effects (Interactive) */
+.interactive-card {
+  cursor: pointer;
 }
 
 .interactive-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-6px) scale(1.02);
   border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
+/* Glow indicators sa gilid ng cards gamit ang border */
+.bento-card.accent-blue:hover { border-color: var(--accent-blue); }
+.bento-card.accent-yellow:hover { border-color: var(--omsc-yellow); }
+.bento-card.accent-sky:hover { border-color: var(--accent-sky); }
+.bento-card.accent-green:hover { border-color: var(--accent-green); }
+
+/* Card Header */
 .card-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
 }
 
-.card-header span {
-  color: black; /* Para hindi "agaw-eksena" ang header text */
+.card-header svg {
+  opacity: 0.8;
 }
 
-/* --- Special Card Sizes --- */
-.profile-info-card {
-  grid-column: span 2;
-  grid-row: span 2;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(10, 29, 55, 0.9) 100%);
-}
-
-.qr-card {
-  grid-column: span 1;
-  grid-row: span 2;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-/* --- Profile Details Styling --- */
+/* ── PROFILE INFO CARD ── */
 .student-name {
-  font-size: 2.2rem;
-  line-height: 1.1;
-  margin-bottom: 2rem;
-  color: #fff;
-  font-weight: 800;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
 }
 
 .detail-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .detail-group label {
   display: block;
   font-size: 0.75rem;
-  color: var(--omsc-yellow);
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
 }
 
 .detail-group p {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
 }
 
-/* --- QR Code Interactive Section --- */
+/* ── QR CARD & ANIMATION ── */
+.qr-card {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .qr-wrapper {
-  background: #fff;
-  padding: 15px;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 1rem;
+  display: inline-block;
   margin-bottom: 1rem;
-  position: relative;
 }
 
 .qr-container {
   position: relative;
+  width: 140px;
+  height: 140px;
   overflow: hidden;
+  border-radius: 0.5rem;
+  background: white; /* Panatilihing puti ang background ng QR para scan-ready */
+  padding: 8px;
 }
 
 .qr-image {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
 }
 
+/* Scanning Line Effect */
 .qr-scan-line {
   position: absolute;
-  top: 0;
   left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--omsc-yellow);
-  box-shadow: 0 0 15px var(--omsc-yellow);
-  animation: scan 2s infinite linear;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--omsc-yellow), transparent);
+  box-shadow: 0 0 8px var(--omsc-yellow);
+  animation: scan 2.5s linear infinite;
 }
 
 @keyframes scan {
   0% { top: 0%; }
-  100% { top: 100%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+.qr-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
 }
 
 .btn-action-small {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: 0.3s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
 }
 
 .btn-action-small:hover {
   background: var(--omsc-yellow);
   color: var(--omsc-dark);
+  border-color: var(--omsc-yellow);
 }
 
-/* --- Stats Cards --- */
+/* ── STATS CARDS ── */
+.stats-content {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .stats-value {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
-  margin: 0.5rem 0;
+  line-height: 1;
+  color: #ffffff;
 }
 
 .stats-label {
+  font-size: 0.9rem;
   color: var(--text-muted);
-  font-weight: 600;
+  margin-top: 0.25rem;
 }
 
+.card-footer-info {
+  font-size: 0.8rem;
+  color: var(--accent-sky);
+  font-weight: 600;
+  margin-top: 1.5rem;
+  transition: var(--transition-smooth);
+}
+
+.bento-card:hover .card-footer-info {
+  transform: translateX(4px);
+}
+
+/* Progress Bar */
 .progress-bar-container {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  margin: 1rem 0;
+  margin-top: 0.75rem;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(to right, var(--omsc-yellow), #fde047);
-  box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+  background: linear-gradient(to right, var(--accent-green), #34d399);
   border-radius: 10px;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
-/* --- Modal Styling --- */
+.rating-excellent {
+  color: var(--accent-green) !important;
+  font-weight: 600;
+}
+
+/* ── MODAL DECORATION (FULLSCREEN QR) ── */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
 .modal-content {
-  background: #fff;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2.5rem;
-  border-radius: 32px;
-  text-align: center;
+  border-radius: 1.5rem;
   position: relative;
-  max-width: 400px;
+  text-align: center;
+  max-width: 360px;
   width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .qr-large {
-  width: 100%;
-  max-width: 250px;
+  width: 220px;
+  height: 220px;
+  background: white;
+  padding: 12px;
+  border-radius: 1rem;
+  margin: 1rem auto;
+  display: block;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
 .close-modal {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #f1f5f9;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.05);
   border: none;
-  border-radius: 50%;
-  padding: 8px;
+  color: var(--text-muted);
   cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.close-modal:hover {
+  background: var(--color-error-glow);
+  color: var(--color-error);
 }
