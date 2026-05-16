@@ -117,9 +117,9 @@ export default function AttendanceHistory() {
         </div>
 
         {/* ── CUSTOM DROPDOWN ── */}
-        <div className="custom-dropdown" ref={dropdownRef}>
+        <div className="custom-dropdown-history" ref={dropdownRef}>
           <div 
-            className={`dropdown-trigger ${isOpen ? 'active' : ''}`} 
+            className={`dropdown-trigger-history ${isOpen ? 'active' : ''}`} 
             onClick={() => setIsOpen(!isOpen)}
           >
             <Calendar size={18} className="icon-left" />
