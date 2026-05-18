@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-//import Auth from './Auth';
+import AdminAuth from './AdminAuth';
 import Layout from './Layout';
 //import StudentDashboard from './studentDashboard';
 //import AttendanceHistory from './attendanceHistory';

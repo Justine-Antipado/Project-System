@@ -29,9 +29,9 @@ export default function StudentDashboard() {
     lastName: '',
     firstName: '',
     middleName: '',
-    deptID: 'Select Dept',
-    program: 'Select Program',
-    yearLevel: 'Select Year',
+    section: 'Select Sec...',
+    program: 'Select Pro...',
+    yearLevel: 'Select Yea...',
     password: '',
     confirmPassword: ''
   });
@@ -41,7 +41,7 @@ export default function StudentDashboard() {
   const [successMsg, setSuccessMsg] = useState('');
 
   // 2. CONSTANTS & VALIDATION RULES
-  const departments = ['CAS', 'CBA', 'COE', 'CCS'];
+  const sections = ['A', 'B', 'C', 'D', 'E'];
   const programs = ['BSIT', 'BSCS', 'BSHM', 'BSBA', 'BEED'];
   const years = ['1', '2', '3', '4'];
 
@@ -125,7 +125,7 @@ export default function StudentDashboard() {
       if (!formData.email) newErrors.email = 'Email is required.';
       if (!formData.lastName) newErrors.lastName = 'Last Name required.';
       if (!formData.firstName) newErrors.firstName = 'First Name required.';
-      if (formData.deptID === 'Select Dept') newErrors.deptID = 'Select Dept.';
+      if (formData.section === 'Select Se...') newErrors.section = 'Select Section.';
       if (formData.program === 'Select Program') newErrors.program = 'Select Program.';
       if (formData.yearLevel === 'Select Year') newErrors.yearLevel = 'Select Year.';
 
@@ -327,9 +327,9 @@ export default function StudentDashboard() {
                 </div>
 
                 <div className="input-row-flex dropdown-row">
-                   <CustomDropdown label="Dept" name="deptID" options={departments} value={formData.deptID} />
                    <CustomDropdown label="Program" name="program" options={programs} value={formData.program} />
                    <CustomDropdown label="Year" name="yearLevel" options={years} value={formData.yearLevel} />
+                   <CustomDropdown label="Section" name="section" options={sections} value={formData.section} />
                 </div>
 
                 <div className="input-row-flex relative">

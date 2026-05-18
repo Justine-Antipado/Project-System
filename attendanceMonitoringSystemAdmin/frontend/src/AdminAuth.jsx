@@ -3,6 +3,8 @@ import { Eye, EyeOff, User, Check, X } from 'lucide-react';
 import './AdminAuth.css';
 import omscLogo from './assets/omsc.logo.png';
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 // 0. MOCK DATABASE (For duplicating checks)
 const MOCK_DATABASE_USERS = [
@@ -10,7 +12,8 @@ const MOCK_DATABASE_USERS = [
   { idNo: '2024-22222', email: 'user@omsc.edu.ph' },
 ];
 
-const AdminAuth = () => {
+export default function AdminAuth()  {
+  const navigate = useNavigate();
   // 1. STATE MANAGEMENT
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
@@ -27,7 +30,7 @@ const AdminAuth = () => {
     lastName: '',
     firstName: '',
     middleName: '',
-    deptID: 'Select Dept',
+    section: 'Select Sec...',
     program: 'Select Program',
     yearLevel: 'Select Year',
     organization: 'Select Org/Club',
@@ -42,7 +45,7 @@ const AdminAuth = () => {
   const [successMsg, setSuccessMsg] = useState('');
 
   // 2. CONSTANTS & VALIDATION RULES
-  const departments = ['CAS', 'CBA', 'COE', 'CCS'];
+  const sections = ['A', 'B', 'C', 'D', 'E'];
   const programs = ['BSIT', 'BSCS', 'BSHM', 'BSBA', 'BEED'];
   const years = ['1', '2', '3', '4'];
 
@@ -98,7 +101,7 @@ const AdminAuth = () => {
       setFocusedField(null);
       setFormData({
         schoolIDNo: '', email: '', lastName: '', firstName: '', middleName: '',
-        deptID: 'Select Dept', program: 'Select Program', yearLevel: 'Select Year',
+        section: 'Select Section', program: 'Select Program', yearLevel: 'Select Year',
         organization: 'Select Org/Club', position: 'Select Position', term_year: 'Select Term/Year',
         password: '', confirmPassword: ''
       });
@@ -150,12 +153,12 @@ useEffect(() => {
       if (!formData.email) newErrors.email = 'Email is required.';
       if (!formData.lastName) newErrors.lastName = 'Last Name required.';
       if (!formData.firstName) newErrors.firstName = 'First Name required.';
-      if (formData.deptID === 'Select Dept') newErrors.deptID = 'Select Dept.';
+      if (formData.section === 'Select Section') newErrors.section = 'Select Section.';
       if (formData.program === 'Select Program') newErrors.program = 'Select Program.';
       if (formData.yearLevel === 'Select Year') newErrors.yearLevel = 'Select Year.';
-      if (formData.organization === 'Select Org/Club') newErrors.organization = 'Required.';
-      if (formData.position === 'Select Position') newErrors.position = 'Required.';
-      if (formData.term_year === 'Select Term/Year') newErrors.term_year = 'Required.';
+      if (formData.organization === 'Select Org/Club') newErrors.organization = 'Select Org/Club Required.';
+      if (formData.position === 'Select Position') newErrors.position = 'Select Position Required.';
+      if (formData.term_year === 'Select Term/Year') newErrors.term_year = 'Select Term/Year Required.';
 
       if (!allPasswordReqsMet) {
         newErrors.password = 'Password does not meet requirements.';
@@ -347,9 +350,9 @@ useEffect(() => {
                 </div>
 
                 <div className="input-row-flex dropdown-row">
-                   <CustomDropdown label="Dept" name="deptID" options={departments} value={formData.deptID} />
                    <CustomDropdown label="Program" name="program" options={programs} value={formData.program} />
                    <CustomDropdown label="Year" name="yearLevel" options={years} value={formData.yearLevel} />
+                   <CustomDropdown label="Section" name="section" options={sections} value={formData.section} />
                 </div>
 
                 <div className="input-row-flex dropdown-row">
@@ -441,6 +444,4 @@ useEffect(() => {
       </div>
     </div>
   );
-};
-
-export default AdminAuth;
+}
