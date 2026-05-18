@@ -238,6 +238,7 @@ useEffect(() => {
   );
 
   return (
+    <>
     <div className="page-container">
       <div className="blob blob-left"></div>
       <div className="blob blob-right"></div>
@@ -443,5 +444,6 @@ useEffect(() => {
 
       </div>
     </div>
+    </>
   );
 }

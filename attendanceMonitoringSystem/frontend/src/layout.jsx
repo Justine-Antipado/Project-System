@@ -19,6 +19,7 @@ export default function Layout() {
   };
 
   return (
+    <>
     <div className="app-layout">
       <aside className="sidebar">
         <div className="sidebar-top">
@@ -85,5 +86,6 @@ export default function Layout() {
         <Outlet />
       </main>
     </div>
+    </>
   );
 }

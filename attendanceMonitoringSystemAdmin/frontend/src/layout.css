@@ -16,6 +16,18 @@
   position: fixed;
   left: 0;
   top: 0;
+
+  /* Eto lang ang idadagdag mo */
+  overflow-y: auto;
+
+  /* 2. Tinatago ang scrollbar para sa Firefox at IE/Edge */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+/* 3. Tinatago ang scrollbar para sa Chrome, Safari, at Opera (Webkit browsers) */
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Header Section */

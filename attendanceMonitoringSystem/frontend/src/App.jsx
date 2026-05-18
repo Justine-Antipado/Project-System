@@ -8,6 +8,7 @@ import Settings from './settings';
 
 export default function App() {
   return (
+    <>
     <Routes>
       {/* Redirect root to dashboard */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -22,5 +23,6 @@ export default function App() {
       {/* Catch-all fallback */}
       <Route path="*" element={<Navigate to="/StudentDashboard" replace />} />
     </Routes>
+    </>
   );
 }

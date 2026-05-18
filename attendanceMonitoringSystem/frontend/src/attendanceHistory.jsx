@@ -99,6 +99,7 @@ export default function AttendanceHistory() {
   });
 
   return (
+    <>
     <div className="history-view fade-in">
       <header className="history-header">
         <h1 className="main-title">ATTENDANCE HISTORY</h1>
@@ -177,5 +178,6 @@ export default function AttendanceHistory() {
         </div>
       </div>
     </div>
+    </>
   );
 }

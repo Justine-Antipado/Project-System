@@ -193,6 +193,7 @@ export default function Settings() {
   );
 
   return (
+    <>
     <div className="settings-view fade-in">
       <h2 className="settings-title" style={{ marginBottom: '1.5rem', fontWeight: 800 }}>
         Account Settings
@@ -418,5 +419,6 @@ export default function Settings() {
         </div>
       </div>
     </div>
+    </>
   );
 }

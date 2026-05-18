@@ -23,6 +23,7 @@ export default function StudentDashboard() {
   const [showQRModal, setShowQRModal] = useState(false);
 
   return (
+    <>
     <div className="dashboard-view fade-in">
       {/* ── QR FULLSCREEN MODAL ── */}
       {showQRModal && (
@@ -123,6 +124,7 @@ export default function StudentDashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

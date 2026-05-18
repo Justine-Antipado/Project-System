@@ -1,6 +1,19 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, History, Settings, LogOut } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Calendar, 
+  CheckSquare, 
+  UserCheck, 
+  Users, 
+  FileText, 
+  CalendarDays, 
+  Layers, 
+  GraduationCap, 
+  Settings, 
+  LogOut 
+} from 'lucide-react';
+
 // I-import dito ang iyong logo file
 import omscLogo from './assets/omsc.logo.png'; 
 import './layout.css';
@@ -34,11 +47,12 @@ export default function Layout() {
             </div>
           </div>
 
+          {/* Eto na ang pinalitang Nav Menu para sa mga Admin Routes */}
           <nav className="nav-menu">
-            <p className="menu-label">MAIN MENU</p>
+            <p className="menu-label">ADMIN MENU</p>
             
             <NavLink
-              to="/studentDashboard"
+              to="/dashboard"
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
               <LayoutDashboard size={20} /> 
@@ -46,11 +60,67 @@ export default function Layout() {
             </NavLink>
 
             <NavLink
-              to="/attendanceHistory"
+              to="/event"
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <History size={20} /> 
-              <span>Attendance History</span>
+              <Calendar size={20} /> 
+              <span>Events</span>
+            </NavLink>
+
+            <NavLink
+              to="/eventAttendance"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <CheckSquare size={20} /> 
+              <span>Event Attendance</span>
+            </NavLink>
+
+            <NavLink
+              to="/officer"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <UserCheck size={20} /> 
+              <span>Officers</span>
+            </NavLink>
+
+            <NavLink
+              to="/organization"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <Users size={20} /> 
+              <span>Organizations</span>
+            </NavLink>
+
+            <NavLink
+              to="/report"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <FileText size={20} /> 
+              <span>Reports</span>
+            </NavLink>
+
+            <NavLink
+              to="/schoolYear"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <CalendarDays size={20} /> 
+              <span>School Year</span>
+            </NavLink>
+
+            <NavLink
+              to="/semester"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <Layers size={20} /> 
+              <span>Semester</span>
+            </NavLink>
+
+            <NavLink
+              to="/student"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <GraduationCap size={20} /> 
+              <span>Students</span>
             </NavLink>
 
             <NavLink
@@ -61,6 +131,7 @@ export default function Layout() {
               <span>Settings</span>
             </NavLink>
           </nav>
+
         </div>
 
         <div className="sidebar-bottom">

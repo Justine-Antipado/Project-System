@@ -2,9 +2,17 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminAuth from './AdminAuth';
 import Layout from './Layout';
-//import StudentDashboard from './studentDashboard';
+import Event from './event';
+import EventAttendance from './eventAttendance';
+import Officer from './officer';
+import Organization from './organization';
+import Report from './report';
+import SchoolYear from './schoolYear';
+import Semester from './semester';
+import Student from './students';
+import Dashboard from './dashboard';
 //import AttendanceHistory from './attendanceHistory';
-//import Settings from './settings';
+import Settings from './settings';
 
 export default function App() {
   return (
@@ -12,15 +20,22 @@ export default function App() {
       {/* Redirect root to dashboard */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      {/* All student pages share the Layout (sidebar) */}
+      {/* All admin pages share the Layout (sidebar) */}
       <Route element={<Layout />}>
-        <Route path="/studentDashboard" element={<StudentDashboard />} />
-        <Route path="/attendanceHistory" element={<AttendanceHistory />} />
+        <Route path="/event" element={<Event />} />
+        <Route path="/eventAttendance" element={<EventAttendance />} />
+        <Route path="/officer" element={<Officer />} />
+        <Route path="/organization" element={<Organization />} />
+        <Route path="/report" element={<Report />} />
+        <Route path="/schoolYear" element={<SchoolYear />} />
+        <Route path="/semester" element={<Semester />} />
+        <Route path="/student" element={<Student />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 
       {/* Catch-all fallback */}
-      <Route path="*" element={<Navigate to="/StudentDashboard" replace />} />
+      <Route path="*" element={<Navigate to="/Dashboard" replace />} />
     </Routes>
   );
 }

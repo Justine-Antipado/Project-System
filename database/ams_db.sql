@@ -120,9 +120,9 @@ CREATE TABLE `students` (
   `LastName` varchar(100) NOT NULL,
   `FirstName` varchar(100) NOT NULL,
   `MiddleName` varchar(100) DEFAULT NULL,
-  `DeptID` int(11) DEFAULT NULL,
   `Program` varchar(100) DEFAULT NULL,
-  `YearLevel` int(11) DEFAULT NULL
+  `YearLevel` int(11) DEFAULT NULL,
+  `section` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -132,10 +132,6 @@ CREATE TABLE `students` (
 --
 -- Indexes for table `departments`
 --
-ALTER TABLE `departments`
-  ADD PRIMARY KEY (`DeptID`),
-  ADD UNIQUE KEY `DeptName` (`DeptName`);
-
 --
 -- Indexes for table `events`
 --
