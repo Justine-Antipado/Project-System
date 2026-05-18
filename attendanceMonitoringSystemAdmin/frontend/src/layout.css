@@ -1,0 +1,247 @@
+@import url("style.css");
+@import url("color.css");
+
+
+/* Sidebar Container - 100% Solid Premium Dark Tech Layout */
+.sidebar {
+  width: 280px;
+  background: var(--bg-card); /* Gumagamit na ng purong solid color mula sa variables mo */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.25rem;
+  border-right: 1px solid var(--omsc-dark-muted); /* Pinalitan ang glass-border ng solid dark border */
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.100); /* Direktang solid deep shadow */
+  z-index: 10;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* Header Section */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--omsc-dark-muted); /* Solid border separator */
+}
+
+.sidebar-logo-img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.2));
+  transition: var(--transition-bounce);
+}
+
+/* Interactive Header Effect */
+.sidebar-header:hover .sidebar-logo-img {
+  transform: rotate(-10deg) scale(1.15);
+}
+
+.system-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.sub-name {
+  font-size: 0.75rem;
+  color: var(--omsc-yellow);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 2px 0 0 0;
+}
+
+/* Navigation Menu */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  margin-bottom: 0.75rem;
+  padding-left: 12px;
+  opacity: 0.6;
+}
+
+/* Base Nav Item (Inactive State) */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: var(--transition-bounce); 
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.nav-item svg {
+  transition: var(--transition-bounce);
+  color: var(--text-muted);
+}
+
+/* Sophisticated Hover State */
+.nav-item:hover {
+  background: var(--bg-hover, var(--omsc-dark-muted)); /* Gumagamit na ng solid dark-muted block on hover */
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  padding-left: 24px; /* Gumagalaw pakanan para sa interaction feedback */
+}
+
+.nav-item:hover svg {
+  transform: scale(1.2);
+  color: var(--text-main);
+}
+
+/* Premium Active State (Cyberpunkish Blue Glow) */
+.nav-item.active {
+  background: linear-gradient(135deg, #1e3a8a 0%, var(--omsc-dark) 100%);
+  color: #ffffff !important;
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(10, 29, 55, 0.6), 
+              inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  padding-left: 24px;
+}
+
+.nav-item.active svg {
+  color: var(--omsc-yellow) !important;
+  filter: drop-shadow(0 0 8px var(--omsc-yellow));
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Glowing Left Border Indicator */
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 4px;
+  background: linear-gradient(to bottom, var(--omsc-yellow), #eab308);
+  border-radius: 0 8px 8px 0;
+  transform: scaleX(0);
+  transition: var(--transition-smooth);
+  box-shadow: 0 0 10px var(--omsc-yellow);
+}
+
+.nav-item.active::before {
+  transform: scaleX(1);
+}
+
+/* Press effect */
+.nav-item:active {
+  transform: scale(0.96);
+}
+
+/* Bottom Profile and Logout Section */
+.sidebar-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--omsc-dark-muted); /* Solid separator */
+}
+
+/* Slick Profile Card */
+.user-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: var(--bg-profile, var(--omsc-dark-muted)); /* Solid card background block */
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  transition: var(--transition-smooth);
+}
+
+.user-profile-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.user-icon-bg {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #334155, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.user-id {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+  font-family: monospace; /* Astig tignan para sa Student ID numbers */
+}
+
+/* Modern Cyberpunk Logout Button */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  width: 100%;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-error);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+}
+
+.logout-icon {
+  transition: var(--transition-bounce);
+}
+
+.logout-btn:hover {
+  background-color: var(--color-error-glow);
+  border-color: rgba(244, 63, 94, 0.2);
+  color: #ff4d6d;
+  padding-left: 24px;
+}
+
+.logout-btn:hover .logout-icon {
+  transform: translateX(4px) scale(1.1);
+}

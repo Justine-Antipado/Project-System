@@ -1,10 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-//import './index.css'
-import AdminAuth from './AdminAuth.jsx'
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <AdminAuth />
-  </StrictMode>,
-)
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+//import Dashboard from './dashboard';
+//import Auth from './auth';
+ 
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      {/* <Auth /> <Dashboard />*/}
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
