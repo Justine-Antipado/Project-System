@@ -302,6 +302,228 @@
 }
 
 /* ==========================================================================
+   5. PREMIUM DARK NAVY TABLE / GRID ARCHITECTURE
+   ========================================================================== */
+.event-table-container {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+
+.table-grid-header, 
+.evt-table-grid-row {
+  display: grid;
+  /* Hahatiin ang columns: ID, Name, Date, Venue, Status, Sem, Actions */
+  grid-template-columns: 0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.2fr;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  gap: 1rem;
+}
+
+.table-grid-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.25rem;
+}
+
+.table-grid-header span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.evt-table-grid-row {
+  background: rgba(15, 23, 42, 0.4); /* Bahagyang mas madilim sa card background */
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  color: var(--text-main);
+  font-size: 0.92rem;
+  transition: var(--transition-smooth);
+}
+
+.evt-table-grid-row:hover {
+  background: rgba(51, 65, 85, 0.4); /* Ginamit ang tint ng input-bg */
+  border-color: rgba(250, 204, 21, 0.2); /* Soft Yellow border hug */
+  transform: translateY(-1px);
+}
+
+.evt-id-text {
+  color: var(--omsc-yellow);
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.evt-highlight-text {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.evt-sem-text {
+  color: var(--text-muted);
+}
+
+.text-left-aligned {
+  text-align: left;
+  padding-left: 0.5rem;
+}
+
+.evt-no-records {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 10px;
+}
+
+/* ==========================================================================
+   6. DYNAMIC STATUS BADGES 
+   ========================================================================== */
+.evt-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 30px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: capitalize;
+}
+
+.evt-status-badge.ongoing {
+  background: rgba(250, 204, 21, 0.1); /* Yellow theme base glow */
+  color: var(--omsc-yellow);
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  box-shadow: 0 0 10px var(--omsc-yellow-glow);
+}
+
+.evt-status-badge.completed {
+  background: rgba(16, 185, 129, 0.1); /* Emerald 500 theme glow */
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.evt-status-badge.cancelled {
+  background: var(--color-error-glow);
+  color: var(--color-error);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+/* ==========================================================================
+   7. ROW INTERACTIVE ACTION BUTTONS
+   ========================================================================== */
+.evt-action-buttons-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.evt-action-btn {
+  background: #1e293b; /* Slate 800 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.evt-action-btn.edit:hover {
+  background: rgba(250, 204, 21, 0.15) !important;
+  color: var(--omsc-yellow) !important;
+  border-color: var(--omsc-yellow) !important;
+}
+
+.evt-action-btn.delete:hover {
+  background: var(--color-error-glow) !important;
+  color: var(--color-error) !important;
+  border-color: var(--color-error) !important;
+}
+
+/* ── Special Case: QR Scanner Locks ── */
+.evt-action-btn.qr.active-qr {
+  background: rgba(14, 165, 233, 0.1); /* Sky Blue accent for scan */
+  color: #0ea5e9;
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+.evt-action-btn.qr.active-qr:hover {
+  background: rgba(14, 165, 233, 0.25) !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
+}
+
+.evt-action-btn.qr.disabled-qr {
+  background: rgba(15, 23, 42, 0.2);
+  color: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   8. MODALS STRUCTURAL CORE OVERLAYS
+   ========================================================================== */
+.evt-modal-overlay {
+  position: absolute; /* Binago mula sa fixed para hindi lumampas sa screen */
+  top: 0;
+  left: 0;
+  width: 100%;        /* Sakop lang ang lapad ng .event-view */
+  height: 100%;       /* Sakop lang ang buong haba/taas ng .event-view */
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  border-radius: 1rem;
+}
+
+.evt-panel-close-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+  z-index: 10;
+}
+
+.evt-panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+/* ==========================================================================
    9. MODAL 1: FORM CARDS & FIELDS INPUT DESIGN
    ========================================================================== */
 .evt-glass-form-card {

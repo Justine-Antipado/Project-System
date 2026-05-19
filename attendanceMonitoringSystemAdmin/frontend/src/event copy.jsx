@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Calendar, ChevronDown, Check, Trash2, QrCode, SquarePen, X, AlertTriangle } from 'lucide-react';
 import './event.css';
-import './universalTable.css';
 
 const STATUS_OPTIONS = ['Ongoing', 'Completed', 'Cancelled'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -292,20 +291,20 @@ export default function Event() {
                 {filteredEvents.map((event) => {
                               const isOngoing = event.status.toLowerCase() === 'ongoing';
                               return (
-                                <div key={event.id} className="uni-table-grid-row">
-                                  <span className="uni-id-text">{event.id}</span>
-                                  <span className="uni-highlight-text">{event.name}</span>
+                                <div key={event.id} className="evt-table-grid-row">
+                                  <span className="evt-id-text">{event.id}</span>
+                                  <span className="evt-highlight-text">{event.name}</span>
                                   <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                                   <span>{event.venue}</span>
                                   <div>
-                                    <span className={`uni-status-badge ${event.status.toLowerCase()}`}>
+                                    <span className={`evt-status-badge ${event.status.toLowerCase()}`}>
                                       {event.status}
                                     </span>
                                   </div>
-                                  <span className="uni-sem-text">{event.semId}</span>
-                                  <div className="uni-action-buttons-group">
+                                  <span className="evt-sem-text">{event.semId}</span>
+                                  <div className="evt-action-buttons-group">
                                     <button 
-                                      className="uni-action-btn delete" 
+                                      className="evt-action-btn delete" 
                                       title="Delete Event"
                                       onClick={() => handleOpenDeleteModal(event)}
                                     >
@@ -313,7 +312,7 @@ export default function Event() {
                                     </button>
                                     
                                     <button 
-                                      className={`uni-action-btn qr ${isOngoing ? 'active-qr' : 'disabled-qr'}`} 
+                                      className={`evt-action-btn qr ${isOngoing ? 'active-qr' : 'disabled-qr'}`} 
                                       title={isOngoing ? "Active QR Scanner" : "QR Only Available for Ongoing Events"}
                                       disabled={!isOngoing}
                                       onClick={() => handleOpenQrModal(event)}
@@ -322,7 +321,7 @@ export default function Event() {
                                     </button>
                 
                                     <button 
-                                      className={`uni-action-btn edit ${editingId === event.id ? 'active-edit' : ''}`} 
+                                      className={`evt-action-btn edit ${editingId === event.id ? 'active-edit' : ''}`} 
                                       title="Edit Configuration"
                                       onClick={() => handleOpenEditForm(event)}
                                     >
@@ -333,7 +332,7 @@ export default function Event() {
                               );
                             })}
                             {filteredEvents.length === 0 && (
-                              <div className="uni-no-records">No entries matched your filter parameters.</div>
+                              <div className="evt-no-records">No entries matched your filter parameters.</div>
                             )}
               </div>
         </div>
@@ -341,7 +340,7 @@ export default function Event() {
 
             {/* MODAL 1: Form Multi-purpose Panel Overlay */}
                   {isPanelOpen && (
-                    <div className="uni-modal-overlay" onClick={() => setIsPanelOpen(false)}>
+                    <div className="evt-modal-overlay" onClick={() => setIsPanelOpen(false)}>
                       <div className="evt-glass-form-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
                         <button type="button" className="evt-panel-close-btn" onClick={() => setIsPanelOpen(false)}>
                           <X size={16} />
