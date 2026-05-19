@@ -22,7 +22,7 @@ export default function App() {
 
       {/* All admin pages share the Layout (sidebar) */}
       <Route element={<Layout />}>
-        <Route path="/event" element={<Event />} />
+        <Route path="/event" element={<Event />} /> 
         <Route path="/eventAttendance" element={<EventAttendance />} />
         <Route path="/officer" element={<Officer />} />
         <Route path="/organization" element={<Organization />} />

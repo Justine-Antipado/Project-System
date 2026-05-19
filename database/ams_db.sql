@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 18, 2026 at 04:10 AM
+-- Generation Time: May 19, 2026 at 11:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -20,17 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `ams_db`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `departments`
---
-
-CREATE TABLE `departments` (
-  `DeptID` int(11) NOT NULL,
-  `DeptName` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -122,16 +111,14 @@ CREATE TABLE `students` (
   `MiddleName` varchar(100) DEFAULT NULL,
   `Program` varchar(100) DEFAULT NULL,
   `YearLevel` int(11) DEFAULT NULL,
-  `section` int(11) DEFAULT NULL
+  `section` int(11) DEFAULT NULL,
+  `StudentQRCode` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
 --
 
---
--- Indexes for table `departments`
---
 --
 -- Indexes for table `events`
 --
@@ -182,18 +169,11 @@ ALTER TABLE `semesters`
 --
 ALTER TABLE `students`
   ADD PRIMARY KEY (`StudentID`),
-  ADD UNIQUE KEY `SchoolIDNo` (`SchoolIDNo`),
-  ADD KEY `DeptID` (`DeptID`);
+  ADD UNIQUE KEY `SchoolIDNo` (`SchoolIDNo`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
-
---
--- AUTO_INCREMENT for table `departments`
---
-ALTER TABLE `departments`
-  MODIFY `DeptID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -267,12 +247,6 @@ ALTER TABLE `officers`
 --
 ALTER TABLE `semesters`
   ADD CONSTRAINT `semesters_ibfk_1` FOREIGN KEY (`YearID`) REFERENCES `school_years` (`YearID`) ON DELETE CASCADE;
-
---
--- Constraints for table `students`
---
-ALTER TABLE `students`
-  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`DeptID`) REFERENCES `departments` (`DeptID`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

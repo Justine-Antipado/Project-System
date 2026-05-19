@@ -1,340 +1,517 @@
 @import url("style.css");
 @import url("color.css");
 
-/* Base View Layout */
 .event-view {
   min-height: 100vh;
+  padding: clamp(1.5rem, 4vw, 3rem);
   background-color: var(--bg-page);
-  color: var(--text-main);
-  padding: 2.5rem;
-  font-family: system-ui, -apple-system, sans-serif;
   box-sizing: border-box;
+}
+
+.event-header {
+  margin-bottom: 2.5rem;
+}
+
+.event-header .main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #ffffff, var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 1200px;
+}
+
+.search-group {
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05); /* Darker glass base */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 0.85rem;
+  padding: 0 1.2rem; /* Sapat na space sa gilid */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 50px; /* Standard height para sa interactive feel */
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-wrapper:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.search-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--omsc-yellow);
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.15);
+}
+
+.search-input {
+  width: 75%;
+  background: transparent;
+  border: none;
+  padding: 0.85rem 0;
+  color: #ffffff !important; /* Siguradong puti ang text */
+  font-size: 1rem;
+  outline: none;
+  font-weight: 500;
+}
+
+.search-input::placeholder {
+  color: rgba(148, 163, 184, 0.7); /* Slate 400 with opacity */
+}
+
+.search-icon-box {
+  padding-right: 1rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  color: var(--text-muted);
+  margin-right: 1rem; /* Space sa pagitan ng icon at text */
+  flex-shrink: 0;
+  transition: color 0.3s;
+}
+
+.search-wrapper:focus-within .search-icon {
+  color: var(--omsc-yellow); /* Mag-iiba kulay icon pag active */
+}
+
+/* ==========================================================================
+   PREMIUM CALL-TO-ACTION (ADD EVENT BUTTON)
+   ========================================================================== */
+.evt-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem; /* Sapat na espasyo sa pagitan ng Plus icon at text */
+  
+  /* Premium Gold/Yellow Gradient base sa kulay ng OMSC theme mo */
+  background: linear-gradient(135deg, var(--omsc-yellow, #facc15), #eab308);
+  color: #0f172a; /* Eleganteng madilim na kulay para litaw na litaw ang text */
+  
+  font-size: 0.95rem;
+  font-weight: 750; /* Bold para sa malinaw na emphasis */
+  letter-spacing: -0.01em;
+  
+  /* Eksaktong kapareho ng sukat at kurbada ng Searchbar at Dropdown para maging uniform */
+  height: 50px; 
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: 0.85rem; 
+  
+  cursor: pointer;
+  white-space: nowrap; /* Pinipigilan ang text na bumaba o mayupi */
+  
+  /* Soft outer glow at inner light reflection para maging 3D/Premium ang dating 
+  box-shadow: 0 4px 15px rgba(250, 204, 21, 0.25), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);*/
+              
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Micro-interactions / Hover Effects ── */
+.evt-btn-primary:hover {
+  transform: translateY(-2px); /* Swabeng pag-angat kapag tinatapatan ng mouse */
+  background: linear-gradient(135deg, #fde047, var(--omsc-yellow, #facc15)); /* Bahagyang sisigla ang kulay */
+  box-shadow: 0 8px 25px rgba(250, 204, 21, 0.45); /* Mas malakas at mamahaling glow effect */
+}
+
+/* Kapag pinindot (Click State) */
+.evt-btn-primary:active {
+  transform: translateY(1px); /* Bababa ng kaunti para maramdaman ang click feedback */
+  box-shadow: 0 3px 10px rgba(250, 204, 21, 0.2);
+}
+
+/* ── Icon Animation Hook ── */
+.evt-btn-primary svg {
+  stroke-width: 2.8; /* Ginawang mas makapal ang Plus icon para bumagay sa font weight */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Karagdagang astig na epekto: Iikot ng bahagya (90 degrees) ang Plus icon kapag ni-hover */
+.evt-btn-primary:hover svg {
+  transform: rotate(90deg);
+}
+
+.dropdown-wrapper {
+  min-width: 160px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 0.85rem;
+  transition: var(--transition-smooth);
   position: relative;
 }
 
-/* Single column dashboard framework para sa modal view approach */
-.evt-dashboard-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 1600px;
-  margin: 0 auto;
+.dropdown-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.03);
 }
 
-/* Header Structures */
-.evt-header-block {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.evt-top-bar {
-  display: flex;
-  width: 100%;
-}
-
-.evt-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-.evt-main-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: #ffffff;
-  margin: 0;
-}
-
-/* Filtering Row Controls */
-.evt-filter-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.evt-search-wrapper {
-  display: flex;
-  align-items: center;
-  background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  padding: 0 1rem;
-  height: 46px;
-  flex: 1;
-  max-width: 400px;
-  transition: var(--transition-smooth);
-}
-
-.evt-search-wrapper:focus-within {
-  border-color: var(--omsc-yellow);
-  box-shadow: 0 0 12px var(--omsc-yellow-glow);
-}
-
-.evt-search-icon {
-  color: var(--text-muted);
-  margin-right: 0.75rem;
-  flex-shrink: 0;
-}
-
-.evt-search-input {
+/* ── Native Month Dropdown ── */
+.month-dropdown {
   width: 100%;
   background: transparent;
   border: none;
-  outline: none;
-  color: #ffffff;
+  padding: 0.85rem 1rem;
+  color: var(--text-main);
   font-size: 0.95rem;
-}
-
-.evt-search-input::placeholder {
-  color: var(--text-muted);
-  opacity: 0.7;
-}
-
-/* Action Buttons */
-.evt-btn-primary {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #ffffff;
-  color: #000000;
-  border: none;
-  border-radius: 0.75rem;
-  height: 46px;
-  padding: 0 1.25rem;
-  font-weight: 700;
-  font-size: 0.9rem;
+  outline: none;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  appearance: none; /* Tinatanggal ang default arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
 }
 
-.evt-btn-primary:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
+.month-dropdown option {
+  background-color: var(--omsc-dark-muted);
+  color: var(--text-main);
 }
 
-/* Month Dropdown Specifics */
-.evt-month-dropdown-container {
+/* ── Custom Dropdown Menu Components ── */
+.custom-dropdown-event {
   position: relative;
+  min-width: 200px;
   user-select: none;
 }
 
-/* Para sa Chrome, Safari, at Newer Edge */
-.dropdown-list-container::-webkit-scrollbar {
-    display: none;
-}
-
-.evt-month-trigger {
+.dropdown-trigger-event {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 0.85rem;
+  padding: 0 1.2rem;
+  height: 50px; /* Kapareho ng search bar height */
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  height: 46px;
-  padding: 0 1.25rem;
-  min-width: 180px;
+  gap: 1rem;
+  min-width: 200px;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  color: #ffffff;
+  transition: all 0.3s ease;
 }
 
-.evt-month-trigger:hover, .evt-month-trigger.active {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(30, 41, 59, 0.9);
+.dropdown-trigger-event:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
 }
 
-.evt-month-trigger .evt-arrow {
+.dropdown-trigger-event.active {
+  border-color: var(--omsc-yellow);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-trigger-event .arrow {
   margin-left: auto;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
+  color: var(--text-muted);
 }
 
-.evt-month-trigger .evt-arrow.rotate {
+.dropdown-trigger-event .arrow.rotate {
   transform: rotate(180deg);
 }
 
-.evt-month-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  width: 100%;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  padding: 0.4rem;
-  z-index: 50;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-  max-height: 250px;
- 
-
-  overflow-y: auto; /* Pinapanatili ang scroll mechanism gamit ang mouse wheel */
-  
-  /* Para sa Firefox browser */
-  scrollbar-width: none;
-  
-  /* Para sa Internet Explorer at legacy Edge */
-  -ms-overflow-style: none;
+.icon-left {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
-.evt-month-item {
-  padding: 0.65rem 1rem;
-  border-radius: 0.5rem;
+.dropdown-trigger-event:hover .icon-left, 
+.dropdown-trigger-event.active .icon-left {
+  color: var(--omsc-yellow);
+}
+
+.selected-text {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ── Dropdown Open Menu ── */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #1e293b; /* Solid dark para hindi magulo basahin */
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  z-index: 100;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 10px;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  transition: 0.2s;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: var(--transition-smooth);
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-.evt-month-item:hover {
+.dropdown-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: #ffffff;
 }
 
-.evt-month-item.selected {
+.dropdown-item.selected {
   background: var(--omsc-yellow-glow);
   color: var(--omsc-yellow);
   font-weight: 600;
 }
 
-/* Dynamic Modern Grid Table Container */
-.evt-table-card {
+.check-icon {
+  color: var(--omsc-yellow);
+}
+
+/* Dropdown Animation */
+.fade-in-up {
+  animation: fadeInUp 0.25s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ==========================================================================
+   PREMIUM DARK NAVY TABLE / GRID ARCHITECTURE
+   ========================================================================== */
+
+/* Main Container Shield */
+.event-table-container {
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 1rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  margin-top: 1.5rem;
   overflow: hidden;
 }
 
-.evt-table-grid-header {
+/* Base structural grid setup para pantay ang header at rows */
+.table-grid-header, 
+.evt-table-grid-row {
   display: grid;
-  grid-template-columns: 0.8fr 1.5fr 1.3fr 1.5fr 1fr 1fr 1.2fr;
-  padding: 1.1rem 1.5rem;
-  background: rgba(15, 23, 42, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
+  /* Hahatiin ang columns: ID, Name, Date, Venue, Status, Sem, Actions */
+  grid-template-columns: 0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.2fr;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  gap: 1rem;
 }
 
-.evt-table-body-stack {
+/* Table Header Aesthetics */
+.table-grid-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.25rem;
+}
+
+.table-grid-header span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Table Rows Component Style */
+.event-list {
   display: flex;
   flex-direction: column;
+  gap: 0.4rem;
 }
 
 .evt-table-grid-row {
-  display: grid;
-  grid-template-columns: 0.8fr 1.5fr 1.3fr 1.5fr 1fr 1fr 1.2fr;
-  padding: 1.2rem 1.5rem;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  font-size: 0.9rem;
-  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.4); /* Bahagyang mas madilim sa card background */
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  color: var(--text-main);
+  font-size: 0.92rem;
+  transition: var(--transition-smooth);
 }
 
-.evt-table-grid-row:last-child {
-  border-bottom: none;
-}
-
+/* Micro-interaction kapag tinapatan ang hilera */
 .evt-table-grid-row:hover {
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(51, 65, 85, 0.4); /* Ginamit ang tint ng input-bg */
+  border-color: rgba(250, 204, 21, 0.2); /* Soft Yellow border hug */
+  transform: translateY(-1px);
 }
 
-/* Inner Text Variants */
+/* Data Typography Tweaks */
 .evt-id-text {
-  font-weight: 700;
-  color: #ffffff;
+  color: var(--omsc-yellow);
+  font-family: monospace;
+  font-weight: 600;
 }
 
 .evt-highlight-text {
-  font-weight: 600;
-  color: #ffffff;
+  font-weight: 500;
+  color: var(--text-main);
 }
 
 .evt-sem-text {
   color: var(--text-muted);
 }
 
-.text-right-aligned {
-  text-align: right;
-  padding-right: 0.5rem;
+/* Right alignment handling para sa header action */
+.text-left-aligned {
+  text-align: left;
+  padding-left: 0.5rem;
 }
 
-/* Status Micro Badges */
+/* ==========================================================================
+   DYNAMIC STATUS BADGES 
+   ========================================================================== */
 .evt-status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 30px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: capitalize;
 }
 
 .evt-status-badge.ongoing {
-  background: rgba(250, 204, 21, 0.1);
+  background: rgba(250, 204, 21, 0.1); /* Yellow theme base glow */
   color: var(--omsc-yellow);
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  box-shadow: 0 0 10px var(--omsc-yellow-glow);
 }
 
 .evt-status-badge.completed {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.1); /* Emerald 500 theme glow */
   color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .evt-status-badge.cancelled {
-  background: rgba(244, 63, 94, 0.1);
+  background: var(--color-error-glow);
   color: var(--color-error);
+  border: 1px solid rgba(244, 63, 94, 0.25);
 }
 
-/* Action Icons Styling inside table row */
+/* ==========================================================================
+   INTERACTIVE ACTION BUTTONS
+   ========================================================================== */
 .evt-action-buttons-group {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.85rem;
+  gap: 0.5rem;
 }
 
 .evt-action-btn {
-  background: transparent;
-  border: none;
+  background: #1e293b; /* Slate 800 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
   color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.35rem;
-  border-radius: 0.4rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition: var(--transition-smooth);
 }
 
-.evt-action-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+/* Button Hover State Interactions */
+.evt-action-btn.edit:hover {
+  background: rgba(250, 204, 21, 0.15) !important;
+  color: var(--omsc-yellow) !important;
+  border-color: var(--omsc-yellow) !important;
 }
 
 .evt-action-btn.delete:hover {
-  color: var(--color-error);
-  background: rgba(244, 63, 94, 0.1);
+  background: var(--color-error-glow) !important;
+  color: var(--color-error) !important;
+  border-color: var(--color-error) !important;
 }
 
+/* Special Case: QR Scanner Locks */
 .evt-action-btn.qr.active-qr {
-  color: var(--omsc-yellow);
+  background: rgba(14, 165, 233, 0.1); /* Sky Blue accent for scan */
+  color: #0ea5e9;
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+.evt-action-btn.qr.active-qr:hover {
+  background: rgba(14, 165, 233, 0.25) !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
 }
 
 .evt-action-btn.qr.disabled-qr {
-  opacity: 0.3;
+  background: rgba(15, 23, 42, 0.2);
+  color: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
   cursor: not-allowed;
 }
 
+/* Active Hooks kapag pinindot or pinipili 
 .evt-action-btn.edit.active-edit {
-  color: var(--omsc-yellow);
-  background: var(--omsc-yellow-glow);
+  background: var(--omsc-yellow);
+  color: var(--omsc-dark);
+  border-color: var(--omsc-yellow);
+}*/
+
+/* Empty State / No Records Visual */
+.evt-no-records {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 10px;
 }
 
 /* Modal Pop-up Overlay Configuration */
@@ -395,10 +572,10 @@
 }
 
 .evt-form-heading {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 0.35rem 0;
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
 }
 
 .evt-form-subheading {
@@ -429,36 +606,37 @@
 }
 
 .evt-form-input {
-  background: var(--input-bg);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 0.6rem;
-  color: #ffffff;
-  padding: 0.75rem 1rem;
-  font-size: 0.9rem;
-  outline: none;
+  background: var(--input-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: var(--radius-responsive-md, 10px) !important;
+  color: var(--text-main) !important;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: var(--transition-smooth);
   width: 100%;
   box-sizing: border-box;
-  transition: var(--transition-smooth);
 }
 
 .evt-form-input:hover {
-  background: #3e4e63;
+  background: #3d4f66 !important;
 }
 
 .evt-form-input:focus, .evt-dropdown-trigger.active {
-  background: var(--omsc-dark-muted);
-  border-color: var(--omsc-yellow);
-  box-shadow: 0 0 0 3px var(--omsc-yellow-glow);
+  outline: none;
+  background: var(--omsc-dark-muted) !important;
+  border-color: var(--omsc-yellow) !important;
+  box-shadow: 0 0 0 4px var(--omsc-yellow-glow);
 }
 
 .evt-form-row-flex {
   display: flex;
   gap: 1rem;
+  width: 100%;
 }
 
 .evt-form-row-flex .evt-field-group {
   flex: 1;
-  min-width: 0;
 }
 
 /* Custom Dropdown Container Triggers */
@@ -555,13 +733,14 @@
 /* Form Validation States */
 .evt-form-input.error-ring {
   border-color: var(--color-error) !important;
-  box-shadow: 0 0 0 3px var(--color-error-glow) !important;
+  box-shadow: 0 0 0 4px var(--color-error-glow) !important;
 }
 
 .evt-error-text {
   color: var(--color-error);
   font-size: 0.75rem;
   font-weight: 600;
+  margin-top: 2px;
 }
 
 .evt-success-banner {
@@ -573,13 +752,6 @@
   font-weight: 600;
   font-size: 0.85rem;
   text-align: center;
-}
-
-.evt-no-records {
-  padding: 2rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-style: italic;
 }
 
 /* MODAL 2: Delete Secure Confirmation Panel Card Styling */
@@ -661,49 +833,6 @@
 .evt-btn-danger-confirm:hover {
   opacity: 0.9;
 }
-
-/* MODAL 3: QR Laser & Overlay Corner Targets */
-.evt-qr-scanner-box {
-  width: 100%;
-  height: 240px;
-  background: #0f172a;
-  border-radius: 0.75rem;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.evt-qr-laser-line {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: var(--omsc-yellow);
-  box-shadow: 0 0 10px var(--omsc-yellow);
-  animation: qrScan 2s linear infinite;
-  top: 0;
-  left: 0;
-}
-
-@keyframes qrScan {
-  0% { top: 0%; }
-  50% { top: 100%; }
-  100% { top: 0%; }
-}
-
-.evt-qr-target-corner {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 3px solid var(--omsc-yellow);
-}
-
-.evt-qr-target-corner.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
-.evt-qr-target-corner.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
-.evt-qr-target-corner.bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
-.evt-qr-target-corner.bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
 /* Micro-animations */
 .animate-fade-in {

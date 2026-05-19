@@ -4,10 +4,10 @@
 /* ── LAYOUT & BASE ── */
 .dashboard-view {
   min-height: 100vh;
-  background-color: var(--bg-page);
   color: var(--text-main);
-  padding: 2rem;
-  font-family: system-ui, -apple-system, sans-serif;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background-color: var(--bg-page);
+  box-sizing: border-box;
 }
 
 /* Fade-in Animation */
