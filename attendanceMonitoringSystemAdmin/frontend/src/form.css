@@ -1,0 +1,206 @@
+@import url("style.css");
+@import url("color.css");
+/*@import url("keyframeandani.css");*/
+@import url("keyframeandani.css");
+
+/* ==========================================================================
+   9. MODAL 1: FORM CARDS & FIELDS INPUT DESIGN
+   ========================================================================== */
+.uni-glass-form-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  padding: 2.25rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.uni-form-header {
+  margin-bottom: 1.75rem;
+}
+
+.uni-form-heading {
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.uni-form-subheading {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.uni-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.uni-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.uni-label-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+}
+
+.uni-form-input {
+  background: var(--input-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: var(--radius-responsive-md, 10px) !important;
+  color: var(--text-main) !important;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.uni-form-input:hover {
+  background: #3d4f66 !important;
+}
+
+.uni-form-input:focus, 
+.uni-dropdown-trigger.active {
+  outline: none;
+  background: var(--omsc-dark-muted) !important;
+  border-color: var(--omsc-yellow) !important;
+  box-shadow: 0 0 0 4px var(--omsc-yellow-glow);
+}
+
+.uni-form-row-flex {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.uni-form-row-flex .uni-field-group {
+  flex: 1;
+}
+
+/* ── Form Multi-purpose Floating Dropdown Selectors ── */
+.uni-custom-dropdown-container {
+  position: relative;
+}
+
+.uni-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.uni-dropdown-trigger::after {
+  content: '▼';
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.uni-dropdown-trigger.active::after {
+  transform: rotate(180deg);
+  color: var(--omsc-yellow);
+}
+
+.uni-dropdown-menu-floating {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.6rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.uni-dropdown-item-floating {
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.uni-dropdown-item-floating:hover {
+  background: var(--input-bg);
+  color: #ffffff;
+}
+
+.uni-dropdown-item-floating.selected {
+  background: var(--omsc-yellow-glow);
+  color: var(--omsc-yellow);
+}
+
+.uni-check-icon {
+  color: var(--omsc-yellow);
+}
+
+/* ── Form Interactive Feedback & Buttons ── */
+.uni-btn-submit {
+  background: var(--omsc-yellow);
+  color: #000000;
+  border: none;
+  border-radius: 0.6rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: var(--transition-bounce);
+  width: 100%;
+}
+
+.uni-btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--omsc-yellow-glow);
+  opacity: 0.95;
+}
+
+.uni-btn-submit:active {
+  transform: translateY(0);
+}
+
+.uni-form-input.error-ring {
+  border-color: var(--color-error) !important;
+  box-shadow: 0 0 0 4px var(--color-error-glow) !important;
+}
+
+.uni-error-text {
+  color: var(--color-error);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.uni-success-banner {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+ 

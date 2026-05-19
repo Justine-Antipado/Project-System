@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Calendar, ChevronDown, Check, Trash2, QrCode, SquarePen, X, AlertTriangle } from 'lucide-react';
 import './event.css';
 import './universalTable.css';
+import './modalOverlay.css';
+import './deleteModal.css';
+import './form.css';
+//import './keyframeandani.css';
 
 const STATUS_OPTIONS = ['Ongoing', 'Completed', 'Cancelled'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -50,7 +54,7 @@ export default function Event() {
         if (monthDropdownRef.current && !monthDropdownRef.current.contains(e.target)) {
           setIsMonthOpen(false);
         }
-        if (!e.target.closest('.evt-custom-dropdown-container')) {
+        if (!e.target.closest('.uni-custom-dropdown-container')) {
           setActiveDropdown(null);
         }
       };
@@ -179,10 +183,10 @@ export default function Event() {
     };
   
     const FormDropdown = ({ label, name, options, value }) => (
-  <div className={`evt-field-group evt-custom-dropdown-container ${errors[name] ? 'evt-has-error' : ''}`}>
-    <label className="evt-label-text">{label}</label>
+  <div className={`uni-field-group uni-custom-dropdown-container ${errors[name] ? 'uni-has-error' : ''}`}>
+    <label className="uni-label-text">{label}</label>
     <div 
-      className={`evt-form-input evt-dropdown-trigger ${errors[name] ? 'error-ring' : ''} ${activeDropdown === name ? 'active' : ''}`}
+      className={`uni-form-input uni-dropdown-trigger ${errors[name] ? 'error-ring' : ''} ${activeDropdown === name ? 'active' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         handleFieldFocus(name);
@@ -194,31 +198,31 @@ export default function Event() {
     </div>
     
     {activeDropdown === name && (
-      <div className="evt-dropdown-menu-floating">
+      <div className="uni-dropdown-menu-floating">
         {options.map((opt) => (
           <div 
             key={opt} 
-            className={`evt-dropdown-item-floating ${value === opt ? 'selected' : ''}`}
+            className={`uni-dropdown-item-floating ${value === opt ? 'selected' : ''}`}
             onMouseDown={(e) => {
               e.preventDefault(); 
               selectOption(name, opt);
             }}
           >
             {opt}
-            {value === opt && <Check size={14} className="evt-check-icon" />}
+            {value === opt && <Check size={14} className="uni-check-icon" />}
           </div>
         ))}
       </div>
     )}
-    {errors[name] && <span className="evt-error-text">{errors[name]}</span>}
+    {errors[name] && <span className="uni-error-text">{errors[name]}</span>}
   </div>
 );
   
   return (
     <>
     {/* Page title */}
-    <div className="event-view fade-in">
-      <header className="event-header">
+    <div className="uni-view fade-in">
+      <header className="uni-header">
         <h1 className="main-title">EVENTS</h1>
       </header>
 
@@ -235,7 +239,7 @@ export default function Event() {
                             />
             </div>
             <div className="filter-row">
-                    <button className="evt-btn-primary" onClick={handleOpenAddForm}>
+                    <button className="uni-btn-primary" onClick={handleOpenAddForm}>
                                     <Plus size={16} />
                                     Add Event
                                   </button>
@@ -342,72 +346,72 @@ export default function Event() {
             {/* MODAL 1: Form Multi-purpose Panel Overlay */}
                   {isPanelOpen && (
                     <div className="uni-modal-overlay" onClick={() => setIsPanelOpen(false)}>
-                      <div className="evt-glass-form-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className="evt-panel-close-btn" onClick={() => setIsPanelOpen(false)}>
+                      <div className="uni-glass-form-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className="uni-panel-close-btn" onClick={() => setIsPanelOpen(false)}>
                           <X size={16} />
                         </button>
             
-                        <div className="evt-form-header">
-                          <h3 className="evt-form-heading">
+                        <div className="uni-form-header">
+                          <h3 className="uni-form-heading">
                             {formMode === 'add' ? 'Create New Event' : `Modify Event #${editingId}`}
                           </h3>
-                          <p className="evt-form-subheading">
+                          <p className="uni-form-subheading">
                             {formMode === 'add' ? 'Setup and register new campus events' : 'Alter values for this event entry'}
                           </p>
                         </div>
             
-                        <form onSubmit={handleFormSubmit} className="evt-form-stack">
-                          {successMsg && <div className="evt-success-banner">{successMsg}</div>}
+                        <form onSubmit={handleFormSubmit} className="uni-form-stack">
+                          {successMsg && <div className="uni-success-banner">{successMsg}</div>}
                           
-                          <div className="evt-field-group">
-                            <label className="evt-label-text">Event Name</label>
+                          <div className="uni-field-group">
+                            <label className="uni-label-text">Event Name</label>
                             <input 
                               type="text" 
                               name="eventName"
                               value={formData.eventName}
                               onChange={handleInputChange}
-                              className={`evt-form-input ${errors.eventName ? 'error-ring' : ''}`}
+                              className={`uni-form-input ${errors.eventName ? 'error-ring' : ''}`}
                               placeholder="e.g. Acquaintance Party" 
                               onFocus={() => handleFieldFocus('eventName')}
                             />
-                            {errors.eventName && <span className="evt-error-text">{errors.eventName}</span>}
+                            {errors.eventName && <span className="uni-error-text">{errors.eventName}</span>}
                           </div>
             
-                          <div className="evt-form-row-flex">
-                            <div className="evt-field-group">
-                              <label className="evt-label-text">Event Date</label>
+                          <div className="uni-form-row-flex">
+                            <div className="uni-field-group">
+                              <label className="uni-label-text">Event Date</label>
                               <input 
                                 type="date" 
                                 name="eventDate"
                                 value={formData.eventDate}
                                 onChange={handleInputChange}
-                                className={`evt-form-input ${errors.eventDate ? 'error-ring' : ''}`}
+                                className={`uni-form-input ${errors.eventDate ? 'error-ring' : ''}`}
                                 onFocus={() => handleFieldFocus('eventDate')}
                               />
-                              {errors.eventDate && <span className="evt-error-text">{errors.eventDate}</span>}
+                              {errors.eventDate && <span className="uni-error-text">{errors.eventDate}</span>}
                             </div>
                             
-                            <div className="evt-field-group">
-                              <label className="evt-label-text">Venue</label>
+                            <div className="uni-field-group">
+                              <label className="uni-label-text">Venue</label>
                               <input 
                                 type="text" 
                                 name="venue"
                                 value={formData.venue}
                                 onChange={handleInputChange}
-                                className={`evt-form-input ${errors.venue ? 'error-ring' : ''}`}
+                                className={`uni-form-input ${errors.venue ? 'error-ring' : ''}`}
                                 onFocus={() => handleFieldFocus('venue')}
                                 placeholder="OMSC Gym" 
                               />
-                              {errors.venue && <span className="evt-error-text">{errors.venue}</span>}
+                              {errors.venue && <span className="uni-error-text">{errors.venue}</span>}
                             </div>
                           </div>
             
-                          <div className="evt-form-row-flex">
+                          <div className="uni-form-row-flex">
                              <FormDropdown label="Status" name="status" options={STATUS_OPTIONS} value={formData.status} />
                              <FormDropdown label="Semester" name="semester" options={SEMESTER} value={formData.semester} />
                           </div>
             
-                          <button type="submit" className="evt-btn-submit">
+                          <button type="submit" className="uni-btn-submit">
                             {formMode === 'add' ? 'Save New Event' : 'Apply Alterations'}
                           </button>
                         </form>
@@ -417,16 +421,16 @@ export default function Event() {
 
                   {/* MODAL 2: Delete Secure Confirmation Panel */}
                             {isDeleteModalOpen && (
-                              <div className="evt-modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
-                                <div className="evt-confirm-modal-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
-                                  <div className="evt-confirm-icon-wrapper">
+                              <div className="uni-modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
+                                <div className="uni-confirm-modal-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
+                                  <div className="uni-confirm-icon-wrapper">
                                     <AlertTriangle size={28} className="warn-icon" />
                                   </div>
                                   <h4>Confirm Deletion</h4>
                                   <p>Are you sure you want to permanently remove <strong>{selectedEvent?.name}</strong>? This action cannot be reverted.</p>
-                                  <div className="evt-confirm-actions">
-                                    <button className="evt-btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
-                                    <button className="evt-btn-danger-confirm" onClick={handleConfirmDelete}>Delete Record</button>
+                                  <div className="uni-confirm-actions">
+                                    <button className="uni-btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+                                    <button className="uni-btn-danger-confirm" onClick={handleConfirmDelete}>Delete Record</button>
                                   </div>
                                 </div>
                               </div>

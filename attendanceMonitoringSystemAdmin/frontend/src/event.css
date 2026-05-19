@@ -3,29 +3,9 @@
    ========================================================================== */
 @import url("style.css");
 @import url("color.css");
+/*@import url("keyframeandani.css");*/
+@import url("globalpage.css");
 
-.event-view {
-  min-height: 100vh;
-  padding: clamp(1.5rem, 4vw, 3rem);
-  background-color: var(--bg-page);
-  box-sizing: border-box;
-}
-
-/* ==========================================================================
-   2. HEADER & TITLES
-   ========================================================================== */
-.event-header {
-  margin-bottom: 2.5rem;
-}
-
-.event-header .main-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  background: linear-gradient(to right, #ffffff, var(--text-muted));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 
 /* ==========================================================================
    3. FILTERS, SEARCHBAR, & ACTIONS HEADER ROW
@@ -109,7 +89,7 @@
 }
 
 /* ── PREMIUM CALL-TO-ACTION (ADD EVENT BUTTON) ── */
-.evt-btn-primary {
+.uni-btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -128,23 +108,23 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.evt-btn-primary:hover {
+.uni-btn-primary:hover {
   transform: translateY(-2px); /* Swabeng pag-angat kapag tinatapatan ng mouse */
   background: linear-gradient(135deg, #fde047, var(--omsc-yellow, #facc15)); /* Bahagyang sisigla ang kulay */
   box-shadow: 0 8px 25px rgba(250, 204, 21, 0.45); /* Mas malakas at mamahaling glow effect */
 }
 
-.evt-btn-primary:active {
+.uni-btn-primary:active {
   transform: translateY(1px); /* Bababa ng kaunti para maramdaman ang click feedback */
   box-shadow: 0 3px 10px rgba(250, 204, 21, 0.2);
 }
 
-.evt-btn-primary svg {
+.uni-btn-primary svg {
   stroke-width: 2.8; /* Ginawang mas makapal ang Plus icon para bumagay sa font weight */
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.evt-btn-primary:hover svg {
+.uni-btn-primary:hover svg {
   transform: rotate(90deg);
 }
 
@@ -299,336 +279,4 @@
 
 .check-icon {
   color: var(--omsc-yellow);
-}
-
-/* ==========================================================================
-   9. MODAL 1: FORM CARDS & FIELDS INPUT DESIGN
-   ========================================================================== */
-.evt-glass-form-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1.25rem;
-  padding: 2.25rem;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-  position: relative;
-  box-sizing: border-box;
-}
-
-.evt-form-header {
-  margin-bottom: 1.75rem;
-}
-
-.evt-form-heading {
-  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
-  font-weight: 800;
-  color: var(--text-main);
-  margin: 0;
-}
-
-.evt-form-subheading {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.evt-form-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.evt-field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.evt-label-text {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.75px;
-}
-
-.evt-form-input {
-  background: var(--input-bg) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-radius: var(--radius-responsive-md, 10px) !important;
-  color: var(--text-main) !important;
-  padding: 0.9rem 1.2rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: var(--transition-smooth);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.evt-form-input:hover {
-  background: #3d4f66 !important;
-}
-
-.evt-form-input:focus, 
-.evt-dropdown-trigger.active {
-  outline: none;
-  background: var(--omsc-dark-muted) !important;
-  border-color: var(--omsc-yellow) !important;
-  box-shadow: 0 0 0 4px var(--omsc-yellow-glow);
-}
-
-.evt-form-row-flex {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-}
-
-.evt-form-row-flex .evt-field-group {
-  flex: 1;
-}
-
-/* ── Form Multi-purpose Floating Dropdown Selectors ── */
-.evt-custom-dropdown-container {
-  position: relative;
-}
-
-.evt-dropdown-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-}
-
-.evt-dropdown-trigger::after {
-  content: '▼';
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  transition: transform 0.2s ease;
-}
-
-.evt-dropdown-trigger.active::after {
-  transform: rotate(180deg);
-  color: var(--omsc-yellow);
-}
-
-.evt-dropdown-menu-floating {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  right: 0;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.6rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-.evt-dropdown-item-floating {
-  padding: 0.7rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.evt-dropdown-item-floating:hover {
-  background: var(--input-bg);
-  color: #ffffff;
-}
-
-.evt-dropdown-item-floating.selected {
-  background: var(--omsc-yellow-glow);
-  color: var(--omsc-yellow);
-}
-
-.evt-check-icon {
-  color: var(--omsc-yellow);
-}
-
-/* ── Form Interactive Feedback & Buttons ── */
-.evt-btn-submit {
-  background: var(--omsc-yellow);
-  color: #000000;
-  border: none;
-  border-radius: 0.6rem;
-  font-weight: 700;
-  font-size: 0.95rem;
-  padding: 0.85rem 1.5rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: var(--transition-bounce);
-  width: 100%;
-}
-
-.evt-btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--omsc-yellow-glow);
-  opacity: 0.95;
-}
-
-.evt-btn-submit:active {
-  transform: translateY(0);
-}
-
-.evt-form-input.error-ring {
-  border-color: var(--color-error) !important;
-  box-shadow: 0 0 0 4px var(--color-error-glow) !important;
-}
-
-.evt-error-text {
-  color: var(--color-error);
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-top: 2px;
-}
-
-.evt-success-banner {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  color: #10b981;
-  padding: 0.75rem;
-  border-radius: 0.6rem;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-/* ==========================================================================
-   10. MODAL 2: SECURE DELETE CONFIRMATION PANEL
-   ========================================================================== */
-.evt-confirm-modal-card {
-  background: #1e293b;
-  border: 1px solid rgba(244, 63, 94, 0.2);
-  border-radius: 1.25rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 440px;
-  text-align: center;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-  box-sizing: border-box;
-}
-
-.evt-confirm-modal-card h4 {
-  color: #ffffff;
-  font-size: 1.25rem;
-  margin: 1rem 0 0.5rem 0;
-  font-weight: 700;
-}
-
-.evt-confirm-modal-card p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 1.5rem 0;
-}
-
-.evt-confirm-icon-wrapper {
-  width: 56px;
-  height: 56px;
-  background: rgba(244, 63, 94, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.evt-confirm-icon-wrapper .warn-icon {
-  color: var(--color-error);
-}
-
-.evt-confirm-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.evt-btn-cancel {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.65rem 1.25rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.evt-btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.evt-btn-danger-confirm {
-  background: var(--color-error);
-  color: #ffffff;
-  border: none;
-  padding: 0.65rem 1.25rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-}
-
-.evt-btn-danger-confirm:hover {
-  opacity: 0.9;
-}
-
-/* ==========================================================================
-   11. KEYFRAMES & MICRO-ANIMATIONS
-   ========================================================================== */
-.fade-in-up {
-  animation: fadeInUp 0.25s ease-out;
-}
-
-@keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
-  }
-
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
-
-.animate-fade-in {
-  animation: evtFadeIn 0.2s ease-out;
-}
-
-@keyframes evtFadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(4px); 
-  }
-
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
-
-.animate-pop-in {
-  animation: evtPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes evtPopIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.95) translateY(10px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: scale(1) translateY(0); 
-  }
 }

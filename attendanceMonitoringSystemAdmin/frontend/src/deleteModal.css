@@ -1,7 +1,9 @@
 @import url("style.css");
 @import url("color.css");
 
-/* MODAL 2: Delete Secure Confirmation Panel Card Styling */
+/* ==========================================================================
+   10. MODAL 2: SECURE DELETE CONFIRMATION PANEL
+   ========================================================================== */
 .uni-confirm-modal-card {
   background: #1e293b;
   border: 1px solid rgba(244, 63, 94, 0.2);
@@ -80,3 +82,4 @@
 .uni-btn-danger-confirm:hover {
   opacity: 0.9;
 }
+

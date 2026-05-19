@@ -1,0 +1,22 @@
+.uni-view {
+  min-height: 100vh;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background-color: var(--bg-page);
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   2. HEADER & TITLES
+   ========================================================================== */
+.uni-header {
+  margin-bottom: 2.5rem;
+}
+
+.uni-header .main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #ffffff, var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
