@@ -41,7 +41,7 @@ export default function Officer() {
           >
             <span>Officers ID</span>
             <span>Student ID</span>
-            <span>Org ID</span>
+            <span>Organization ID</span>
             <span>Position</span>
             <span>Action</span>
           </div>
