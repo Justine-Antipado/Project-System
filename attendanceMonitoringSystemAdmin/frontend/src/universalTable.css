@@ -4,7 +4,7 @@
 /* ==========================================================================
    5. PREMIUM DARK NAVY TABLE / GRID ARCHITECTURE
    ========================================================================== */
-.event-table-container {
+.uni-table-container {
   background: var(--bg-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -16,11 +16,11 @@
   overflow: hidden;
 }
 
-.table-grid-header, 
+.table-grid-header,
 .uni-table-grid-row {
   display: grid;
-  /* Hahatiin ang columns: ID, Name, Date, Venue, Status, Sem, Actions */
-  grid-template-columns: 0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.2fr;
+  /* Hahatiin ang columns: ID, Name, Date, Venue, Status, Sem, Actions 
+  grid-template-columns: 0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.2fr;*/
   align-items: center;
   padding: 1rem 1.2rem;
   gap: 1rem;
@@ -39,14 +39,19 @@
   letter-spacing: 0.08em;
 }
 
-.event-list {
+.uni-list {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
 .uni-table-grid-row {
-  background: rgba(15, 23, 42, 0.4); /* Bahagyang mas madilim sa card background */
+  background: rgba(
+    15,
+    23,
+    42,
+    0.4
+  ); /* Bahagyang mas madilim sa card background */
   border: 1px solid rgba(255, 255, 255, 0.02);
   border-radius: 10px;
   color: var(--text-main);

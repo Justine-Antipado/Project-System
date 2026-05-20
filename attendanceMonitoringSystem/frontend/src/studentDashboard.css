@@ -7,7 +7,10 @@
   background-color: var(--bg-page);
   color: var(--text-main);
   padding: 2rem;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* Fade-in Animation */
@@ -16,8 +19,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── HEADER ── */
@@ -87,10 +96,18 @@
 }
 
 /* Glow indicators sa gilid ng cards gamit ang border */
-.bento-card.accent-blue:hover { border-color: var(--accent-blue); }
-.bento-card.accent-yellow:hover { border-color: var(--omsc-yellow); }
-.bento-card.accent-sky:hover { border-color: var(--accent-sky); }
-.bento-card.accent-green:hover { border-color: var(--accent-green); }
+.bento-card.accent-blue:hover {
+  border-color: var(--accent-blue);
+}
+.bento-card.accent-yellow:hover {
+  border-color: var(--omsc-yellow);
+}
+.bento-card.accent-sky:hover {
+  border-color: var(--accent-sky);
+}
+.bento-card.accent-green:hover {
+  border-color: var(--accent-green);
+}
 
 /* Card Header */
 .card-header {
@@ -173,15 +190,26 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(to right, transparent, var(--omsc-yellow), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--omsc-yellow),
+    transparent
+  );
   box-shadow: 0 0 8px var(--omsc-yellow);
   animation: scan 2.5s linear infinite;
 }
 
 @keyframes scan {
-  0% { top: 0%; }
-  50% { top: 100%; }
-  100% { top: 0%; }
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
 }
 
 .qr-hint {
@@ -257,11 +285,11 @@
 .progress-bar-fill {
   height: 100%;
   display: block; /* Pinupuwersa ang element na mag-behave bilang block */
-  
+
   /* PANSAMANTALANG PALITAN ANG VAR() NG HARDCODED HEX CODES */
   /* Para masigurado na hindi isyu ang sirang CSS variable */
-  background: linear-gradient(to right, #10b981, #34d399) !important; 
-  
+  background: linear-gradient(to right, #10b981, #34d399) !important;
+
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
@@ -307,7 +335,7 @@
   border-radius: 1rem;
   margin: 1rem auto;
   display: block;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .close-modal {

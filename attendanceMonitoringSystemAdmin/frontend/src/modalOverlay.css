@@ -8,8 +8,8 @@
   position: absolute; /* Binago mula sa fixed para hindi lumampas sa screen */
   top: 0;
   left: 0;
-  width: 100%;        /* Sakop lang ang lapad ng .event-view */
-  height: 100%;       /* Sakop lang ang buong haba/taas ng .event-view */
+  width: 100%; /* Sakop lang ang lapad ng .event-view */
+  height: 100%; /* Sakop lang ang buong haba/taas ng .event-view */
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(8px);
   display: flex;

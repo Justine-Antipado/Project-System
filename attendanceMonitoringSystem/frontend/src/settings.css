@@ -44,8 +44,9 @@
   -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-responsive-lg, 16px);
   padding: clamp(1.5rem, 3vw, 2.5rem);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
-              inset 0 1px 0px rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0px rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: var(--transition-smooth);
 }
@@ -57,8 +58,9 @@
 
 .glass-card:hover {
   border-color: rgba(250, 204, 21, 0.15);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 
-              inset 0 1px 0px rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0px rgba(255, 255, 255, 0.08);
 }
 
 /* ==========================================================================
@@ -117,7 +119,7 @@
   width: clamp(50px, 5vw, 64px);
   height: clamp(50px, 5vw, 64px);
   object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .settings-form-heading {
@@ -201,7 +203,7 @@
 /* Taasan ang layer positioning kapag row ng dropdowns para hindi lamunin ng buttons sa ibaba */
 .dropdown-row {
   position: relative;
-  z-index: 40; 
+  z-index: 40;
 }
 
 /* ==========================================================================
@@ -225,7 +227,7 @@
 }
 
 .dropdown-trigger::after {
-  content: '▼';
+  content: "▼";
   font-size: 0.65rem;
   color: var(--text-muted);
   transition: transform 0.25s ease;
@@ -242,7 +244,7 @@
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #1e293b; 
+  background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-responsive-md, 10px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
@@ -253,8 +255,14 @@
 }
 
 @keyframes dropdownSlideIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-item {
@@ -364,8 +372,12 @@
   font-weight: 600;
 }
 
-.password-requirements-popup li.met { color: #10b981; }
-.password-requirements-popup li.unmet { color: var(--text-muted); }
+.password-requirements-popup li.met {
+  color: #10b981;
+}
+.password-requirements-popup li.unmet {
+  color: var(--text-muted);
+}
 
 /* ==========================================================================
    8. BUTTONS & BANNER VALIDATIONS
@@ -437,7 +449,9 @@ form[onSubmit*="ChangePassword"] .btn-submit:hover {
    9. RESPONSIVE BREAKPOINTS
    ========================================================================== */
 @media (max-width: 1024px) {
-  .settings-grid { grid-template-columns: 1fr; }
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {

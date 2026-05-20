@@ -119,23 +119,31 @@
   font-size: 0.95rem;
   font-weight: 750; /* Bold para sa malinaw na emphasis */
   letter-spacing: -0.01em;
-  height: 50px; 
+  height: 50px;
   padding: 0 1.5rem;
   border: none;
-  border-radius: 0.85rem; 
+  border-radius: 0.85rem;
   cursor: pointer;
   white-space: nowrap; /* Pinipigilan ang text na bumaba o mayupi */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .evt-btn-primary:hover {
-  transform: translateY(-2px); /* Swabeng pag-angat kapag tinatapatan ng mouse */
-  background: linear-gradient(135deg, #fde047, var(--omsc-yellow, #facc15)); /* Bahagyang sisigla ang kulay */
+  transform: translateY(
+    -2px
+  ); /* Swabeng pag-angat kapag tinatapatan ng mouse */
+  background: linear-gradient(
+    135deg,
+    #fde047,
+    var(--omsc-yellow, #facc15)
+  ); /* Bahagyang sisigla ang kulay */
   box-shadow: 0 8px 25px rgba(250, 204, 21, 0.45); /* Mas malakas at mamahaling glow effect */
 }
 
 .evt-btn-primary:active {
-  transform: translateY(1px); /* Bababa ng kaunti para maramdaman ang click feedback */
+  transform: translateY(
+    1px
+  ); /* Bababa ng kaunti para maramdaman ang click feedback */
   box-shadow: 0 3px 10px rgba(250, 204, 21, 0.2);
 }
 
@@ -240,7 +248,7 @@
   flex-shrink: 0;
 }
 
-.dropdown-trigger-event:hover .icon-left, 
+.dropdown-trigger-event:hover .icon-left,
 .dropdown-trigger-event.active .icon-left {
   color: var(--omsc-yellow);
 }
@@ -316,7 +324,7 @@
   overflow: hidden;
 }
 
-.table-grid-header, 
+.table-grid-header,
 .evt-table-grid-row {
   display: grid;
   /* Hahatiin ang columns: ID, Name, Date, Venue, Status, Sem, Actions */
@@ -346,7 +354,12 @@
 }
 
 .evt-table-grid-row {
-  background: rgba(15, 23, 42, 0.4); /* Bahagyang mas madilim sa card background */
+  background: rgba(
+    15,
+    23,
+    42,
+    0.4
+  ); /* Bahagyang mas madilim sa card background */
   border: 1px solid rgba(255, 255, 255, 0.02);
   border-radius: 10px;
   color: var(--text-main);
@@ -488,8 +501,8 @@
   position: absolute; /* Binago mula sa fixed para hindi lumampas sa screen */
   top: 0;
   left: 0;
-  width: 100%;        /* Sakop lang ang lapad ng .event-view */
-  height: 100%;       /* Sakop lang ang buong haba/taas ng .event-view */
+  width: 100%; /* Sakop lang ang lapad ng .event-view */
+  height: 100%; /* Sakop lang ang buong haba/taas ng .event-view */
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(8px);
   display: flex;
@@ -592,7 +605,7 @@
   background: #3d4f66 !important;
 }
 
-.evt-form-input:focus, 
+.evt-form-input:focus,
 .evt-dropdown-trigger.active {
   outline: none;
   background: var(--omsc-dark-muted) !important;
@@ -624,7 +637,7 @@
 }
 
 .evt-dropdown-trigger::after {
-  content: '▼';
+  content: "▼";
   font-size: 0.6rem;
   color: var(--text-muted);
   transition: transform 0.2s ease;
@@ -813,14 +826,14 @@
 }
 
 @keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -829,14 +842,14 @@
 }
 
 @keyframes evtFadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(4px); 
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -845,12 +858,12 @@
 }
 
 @keyframes evtPopIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.95) translateY(10px); 
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1) translateY(0); 
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }

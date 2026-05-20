@@ -1,17 +1,18 @@
 @import url("style.css");
 @import url("color.css");
 
-
 /* Sidebar Container - 100% Solid Premium Dark Tech Layout */
 .sidebar {
   width: 280px;
-  background: var(--bg-card); /* Gumagamit na ng purong solid color mula sa variables mo */
+  background: var(
+    --bg-card
+  ); /* Gumagamit na ng purong solid color mula sa variables mo */
   height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 2rem 1.25rem;
   border-right: 1px solid var(--omsc-dark-muted); /* Pinalitan ang glass-border ng solid dark border */
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.100); /* Direktang solid deep shadow */
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1); /* Direktang solid deep shadow */
   z-index: 10;
   position: fixed;
   left: 0;
@@ -88,7 +89,7 @@
   color: var(--text-muted);
   font-weight: 600;
   font-size: 0.95rem;
-  transition: var(--transition-bounce); 
+  transition: var(--transition-bounce);
   cursor: pointer;
   border: 1px solid transparent;
 }
@@ -100,7 +101,10 @@
 
 /* Sophisticated Hover State */
 .nav-item:hover {
-  background: var(--bg-hover, var(--omsc-dark-muted)); /* Gumagamit na ng solid dark-muted block on hover */
+  background: var(
+    --bg-hover,
+    var(--omsc-dark-muted)
+  ); /* Gumagamit na ng solid dark-muted block on hover */
   border-color: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
   padding-left: 24px; /* Gumagalaw pakanan para sa interaction feedback */
@@ -116,8 +120,9 @@
   background: linear-gradient(135deg, #1e3a8a 0%, var(--omsc-dark) 100%);
   color: #ffffff !important;
   border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 10px 25px -5px rgba(10, 29, 55, 0.6), 
-              inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 10px 25px -5px rgba(10, 29, 55, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
   padding-left: 24px;
 }
 
@@ -129,7 +134,7 @@
 
 /* Glowing Left Border Indicator */
 .nav-item::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 20%;
@@ -167,7 +172,10 @@
   align-items: center;
   gap: 14px;
   padding: 12px;
-  background: var(--bg-profile, var(--omsc-dark-muted)); /* Solid card background block */
+  background: var(
+    --bg-profile,
+    var(--omsc-dark-muted)
+  ); /* Solid card background block */
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 16px;
   transition: var(--transition-smooth);
@@ -188,7 +196,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .user-details {

@@ -4,11 +4,11 @@
   --omsc-dark-muted: #1e293b;
   --omsc-yellow: #facc15;
   --omsc-yellow-glow: rgba(250, 204, 21, 0.15);
-  
+
   /* Backgrounds & Glass Layers */
   --bg-page: #0f172a; /* Slate 900 - Mas bagay sa premium dark mode look */
   --bg-card: rgba(30, 41, 59, 0.7); /* Translucent Slate 800 */
-  
+
   /* Typography */
   --text-main: #f8fafc; /* Near White */
   --text-muted: #94a3b8; /* Slate 400 */

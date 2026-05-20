@@ -9,7 +9,10 @@
   background-color: var(--bg-page);
   color: var(--text-main);
   padding: 2rem;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* ── HEADER ── */
@@ -26,7 +29,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-
 /* ==========================================
    2. FILTER CONTAINER & CONTROLS
    ========================================== */
@@ -36,7 +38,6 @@
   margin-bottom: 2rem;
   max-width: 1200px;
 }
-
 
 /* ==========================================
    3. SEARCH BAR STYLING
@@ -105,7 +106,6 @@
 .search-wrapper:focus-within .search-icon {
   color: var(--omsc-yellow); /* Mag-iiba kulay icon pag active */
 }
-
 
 /* ==========================================
    4. NATIVE & CUSTOM DROPDOWN STYLING
@@ -199,7 +199,7 @@
   flex-shrink: 0;
 }
 
-.dropdown-trigger-history:hover .icon-left, 
+.dropdown-trigger-history:hover .icon-left,
 .dropdown-trigger-history.active .icon-left {
   color: var(--omsc-yellow);
 }
@@ -267,10 +267,15 @@
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
 
 /* ==========================================
    5. MODERN GRID TABLE & ROWS
@@ -291,7 +296,8 @@
 }
 
 /* Pinag-isang grid structural setup para sa header at rows */
-.table-header-grid, .history-row {
+.table-header-grid,
+.history-row {
   display: grid;
   grid-template-columns: 1.2fr 2fr 1.5fr 1fr;
   padding: 1.1rem 1.5rem;
@@ -331,7 +337,7 @@
 
 /* Left indicator border (Accent Lines) */
 .history-row::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 15%;
@@ -348,9 +354,15 @@
   top: 0;
 }
 
-.history-row.accent-blue::before { background-color: var(--accent-blue, #38bdf8); }
-.history-row.accent-yellow::before { background-color: var(--omsc-yellow); }
-.history-row.accent-green::before { background-color: var(--accent-green, #10b981); }
+.history-row.accent-blue::before {
+  background-color: var(--accent-blue, #38bdf8);
+}
+.history-row.accent-yellow::before {
+  background-color: var(--omsc-yellow);
+}
+.history-row.accent-green::before {
+  background-color: var(--accent-green, #10b981);
+}
 
 /* Row Typography & Badges */
 .row-date {
@@ -379,25 +391,26 @@
   font-size: 0.85rem;
 }
 
-
 /* ==========================================
    6. RESPONSIVE DESIGN (MEDIA QUERIES)
    ========================================== */
 
 /* Para sa katamtamang screen o Tablet */
 @media (max-width: 900px) {
-  .table-header-grid, .history-row {
+  .table-header-grid,
+  .history-row {
     grid-template-columns: 1.5fr 2fr 1.5fr; /* Tinanggal muna si Time In sa grid space */
   }
-  
+
   /* Nilagay si Time In sa ilalim ng Event Name para tipid sa space */
   .row-event {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
   }
-  
-  .table-header-grid span:last-child, .row-time {
+
+  .table-header-grid span:last-child,
+  .row-time {
     display: none; /* Tinago ang default column header */
   }
 
@@ -420,9 +433,9 @@
     flex-direction: column;
     gap: 1rem;
   }
-  
-  .search-group, 
-  .custom-dropdown-history, 
+
+  .search-group,
+  .custom-dropdown-history,
   .dropdown-wrapper {
     max-width: 100%;
     width: 100%;

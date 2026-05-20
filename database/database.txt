@@ -1,343 +1,250 @@
-table needed to database
+Hindi mo kailangang lagyan ng **Delete (Del) button** ang bawat table sa UI mo. Dahil sa magandang pagkaka-design ng database schema mo (na may `ON DELETE CASCADE`), mas matalino at mas malinis sa UI kung sa mga **pangunahing tables (parent tables)** mo lang ilalagay ang delete function.
 
-CREATE TABLE `students` (
-  `StudentID` int(11) NOT NULL,
-  `SchoolIDNo` varchar(50) NOT NULL,
-  `LastName` varchar(100) NOT NULL,
-  `FirstName` varchar(100) NOT NULL,
-  `MiddleName` varchar(100) DEFAULT NULL,
-  `Program` varchar(100) DEFAULT NULL,
-  `YearLevel` int(11) DEFAULT NULL,
-  `section` int(11) DEFAULT NULL,
-studentqrcode
-)
-CREATE TABLE `organizations` (
-  `OrgID` int(11) NOT NULL,
-  `OrgName` varchar(100) NOT NULL
-)
+Kung ilalagay mo ang Delete button sa lahat, pwedeng maging magulo ang user experience (UX) at baka makabura ang admin ng mga importanteng data nang hindi sinasadya dahil sa domino effect.
 
-CREATE TABLE `semesters` (
-  `SemesterID` int(11) NOT NULL,
-  `YearID` int(11) DEFAULT NULL,
-  `SemesterName` varchar(50) NOT NULL
-)
+Heto ang gabay kung aling mga tables ang **dapat** at **huwag** lagyan ng Delete button sa UI mo:
 
-CREATE TABLE `school_years` (
-  `YearID` int(11) NOT NULL,
-  `YearRange` varchar(20) NOT NULL
-)
+---
 
-CREATE TABLE `officers` (
-  `OfficersID` int(11) NOT NULL,
-  `StudentID` int(11) DEFAULT NULL,
-  `OrgID` int(11) DEFAULT NULL,
-  `Position` varchar(100) DEFAULT NULL
-)
+### 1. Mga Tables na DAPAT may Delete Button (Parent Tables)
 
-CREATE TABLE `event_attendance` (
-  `EventAttendanceID` int(11) NOT NULL,
-  `EventID` int(11) DEFAULT NULL,
-  `StudentID` int(11) DEFAULT NULL,
-  `ScannedBy` int(11) DEFAULT NULL,
-  `Timestamp` timestamp NOT NULL DEFAULT current_timestamp()
-)
+Ito yung mga hawakan ng pangunahing impormasyon. Kapag binura mo ito, malaking chunk ng data ang mawawala, kaya lagyan mo ito ng **Confirmation Modal** (e.g., *"Sigurado ka ba? Mabubura rin ang lahat ng nakakabit na data..."*).
 
-CREATE TABLE `events` (
-  `EventID` int(11) NOT NULL,
-  `EventName` varchar(200) NOT NULL,
-  `Date` date NOT NULL,
-  `Venue` varchar(200) DEFAULT NULL,
-  `Status` varchar(50) DEFAULT NULL,
-  `SemesterID` int(11) DEFAULT NULL
-)
+* **`students`** — Kailangan ito kapag may nag-drop, nag-transfer, o nag-graduate na estudyante.
+> *Cascade Effect:* Kapag binura ang estudyante, awtomatikong mabubura ang records niya sa `officers` at ang mga attendance logs niya sa `event_attendance`.
+
+
+* **`events`** — Para sa mga kanseladong events o maling entry.
+> *Cascade Effect:* Mabubura lahat ng attendance logs ng mga estudyante na naka-scan sa event na iyon.
+
+
+* **`organizations`** — Sakaling mag-disband o matapos ang termino ng isang partikular na grupo.
+> *Cascade Effect:* Awtomatikong matatanggal ang mga officers sa ilalim ng org na iyon.
+
+
+* **`school_years`** — Bagamat madalang gamitin ang delete dito (dahil sa history ng school), kailangan pa rin ito kung sakaling nagkamali sa pag-input ng taon (e.g., Typo mula "2026-2027" naging "2026-2022").
+
+---
+
+### 2. Mga Tables na HINDI KAILANGAN o MAAARING TANGGALIN ang Delete Button
+
+* **`semesters` (Huwag na o Itago)**
+* *Bakit?* Ang semester ay karaniwang static (1st Semester, 2nd Semester, Summer). Mas magandang i-manage ito sa loob mismo ng view o form ng School Year. Kung buburahin mo ang isang semester, madadamay ang lahat ng events sa semester na iyon. Mas ligtas na walang direktang "Del" button ito sa isang hiwalay na listahan.
+
+
+* **`event_attendance` (Huwag lagyan ng generic Delete)**
+* *Bakit?* Ito ay isang transaction table (mga logs ng scan). Hindi ka dapat nagbubura ng attendance basta-basta para sa integridad ng system.
+* *Alternatibo:* Kung nagkamali ng scan (halimbawa, maling estudyante ang nai-scan), gumawa ng **"Remove from Event"** o **"Void Scan"** button sa loob ng event summary view, sa halip na isang hilaw na Delete button.
+
+
+* **`officers` (Gawin mong "Revoke/Remove Position" sa halip na Delete)**
+* *Bakit?* Ang officer ay nakatali sa isang estudyante. Kung gusto mong alisin ang pagiging officer niya, mas magandang UI action ang tawaging **"Remove as Officer"** sa profile ng student o sa listahan ng org, sa halip na i-trato ito bilang pagbura ng isang independent row.
 
 
 
-ALTER TABLE `events`
-  ADD PRIMARY KEY (`EventID`),
-  ADD KEY `SemesterID` (`SemesterID`);
+---
 
---
--- Indexes for table `event_attendance`
---
-ALTER TABLE `event_attendance`
-  ADD PRIMARY KEY (`EventAttendanceID`),
-  ADD UNIQUE KEY `unique_scan` (`EventID`,`StudentID`),
-  ADD KEY `StudentID` (`StudentID`),
-  ADD KEY `ScannedBy` (`ScannedBy`);
+### Ang Rekomendasyon sa UI Flow Mo
 
---
--- Indexes for table `officers`
---
-ALTER TABLE `officers`
-  ADD PRIMARY KEY (`OfficersID`),
-  ADD KEY `StudentID` (`StudentID`),
-  ADD KEY `OrgID` (`OrgID`);
+Imbes na bigyan ng kapangyarihan ang user na mag-delete kahit saan, gamitin mo ang ganitong diskarte sa UI para maging malinis at ligtas ang system mo:
 
---
--- Indexes for table `organizations`
---
-ALTER TABLE `organizations`
-  ADD PRIMARY KEY (`OrgID`),
-  ADD UNIQUE KEY `OrgName` (`OrgName`);
+1. **Gumamit ng Tabbed o Dashboard View:** UI Layout.
+Igrupo mo ang `school_years` at `semesters` sa iisang "Settings" o "Academic Year" page. Ang Delete button ay nasa tabi lang ng buong School Year.
 
-ALTER TABLE `school_years`
-  ADD PRIMARY KEY (`YearID`),
-  ADD UNIQUE KEY `YearRange` (`YearRange`);
 
---
--- Indexes for table `semesters`
---
-ALTER TABLE `semesters`
-  ADD PRIMARY KEY (`SemesterID`),
-  ADD KEY `YearID` (`YearID`);
+2. **Magpatupad ng Soft Delete o Confirmation:** Safety Alert.
+Para sa `students` at `events`, kapag pinindot ang Delete, magpapakita ang isang modal: *"Mabubura rin ang XX attendance records nito. Ituloy?"* bago mag-fire ang `DELETE` query.
 
---
--- Indexes for table `students`
---
-ALTER TABLE `students`
-  ADD PRIMARY KEY (`StudentID`),
-  ADD UNIQUE KEY `SchoolIDNo` (`SchoolIDNo`),
-  ADD KEY `DeptID` (`DeptID`);
 
-ALTER TABLE `events`
-  MODIFY `EventID` int(11) NOT NULL AUTO_INCREMENT;
+3. **Gawing 'Action-Based' ang nasa Attendance at Officers:** UX Detail.
+Sa Attendance List ng isang event, palitan ang basurahan (Delete) icon ng text o icon na **"Void Scan"** para mas swak sa konteksto ng ginagawa ng user.
 
---
--- AUTO_INCREMENT for table `event_attendance`
---
-ALTER TABLE `event_attendance`
-  MODIFY `EventAttendanceID` int(11) NOT NULL AUTO_INCREMENT;
+Napakahusay ng takbo ng utak mo rito, Ranjet! Ang ganda ng breakdown mo tungkol sa UI security at `ON DELETE CASCADE`. Dahil diyan, **HINDI mo kailangang lagyan ng Add Form at Search Bar ang LAHAT ng table.**
 
---
--- AUTO_INCREMENT for table `officers`
---
-ALTER TABLE `officers`
-  MODIFY `OfficersID` int(11) NOT NULL AUTO_INCREMENT;
+Kung gagawin mo 'yan sa lahat, magiging magulo ang system mo (overcrowded UI) at mapaparami lang ang code na isusulat mo nang walang mabigat na rason.
 
---
--- AUTO_INCREMENT for table `organizations`
---
-ALTER TABLE `organizations`
-  MODIFY `OrgID` int(11) NOT NULL AUTO_INCREMENT;
+Heto ang direktang gabay kung aling mga tables lang ang **DAPAT at HINDI DAPAT** lagyan ng Search Bar at Add Form batay sa logic ng project mo:
 
--- AUTO_INCREMENT for table `school_years`
---
-ALTER TABLE `school_years`
-  MODIFY `YearID` int(11) NOT NULL AUTO_INCREMENT;
+---
 
---
--- AUTO_INCREMENT for table `semesters`
---
-ALTER TABLE `semesters`
-  MODIFY `SemesterID` int(11) NOT NULL AUTO_INCREMENT;
+### 1. Mga Tables na DAPAT may Search Bar at Add Form (Independent Views)
 
---
--- AUTO_INCREMENT for table `students`
---
-ALTER TABLE `students`
-  MODIFY `StudentID` int(11) NOT NULL AUTO_INCREMENT;
+Ito yung mga dynamic tables na araw-araw o madalas hahawakan ng admin. Mabilis lumaki ang data rito kaya mandatory ang Search Bar, at kailangan ng mabilisang pag-add.
 
--- Constraints for table `events`
---
-ALTER TABLE `events`
-  ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`SemesterID`) REFERENCES `semesters` (`SemesterID`) ON DELETE CASCADE;
+* **`students`** — **DAPAT MAYROON (Pareho).**
+* *Bakit?* Daan-daan o libo ang estudyante sa OMSC. Imposibleng mahanap ang isang student kung walang Search Bar (by Student ID o Last Name). Kailangan din ng Add Form para sa mga bagong enrollees o transferees.
 
---
--- Constraints for table `event_attendance`
---
-ALTER TABLE `event_attendance`
-  ADD CONSTRAINT `event_attendance_ibfk_1` FOREIGN KEY (`EventID`) REFERENCES `events` (`EventID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `event_attendance_ibfk_2` FOREIGN KEY (`StudentID`) REFERENCES `students` (`StudentID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `event_attendance_ibfk_3` FOREIGN KEY (`ScannedBy`) REFERENCES `officers` (`OfficersID`) ON DELETE SET NULL;
 
---
--- Constraints for table `officers`
---
-ALTER TABLE `officers`
-  ADD CONSTRAINT `officers_ibfk_1` FOREIGN KEY (`StudentID`) REFERENCES `students` (`StudentID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `officers_ibfk_2` FOREIGN KEY (`OrgID`) REFERENCES `organizations` (`OrgID`) ON DELETE CASCADE;
+* **`events`** — **DAPAT MAYROON (Pareho).**
+* *Bakit?* Dito magsisimula ang attendance mo. Kailangan ng Add Form para sa mga bagong school activities, at Search Bar para mabilis mahanap ang nakaraang events.
 
---
--- Constraints for table `semesters`
---
-ALTER TABLE `semesters`
-  ADD CONSTRAINT `semesters_ibfk_1` FOREIGN KEY (`YearID`) REFERENCES `school_years` (`YearID`) ON DELETE CASCADE;
 
---
--- Constraints for table `students`
---
-ALTER TABLE `students`
-  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`DeptID`) REFERENCES `departments` (`DeptID`) ON DELETE SET NULL;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-wala ng dept table aalisin na yon, ayusin lahat ng relationship per table
+* **`organizations`** — **DAPAT MAYROON (Pareho).**
+* *Bakit?* Para sa madaling pag-add ng mga bagong accredited orgs at paghahanap sa kanila kapag marami na (e.g., JITS, CSC, atbp.).
 
 
 
+---
 
-import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-// Nag-import ng mga bagong icons na angkop para sa mga admin pages
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  CheckSquare, 
-  UserCheck, 
-  Users, 
-  FileText, 
-  CalendarDays, 
-  Layers, 
-  GraduationCap, 
-  Settings, 
-  LogOut 
-} from 'lucide-react';
+### 2. Mga Tables na may "Kakaibang" Diskarte (Huwag lagyan ng generic Search/Add)
 
-// I-import dito ang iyong logo file
-import omscLogo from './assets/omsc.logo.png'; 
-import './layout.css';
-import './style.css';
+Dito papasok ang pagiging madiskarte mo bilang full-stack developer para maging malinis ang UX (User Experience) mo:
 
-export default function Layout() {
-  const navigate = useNavigate();
+#### A. `school_years` at `semesters` (I-grupo sa iisang "Academic Settings" View)
 
-  // Ginawang kunwaring Admin profile ang data
-  const currentUser = {
-    name: "Admin User",
-    id: "OMSC-ADMIN-01",
-  };
+* **Search Bar:** **HUWAG NA.** Ang School Year at Semester sa isang eskwelahan ay napakakonti lang (karaniwang less than 10 entries sa loob ng ilang taon). Hindi mo kailangan mag-search para sa "2026-2027" kung scrollable naman ito sa isang maikling listahan.
+* **Add Form:** **PAGSAMAHIN NA LANG.** Sa halip na magkahiwalay na page, gumawa ka ng isang "Academic Year" page. Kapag nag-add ka ng School Year (e.g., 2026-2027), may checkbox o dropdown na doon para automatic malikha ang 1st at 2nd Semester sa ilalim nito.
 
-  const handleLogout = () => {
-    navigate('/login');
-  };
+#### B. `event_attendance` (Attendance Logs)
 
-  return (
-    <div className="app-layout">
-      <aside className="sidebar">
-        <div className="sidebar-top">
-          {/* Header Section with Image Logo */}
-          <div className="sidebar-header">
-            <div className="logo-box">
-              <img src={omscLogo} alt="OMSC Logo" className="sidebar-logo-img" />
-            </div>
-            <div className="header-text">
-              <h2 className="system-name">Events Attendance</h2>
-              <p className="sub-name">OMSC EasyLog</p>
-            </div>
-          </div>
+* **Search Bar:** **DAPAT MAYROON (by Student ID/Name).**
+* *Bakit?* Kapag nagrereklamo ang isang estudyante na *"Hala, bakit absent ako sa Assembly?"*, kailangan ma-search ng admin ang pangalan niya sa listahan ng mga naka-scan para ma-verify.
 
-          {/* Eto na ang pinalitang Nav Menu para sa mga Admin Routes */}
-          <nav className="nav-menu">
-            <p className="menu-label">ADMIN MENU</p>
-            
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <LayoutDashboard size={20} /> 
-              <span>Dashboard</span>
-            </NavLink>
 
-            <NavLink
-              to="/event"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <Calendar size={20} /> 
-              <span>Events</span>
-            </NavLink>
+* **Add Form:** **HUWAG GAMITAN NG TRADITIONAL FORM.**
+* *Bakit?* Ang "Add" action dito ay dapat nangyayari sa pamamagitan ng **QR Code Scanner Module** (kapag na-scan ang QR, automatic pumapasok sa table).
+* *Alternatibo:* Maglagay lang ng isang simpleng *"Manual Input"* button para sa mga estudyanteng nasiraan ng phone o walang QR code, pero sa loob lang ito ng mismong Event View.
 
-            <NavLink
-              to="/eventAttendance"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <CheckSquare size={20} /> 
-              <span>Event Attendance</span>
-            </NavLink>
 
-            <NavLink
-              to="/officer"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <UserCheck size={20} /> 
-              <span>Officers</span>
-            </NavLink>
 
-            <NavLink
-              to="/organization"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <Users size={20} /> 
-              <span>Organizations</span>
-            </NavLink>
+#### C. `officers` (Organization Officers)
 
-            <NavLink
-              to="/report"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <FileText size={20} /> 
-              <span>Reports</span>
-            </NavLink>
+* **Search Bar:** **MAAARING MERON O WALA (Depende sa Layout).** Kung ang officers list mo ay nakapaloob na sa view ng isang partikular na Organization (e.g., Pag-click sa JITS Org, lalabas ang officers nito), hindi na kailangan ng hiwalay na search bar dahil maikli lang ang listahan ng officers kada org.
+* **Add Form:** **GAWING "ASSIGN" BUTTON.** Huwag gumawa ng form kung saan ita-type mo uli ang pangalan ng officer. Gumawa ka ng button na **"Assign Officer"** kung saan pipiliin mo lang ang estudyante mula sa umiiral na `students` table at pipiliin ang posisyon niya (President, VP, etc.).
 
-            <NavLink
-              to="/schoolYear"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <CalendarDays size={20} /> 
-              <span>School Year</span>
-            </NavLink>
+---
 
-            <NavLink
-              to="/semester"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <Layers size={20} /> 
-              <span>Semester</span>
-            </NavLink>
+### Buod ng UI Blueprint para sa System Mo
 
-            <NavLink
-              to="/student"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <GraduationCap size={20} /> 
-              <span>Students</span>
-            </NavLink>
+| Table | May Search Bar? | May Add Form? | Lokasyon sa UI Dashboard mo |
+| --- | --- | --- | --- |
+| **Students** | Yes (Essential) | Yes | Hiwalay na Tab/Page (`/students`) |
+| **Events** | Yes (Essential) | Yes | Hiwalay na Tab/Page (`/events`) |
+| **Organizations** | Yes | Yes | Hiwalay na Tab/Page (`/organizations`) |
+| **Attendance** | Yes (by Student) | 🖨️ Sa QR Scanner lang | Sa loob ng Specific Event Page (`/events/:id`) |
+| **Officers** | ❌ Huwag na | Yes (Assign via Dropdown) | Sa loob ng Organization Detail View |
+| **School Year / Sem** | ❌ Huwag na (Konti lang ito) | Yes (Magkasama sa isang form) | Nasa "Settings" o "System Setup" Page |
 
-            <NavLink
-              to="/settings"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <Settings size={20} /> 
-              <span>Settings</span>
-            </NavLink>
-          </nav>
-        </div>
+Sa ganitong setup, mas kaunting components ang gagawin mo sa React at mas mabilis mong matatapos ang Midterm project mo nang hindi nagsasakripisyo sa kalidad ng system!
 
-        <div className="sidebar-bottom">
-          <div className="user-profile-card">
-            <div className="user-icon-bg">
-              <span className="user-icon-placeholder">👤</span>
-            </div>
-            <div className="user-details">
-              <p className="user-name">{currentUser.name}</p>
-              <p className="user-id">{currentUser.id}</p>
+Ranjet, nakita ko ang database dump mo mula sa phpMyAdmin. Napakalinaw at napaka-solid ng pagkakagawa mo ng mga **Foreign Key constraints** na may `ON DELETE CASCADE`.
+
+Dahil nakita natin ang kabuuang relasyon ng mga tables mo, heto ang tumpak na blueprint kung aling mga tables lang ang **DAPAT lagyan ng Edit Form** sa UI mo, at kung alin ang **HINDI na kailangan** para maiwasan ang bug sa data.
+
+---
+
+### 1. Mga Tables na DAPAT May Edit Form (Kailangang-Kailangan)
+
+Ito ang mga dynamic tables na madalas magkaroon ng human error sa pag-input, o kaya naman ay nagbabago ang status sa paglipat ng panahon:
+
+* **`students`** — **DAPAT MERON**
+* *Bakit kailangan i-edit:* Kapag may maling spelling sa pangalan (`LastName`, `FirstName`), kapag lumipat ng kurso (`Program`), o kapag umakyat na ang antas ng estudyante (`YearLevel`, `section`).
+
+
+* **`events`** — **DAPAT MERON** (Gaya ng nakita ko sa screenshot mo, may edit icon ka na rito, tama yan!)
+* *Bakit kailangan i-edit:* Para mabago ang `Venue` kung biglang umulan, i-adjust ang `Date`, o kapag papalitan na ang `Status` mula `Ongoing` patungong `Completed` o `Cancelled`.
+
+
+* **`organizations`** — **DAPAT MERON**
+* *Bakit kailangan i-edit:* Kung sakaling magbago ang opisyal na pangalan ng samahan (halimbawa, ang "ITS" ay naging "JITS").
+
+
+* **`officers`** — **DAPAT MERON**
+* *Bakit kailangan i-edit:* Para i-update ang `Position` ng isang officer (halimbawa, mula *PRO* naging *Vice President* sa kalagitnaan ng termino).
+
+
+
+---
+
+### 2. Mga Tables na HUWAG o HINDI KAILANGANG lagyan ng Edit Form
+
+* **`semesters`** — **HUWAG LAGYAN**
+* *Bakit?* Ang mga pangalan gaya ng "First Semester", "Second Semester", at "Summer Semester" ay permanenteng bansag na. Wala kang babaguhin sa text na 'yan. Kung magkamali man sa pagkakakabit ng taon, kontrolado na ito ng parent table (`school_years`).
+
+
+* **`school_years`** — **HUWAG NA (O opsyonal na napaka-bihira)**
+* *Bakit?* Ang `YearRange` (gaya ng "2025 - 2026") ay napaka-simple. Kung sakaling magka-typo ang admin habang nag-e-enter, mas ligtas na **i-delete** na lang ang maling School Year row at gumawa ng bago, kaysa i-edit ito. Dahil naka-`ON DELETE CASCADE` ang semesters mo, malinis na mabubura at muling magagawa ang mga kaakibat nitong data nang walang sabit.
+
+
+* **`event_attendance`** — **HUWAG NA HUWAG LAGYAN NG EDIT FORM**
+* *Bakit?* Ito ay isang log/transaction table. Ang attendance ay factual—alinman sa naka-scan ang estudyante o hindi. Hindi mo dapat pinapahintulutan ang admin na "i-edit" ang `Timestamp` o palitan ang `StudentID` sa loob ng isang scan record.
+* *Ang Tamang UI Action:* Kung nagkamali ng scan, ang ginagawa lang ay **Delete** (Void Scan) o kaya ay mag-add ng panibagong manual attendance record, pero walang "Edit".
+
+
+
+---
+
+### 📌 Buod ng UI Actions para sa Proyekto Mo
+
+Para hindi masira ang structure at maging mabilis ang coding mo, sundin mo itong checklist para sa mga Buttons/Actions kada table view:
+
+| Table Name | May Add Form? | May Edit Form? | May Delete Button? |
+| --- | --- | --- | --- |
+| **`students`** |  |  |  |
+| **`events`** |  |  |  |
+| **`organizations`** |  |  |  |
+| **`officers`** |  |  | (Revoke Position) |
+| **`school_years`** |  | ❌ | (May kasamang warning) |
+| **`semesters`** | ❌ | ❌ | ❌ (View-Only Table) |
+| **`event_attendance`** | ❌ (QR Scan) | ❌ | (Void Scan) |
+
+Dahil plantsado na ang database schema mo, mas madali na nating maia-apply ang mga forms na ito sa React. Aling edit form ang gusto mong unahin nating i-code?
+
+
+
+{/* ========================================================= */}
+        {/* MODAL 1: Form Multi-purpose Panel Overlay (Kopya sa Events) */}
+        {/* ========================================================= */}
+        {isPanelOpen && (
+          <div className="uni-modal-overlay" onClick={() => setIsPanelOpen(false)}>
+            <div className="uni-glass-form-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
+              <button type="button" className="uni-panel-close-btn" onClick={() => setIsPanelOpen(false)}>
+                <X size={16} />
+              </button>
+  
+              <div className="uni-form-header">
+                <h3 className="uni-form-heading">Create New School Year</h3>
+                <p className="uni-form-subheading">Setup and register new academic calendar spans</p>
+              </div>
+  
+              <form onSubmit={handleFormSubmit} className="uni-form-stack">
+                
+                {/* Ginamit ang uni-form-row-flex mo para magkatabi ang dalawang dropdowns */}
+                <div className="uni-form-row-flex">
+                  
+                  {/* Start Year Dropdown Block */}
+                  <div className="uni-field-group" style={{ flex: 1 }}>
+                    <label className="uni-label-text">Start Year</label>
+                    <select 
+                      value={startYear} 
+                      onChange={(e) => setStartYear(e.target.value)}
+                      className="uni-form-input"
+                      style={{ background: '#112240', color: '#fff', border: '1px solid #233554' }}
+                    >
+                      {availableYears.map(yr => <option key={yr} value={yr}>{yr}</option>)}
+                    </select>
+                  </div>
+
+                  {/* End Year Dropdown Block */}
+                  <div className="uni-field-group" style={{ flex: 1 }}>
+                    <label className="uni-label-text">End Year</label>
+                    <select 
+                      value={endYear} 
+                      onChange={(e) => setEndYear(e.target.value)}
+                      className="uni-form-input"
+                      style={{ background: '#112240', color: '#fff', border: '1px solid #233554' }}
+                    >
+                      {availableYears.map(yr => <option key={yr} value={yr}>{yr}</option>)}
+                    </select>
+                  </div>
+
+                </div>
+  
+                {/* Ginaya ang uni-btn-submit para sa main control button */}
+                <button type="submit" className="uni-btn-submit" s>
+                  Save New School Year
+                </button>
+              </form>
             </div>
           </div>
-
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={20} className="logout-icon" /> 
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      <main className="main-content">
-        <Outlet />
-      </main>
-    </div>
-  );
-}
-
+        )}

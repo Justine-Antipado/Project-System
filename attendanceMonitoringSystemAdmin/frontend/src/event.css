@@ -5,7 +5,7 @@
 @import url("color.css");
 /*@import url("keyframeandani.css");*/
 @import url("globalpage.css");
-
+@import url("customDropdown.css");
 
 /* ==========================================================================
    3. FILTERS, SEARCHBAR, & ACTIONS HEADER ROW
@@ -99,23 +99,31 @@
   font-size: 0.95rem;
   font-weight: 750; /* Bold para sa malinaw na emphasis */
   letter-spacing: -0.01em;
-  height: 50px; 
+  height: 50px;
   padding: 0 1.5rem;
   border: none;
-  border-radius: 0.85rem; 
+  border-radius: 0.85rem;
   cursor: pointer;
   white-space: nowrap; /* Pinipigilan ang text na bumaba o mayupi */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .uni-btn-primary:hover {
-  transform: translateY(-2px); /* Swabeng pag-angat kapag tinatapatan ng mouse */
-  background: linear-gradient(135deg, #fde047, var(--omsc-yellow, #facc15)); /* Bahagyang sisigla ang kulay */
+  transform: translateY(
+    -2px
+  ); /* Swabeng pag-angat kapag tinatapatan ng mouse */
+  background: linear-gradient(
+    135deg,
+    #fde047,
+    var(--omsc-yellow, #facc15)
+  ); /* Bahagyang sisigla ang kulay */
   box-shadow: 0 8px 25px rgba(250, 204, 21, 0.45); /* Mas malakas at mamahaling glow effect */
 }
 
 .uni-btn-primary:active {
-  transform: translateY(1px); /* Bababa ng kaunti para maramdaman ang click feedback */
+  transform: translateY(
+    1px
+  ); /* Bababa ng kaunti para maramdaman ang click feedback */
   box-shadow: 0 3px 10px rgba(250, 204, 21, 0.2);
 }
 
@@ -128,155 +136,3 @@
   transform: rotate(90deg);
 }
 
-/* ==========================================================================
-   4. PAGE-LEVEL MONTH FILTER DROPDOWN (NATIVE & CUSTOM)
-   ========================================================================== */
-.dropdown-wrapper {
-  min-width: 160px;
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--card-border);
-  border-radius: 0.85rem;
-  transition: var(--transition-smooth);
-  position: relative;
-}
-
-.dropdown-wrapper:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.03);
-}
-
-/* ── Native Month Dropdown ── */
-.month-dropdown {
-  width: 100%;
-  background: transparent;
-  border: none;
-  padding: 0.85rem 1rem;
-  color: var(--text-main);
-  font-size: 0.95rem;
-  outline: none;
-  cursor: pointer;
-  appearance: none; /* Tinatanggal ang default arrow */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
-}
-
-.month-dropdown option {
-  background-color: var(--omsc-dark-muted);
-  color: var(--text-main);
-}
-
-/* ── Custom Dropdown Header Menu Components ── */
-.custom-dropdown-event {
-  position: relative;
-  min-width: 200px;
-  user-select: none;
-}
-
-.dropdown-trigger-event {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--card-border);
-  border-radius: 0.85rem;
-  padding: 0 1.2rem;
-  height: 50px; /* Kapareho ng search bar height */
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  min-width: 200px;
-  cursor: pointer;
-  color: #ffffff;
-  transition: all 0.3s ease;
-}
-
-.dropdown-trigger-event:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-1px);
-}
-
-.dropdown-trigger-event.active {
-  border-color: var(--omsc-yellow);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-trigger-event .arrow {
-  margin-left: auto;
-  transition: transform 0.3s ease;
-  color: var(--text-muted);
-}
-
-.dropdown-trigger-event .arrow.rotate {
-  transform: rotate(180deg);
-}
-
-.icon-left {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.dropdown-trigger-event:hover .icon-left, 
-.dropdown-trigger-event.active .icon-left {
-  color: var(--omsc-yellow);
-}
-
-.selected-text {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background: #1e293b; /* Solid dark para hindi magulo basahin */
-  border: 1px solid var(--card-border);
-  border-radius: 1rem;
-  padding: 0.5rem;
-  z-index: 100;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.dropdown-menu::-webkit-scrollbar {
-  width: 5px;
-}
-
-.dropdown-menu::-webkit-scrollbar-thumb {
-  background: var(--card-border);
-  border-radius: 10px;
-}
-
-.dropdown-item {
-  padding: 0.75rem 1rem;
-  border-radius: 0.6rem;
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-}
-
-.dropdown-item.selected {
-  background: var(--omsc-yellow-glow);
-  color: var(--omsc-yellow);
-  font-weight: 600;
-}
-
-.check-icon {
-  color: var(--omsc-yellow);
-}

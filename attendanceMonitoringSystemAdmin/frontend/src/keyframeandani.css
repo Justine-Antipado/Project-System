@@ -6,30 +6,30 @@
 }
 
 @keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .animate-fade-in {
-  animation: evtFadeIn 0.2s ease-out;
+  animation: uniFadeIn 0.2s ease-out;
 }
 
-@keyframes evtFadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(4px); 
+@keyframes uniFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -37,13 +37,13 @@
   animation: evtPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes evtPopIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.95) translateY(10px); 
+@keyframes uniPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1) translateY(0); 
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }

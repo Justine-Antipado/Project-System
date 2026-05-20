@@ -1,18 +1,18 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import AdminAuth from './AdminAuth';
-import Layout from './Layout';
-import Event from './event';
-import EventAttendance from './eventAttendance';
-import Officer from './officer';
-import Organization from './organization';
-import Report from './report';
-import SchoolYear from './schoolYear';
-import Semester from './semester';
-import Student from './students';
-import Dashboard from './dashboard';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import AdminAuth from "./AdminAuth";
+import Layout from "./Layout";
+import Event from "./event";
+import EventAttendance from "./eventAttendance";
+import Officer from "./officer";
+import Organization from "./organization";
+import Report from "./report";
+import SchoolYear from "./schoolYear";
+import Semester from "./semester";
+import Student from "./students";
+import Dashboard from "./dashboard";
 //import AttendanceHistory from './attendanceHistory';
-import Settings from './settings';
+import Settings from "./settings";
 
 export default function App() {
   return (
@@ -22,7 +22,7 @@ export default function App() {
 
       {/* All admin pages share the Layout (sidebar) */}
       <Route element={<Layout />}>
-        <Route path="/event" element={<Event />} /> 
+        <Route path="/event" element={<Event />} />
         <Route path="/eventAttendance" element={<EventAttendance />} />
         <Route path="/officer" element={<Officer />} />
         <Route path="/organization" element={<Organization />} />

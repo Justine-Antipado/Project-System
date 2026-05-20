@@ -1,3 +1,205 @@
+import React, { useState, useRef, useEffect } from "react";
+// Assuming you're using lucide-react for your icons
+import { Search, Calendar, ChevronDown, Check } from "lucide-react";
+
+const PROGRAMS = ["BSIT", "BEED", "BSOA", "BSBA"];
+const YEAR_LEVELS = [1, 2, 3, 4];
+const SECTIONS = ["A", "B", "C", "D"]; // Added a fallback array for sections
+
+export default function Student() {
+  const [search, setSearch] = useState("");
+
+  // ── STATE FOR PROGRAM DROPDOWN ──
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [isProgramOpen, setIsProgramOpen] = useState(false);
+  const programDropdownRef = useRef(null);
+
+  // ── STATE FOR YEAR LEVEL DROPDOWN ──
+  const [selectedYear, setSelectedYear] = useState("");
+  const [isYearOpen, setIsYearOpen] = useState(false);
+  const yearDropdownRef = useRef(null);
+
+  // ── STATE FOR SECTION DROPDOWN ──
+  const [selectedSection, setSelectedSection] = useState("");
+  const [isSectionOpen, setIsSectionOpen] = useState(false);
+  const sectionDropdownRef = useRef(null);
+
+  // ── CLICK OUTSIDE TO CLOSE DROP DOWNS ──
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (programDropdownRef.current && !programDropdownRef.current.contains(event.target)) {
+        setIsProgramOpen(false);
+      }
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target)) {
+        setIsYearOpen(false);
+      }
+      if (sectionDropdownRef.current && !sectionDropdownRef.current.contains(event.target)) {
+        setIsSectionOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <>
+      <div className="uni-view fade-in">
+        <header className="uni-header">
+          <h1 className="main-title">STUDENTS</h1>
+        </header>
+
+        <div className="filter-container">
+          <div className="search-wrapper">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search student..."
+              className="search-input"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-row">
+            
+            {/* ── CUSTOM PROGRAM DROPDOWN ── */}
+            <div className="custom-dropdown-uni" ref={programDropdownRef}>
+              <div
+                className={`dropdown-trigger-uni ${isProgramOpen ? "active" : ""}`}
+                onClick={() => setIsProgramOpen(!isProgramOpen)}
+              >
+                <Calendar size={18} className="icon-left" />
+                <span>{selectedProgram || "Select Program"}</span>
+                <ChevronDown
+                  size={16}
+                  className={`arrow ${isProgramOpen ? "rotate" : ""}`}
+                />
+              </div>
+
+              {isProgramOpen && (
+                <div className="dropdown-menu fade-in-up">
+                  <div
+                    className={`dropdown-item ${selectedProgram === "" ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedProgram("");
+                      setIsProgramOpen(false);
+                    }}
+                  >
+                    All Programs
+                  </div>
+                  {PROGRAMS.map((prog) => (
+                    <div
+                      key={prog}
+                      className={`dropdown-item ${selectedProgram === prog ? "selected" : ""}`}
+                      onClick={() => {
+                        setSelectedProgram(prog);
+                        setIsProgramOpen(false);
+                      }}
+                    >
+                      {prog}
+                      {selectedProgram === prog && (
+                        <Check size={14} className="check-icon" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── CUSTOM YEAR LEVEL DROPDOWN ── */}
+            <div className="custom-dropdown-uni" ref={yearDropdownRef}>
+              <div
+                className={`dropdown-trigger-uni ${isYearOpen ? "active" : ""}`}
+                onClick={() => setIsYearOpen(!isYearOpen)}
+              >
+                <Calendar size={18} className="icon-left" />
+                <span>{selectedYear ? `Year ${selectedYear}` : "Select Year Level"}</span>
+                <ChevronDown
+                  size={16}
+                  className={`arrow ${isYearOpen ? "rotate" : ""}`}
+                />
+              </div>
+
+              {isYearOpen && (
+                <div className="dropdown-menu fade-in-up">
+                  <div
+                    className={`dropdown-item ${selectedYear === "" ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedYear("");
+                      setIsYearOpen(false);
+                    }}
+                  >
+                    All Year Levels
+                  </div>
+                  {YEAR_LEVELS.map((yr) => (
+                    <div
+                      key={yr}
+                      className={`dropdown-item ${selectedYear === yr ? "selected" : ""}`}
+                      onClick={() => {
+                        setSelectedYear(yr);
+                        setIsYearOpen(false);
+                      }}
+                    >
+                      Year {yr}
+                      {selectedYear === yr && (
+                        <Check size={14} className="check-icon" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── CUSTOM SECTION DROPDOWN ── */}
+            <div className="custom-dropdown-uni" ref={sectionDropdownRef}>
+              <div
+                className={`dropdown-trigger-uni ${isSectionOpen ? "active" : ""}`}
+                onClick={() => setIsSectionOpen(!isSectionOpen)}
+              >
+                <Calendar size={18} className="icon-left" />
+                <span>{selectedSection ? `Section ${selectedSection}` : "Select Section"}</span>
+                <ChevronDown
+                  size={16}
+                  className={`arrow ${isSectionOpen ? "rotate" : ""}`}
+                />
+              </div>
+
+              {isSectionOpen && (
+                <div className="dropdown-menu fade-in-up">
+                  <div
+                    className={`dropdown-item ${selectedSection === "" ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedSection("");
+                      setIsSectionOpen(false);
+                    }}
+                  >
+                    All Sections
+                  </div>
+                  {SECTIONS.map((sec) => (
+                    <div
+                      key={sec}
+                      className={`dropdown-item ${selectedSection === sec ? "selected" : ""}`}
+                      onClick={() => {
+                        setSelectedSection(sec);
+                        setIsSectionOpen(false);
+                      }}
+                    >
+                      Section {sec}
+                      {selectedSection === sec && (
+                        <Check size={14} className="check-icon" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 import React, { useState, useRef, useEffect } from "react";
 // Lahat ng kailangang icons para sa student structure at actions
@@ -297,7 +499,7 @@ export default function Student() {
           </div>
         </div>
 
-        <div className="uni-table-container">
+        <div className="event-table-container">
           <div 
             className="table-grid-header"
             style={{ gridTemplateColumns: studentColumns }}
@@ -310,10 +512,11 @@ export default function Student() {
             <span>Program</span>
             <span>Year Level</span>
             <span>Section</span>
-            <span className="text-left-aligned">Action</span>
+            <span>Action</span>
           </div>
+        </div>
 
-             <div className="uni-list">
+        <div className="uni-list">
           {filteredStudents.map((student) => {
             return (
               <div
@@ -357,9 +560,6 @@ export default function Student() {
             </div>
           )}
         </div>
-        </div>
-
-     
 
         {/* MODAL 2: Delete Secure Confirmation Panel */}
         {isDeleteModalOpen && (
