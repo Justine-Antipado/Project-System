@@ -105,7 +105,7 @@ export default function Event() {
   const monthDropdownRef = useRef(null);
 
   // Style for table header and rows
-  const eventColumns = "0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.5fr";
+  const eventColumns = "1fr 1.3fr 1.3fr 1.3fr 1.3fr 1.3fr 1.7fr";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
