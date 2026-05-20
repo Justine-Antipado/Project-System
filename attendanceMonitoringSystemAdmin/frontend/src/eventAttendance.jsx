@@ -56,7 +56,7 @@ export default function EventAttendance() {
   const eventId = queryParams.get("eventId") || "";
 
   // Inayos sa 5 columns para magkasya nang saktong-sakto at pantay ang attendance fields
-  const studentColumns = "1.2fr 1fr 1.2fr 1.2fr 1.5fr";
+  const eventAttendanceColumns = "1.2fr 1fr 1.2fr 1.2fr 1.5fr";
 
 
   const [students, setStudents] = useState(INITIAL_MOCK_ATTENDANCE);
@@ -296,7 +296,7 @@ export default function EventAttendance() {
         <div className="uni-table-container">
           <div
             className="table-grid-header"
-            style={{ gridTemplateColumns: studentColumns }}
+            style={{ gridTemplateColumns: eventAttendanceColumns }}
           >
             <span>Event Attendance ID</span>
             <span>Event ID</span>
@@ -311,7 +311,7 @@ export default function EventAttendance() {
                 <div
                   key={student.id}
                   className="uni-table-grid-row"
-                  style={{ gridTemplateColumns: studentColumns }}
+                  style={{ gridTemplateColumns: eventAttendanceColumns }}
                 >
                   <span className="uni-id-text">{student.id}</span>
                   <span className="uni-highlight-text">{student.eventId}</span>
