@@ -159,6 +159,12 @@
   border-color: var(--omsc-yellow) !important;
 }
 
+.uni-action-btn.attendance:hover {
+  background: #1e293b !important; /* Deep Slate/Charcoal */
+  color: var(--input-bg) !important;
+  border-color: var(--input-bg) !important;
+}
+
 .uni-action-btn.delete:hover {
   background: var(--color-error-glow) !important;
   color: var(--color-error) !important;

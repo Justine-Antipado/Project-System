@@ -3,7 +3,6 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Calendar,
-  CheckSquare,
   UserCheck,
   Users,
   FileText,
@@ -73,16 +72,6 @@ export default function Layout() {
             >
               <Calendar size={20} />
               <span>Events</span>
-            </NavLink>
-
-            <NavLink
-              to="/eventAttendance"
-              className={({ isActive }) =>
-                `nav-item ${isActive ? "active" : ""}`
-              }
-            >
-              <CheckSquare size={20} />
-              <span>Event Attendance</span>
             </NavLink>
 
             <NavLink

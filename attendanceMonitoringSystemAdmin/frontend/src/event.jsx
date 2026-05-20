@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Plus,
@@ -7,7 +8,8 @@ import {
   Check,
   Trash2,
   QrCode,
-  SquarePen,
+  SquarePen, 
+  Users,
   X,
   AlertTriangle,
 } from "lucide-react";
@@ -72,6 +74,7 @@ const INITIAL_MOCK_EVENTS = [
 ];
 
 export default function Event() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState(INITIAL_MOCK_EVENTS);
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -102,7 +105,7 @@ export default function Event() {
   const monthDropdownRef = useRef(null);
 
   // Style for table header and rows
-  const eventColumns = "0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.2fr";
+  const eventColumns = "0.8fr 1.8fr 1.4fr 1.5fr 1.2fr 1fr 1.5fr";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -179,6 +182,7 @@ export default function Event() {
       setIsQrModalOpen(true);
     }
   };
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -429,6 +433,14 @@ export default function Event() {
                       onClick={() => handleOpenEditForm(event)}
                     >
                       <SquarePen size={16} />
+                    </button>
+
+                    <button
+                      className="uni-action-btn attendance"
+                      title="View Attendance"
+                      onClick={() => navigate(`/eventAttendance?eventId=${event.id}`)}
+                    >
+                      <Users size={16} />
                     </button>
                   </div>
                 </div>
