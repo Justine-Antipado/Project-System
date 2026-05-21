@@ -1,16 +1,15 @@
-
 import React, { useState, useRef, useEffect } from "react";
 // Lahat ng kailangang icons para sa student structure at actions
 import {
   Search,
-  BookOpen, 
-  GraduationCap, 
+  BookOpen,
+  GraduationCap,
   Layers,
   ChevronDown,
   Check,
   Trash2,
   SquarePen,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 
 // Inayos ang mock data para umayon sa mga sumusunod na haligi ng table records
@@ -23,7 +22,7 @@ const INITIAL_MOCK_STUDENTS = [
     middleName: "L.",
     program: "BSIT",
     yearLevel: 2,
-    section: "B"
+    section: "B",
   },
   {
     id: "STU-002",
@@ -33,7 +32,7 @@ const INITIAL_MOCK_STUDENTS = [
     middleName: "M.",
     program: "BSBA",
     yearLevel: 3,
-    section: "A"
+    section: "A",
   },
   {
     id: "STU-003",
@@ -43,8 +42,8 @@ const INITIAL_MOCK_STUDENTS = [
     middleName: "S.",
     program: "BEED",
     yearLevel: 4,
-    section: "C"
-  }
+    section: "C",
+  },
 ];
 
 const PROGRAMS = ["BSIT", "BEED", "BSOA", "BSBA"];
@@ -54,7 +53,7 @@ const SECTIONS = ["A", "B", "C", "D"];
 export default function Student() {
   // Inayos ang grid template columns para magkasya nang pantay ang 9 columns ng table
   const studentColumns = "1fr 1.2fr 1.5fr 1.5fr 1.2fr 1fr 1fr 1fr 1.2fr";
-  
+
   const [students, setStudents] = useState(INITIAL_MOCK_STUDENTS);
   const [search, setSearch] = useState("");
 
@@ -75,7 +74,8 @@ export default function Student() {
 
   // Modal at Editing Controllers
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedStudentForDelete, setSelectedStudentForDelete] = useState(null);
+  const [selectedStudentForDelete, setSelectedStudentForDelete] =
+    useState(null);
   const [editingId, setEditingId] = useState(null);
 
   // ── CLICK OUTSIDE TO CLOSE DROP DOWNS ──
@@ -107,15 +107,19 @@ export default function Student() {
   // ── SEARCH AT FILTER LOGIC ──
   const filteredStudents = students.filter((student) => {
     // Search filter (tumutugma sa pangalan o School ID)
-    const fullName = `${student.firstName} ${student.lastName} ${student.middleName}`.toLowerCase();
+    const fullName =
+      `${student.firstName} ${student.lastName} ${student.middleName}`.toLowerCase();
     const matchesSearch =
       student.schoolIdNo.toLowerCase().includes(search.toLowerCase()) ||
       fullName.includes(search.toLowerCase());
 
     // Dropdown filters
-    const matchesProgram = selectedProgram === "" || student.program === selectedProgram;
-    const matchesYear = selectedYear === "" || student.yearLevel === Number(selectedYear);
-    const matchesSection = selectedSection === "" || student.section === selectedSection;
+    const matchesProgram =
+      selectedProgram === "" || student.program === selectedProgram;
+    const matchesYear =
+      selectedYear === "" || student.yearLevel === Number(selectedYear);
+    const matchesSection =
+      selectedSection === "" || student.section === selectedSection;
 
     return matchesSearch && matchesProgram && matchesYear && matchesSection;
   });
@@ -127,7 +131,9 @@ export default function Student() {
   };
 
   const handleConfirmDelete = () => {
-    setStudents((prev) => prev.filter((item) => item.id !== selectedStudentForDelete.id));
+    setStudents((prev) =>
+      prev.filter((item) => item.id !== selectedStudentForDelete.id),
+    );
     setIsDeleteModalOpen(false);
     setSelectedStudentForDelete(null);
   };
@@ -298,7 +304,7 @@ export default function Student() {
         </div>
 
         <div className="uni-table-container">
-          <div 
+          <div
             className="table-grid-header"
             style={{ gridTemplateColumns: studentColumns }}
           >
@@ -313,53 +319,56 @@ export default function Student() {
             <span className="text-left-aligned">Action</span>
           </div>
 
-             <div className="uni-list">
-          {filteredStudents.map((student) => {
-            return (
-              <div
-                key={student.id}
-                className="uni-table-grid-row"
-                style={{ gridTemplateColumns: studentColumns }}
-              >
-                <span className="uni-id-text">{student.id}</span>
-                <span className="uni-highlight-text">{student.schoolIdNo}</span>
-                <span>{student.firstName}</span>
-                <span>{student.lastName}</span>
-                <span>{student.middleName}</span>
-                <span className="uni-sem-text">{student.program}</span>
-                <span>Year {student.yearLevel}</span>
-                <span>Section {student.section}</span>
-                
-                <div className="uni-action-buttons-group" style={{ justifyContent: "flex-start" }}>
-                  <button
-                    className="uni-action-btn delete"
-                    title="Delete Record"
-                    onClick={() => handleOpenDeleteModal(student)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+          <div className="uni-list">
+            {filteredStudents.map((student) => {
+              return (
+                <div
+                  key={student.id}
+                  className="uni-table-grid-row"
+                  style={{ gridTemplateColumns: studentColumns }}
+                >
+                  <span className="uni-id-text">{student.id}</span>
+                  <span className="uni-highlight-text">
+                    {student.schoolIdNo}
+                  </span>
+                  <span>{student.firstName}</span>
+                  <span>{student.lastName}</span>
+                  <span>{student.middleName}</span>
+                  <span className="uni-sem-text">{student.program}</span>
+                  <span>Year {student.yearLevel}</span>
+                  <span>Section {student.section}</span>
 
-                  <button
-                    className={`uni-action-btn edit ${editingId === student.id ? "active-edit" : ""}`}
-                    title="Edit Record"
-                    onClick={() => handleOpenEditForm(student)}
+                  <div
+                    className="uni-action-buttons-group"
+                    style={{ justifyContent: "flex-start" }}
                   >
-                    <SquarePen size={16} />
-                  </button>
+                    <button
+                      className="uni-action-btn delete"
+                      title="Delete Record"
+                      onClick={() => handleOpenDeleteModal(student)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+
+                    <button
+                      className={`uni-action-btn edit ${editingId === student.id ? "active-edit" : ""}`}
+                      title="Edit Record"
+                      onClick={() => handleOpenEditForm(student)}
+                    >
+                      <SquarePen size={16} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-          
-          {filteredStudents.length === 0 && (
-            <div className="uni-no-records">
-              No entries matched your filter parameters.
-            </div>
-          )}
-        </div>
-        </div>
+              );
+            })}
 
-     
+            {filteredStudents.length === 0 && (
+              <div className="uni-no-records">
+                No entries matched your filter parameters.
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* MODAL 2: Delete Secure Confirmation Panel */}
         {isDeleteModalOpen && (
@@ -377,8 +386,11 @@ export default function Student() {
               <h4>Confirm Deletion</h4>
               <p>
                 Are you sure you want to permanently remove{" "}
-                <strong>{selectedStudentForDelete?.firstName} {selectedStudentForDelete?.lastName}</strong>? This action
-                cannot be reverted.
+                <strong>
+                  {selectedStudentForDelete?.firstName}{" "}
+                  {selectedStudentForDelete?.lastName}
+                </strong>
+                ? This action cannot be reverted.
               </p>
               <div className="uni-confirm-actions">
                 <button
@@ -397,7 +409,6 @@ export default function Student() {
             </div>
           </div>
         )}
-
       </div>
     </>
   );
