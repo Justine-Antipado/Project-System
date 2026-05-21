@@ -22,6 +22,7 @@ import "./form.css";
 //import './keyframeandani.css';
 
 const STATUS_OPTIONS = ["Ongoing", "Completed", "Cancelled"];
+const PROGRAM_OPTIONS = ["BSIT", "BSCS", "BSIS"];
 const MONTHS = [
   "January",
   "February",
@@ -45,6 +46,7 @@ const INITIAL_MOCK_EVENTS = [
     date: "2026-08-01",
     venue: "OMSC Gymnasium",
     status: "Ongoing",
+    Program: "BSIT",
     semId: "1st Sem",
   },
   {
@@ -53,6 +55,7 @@ const INITIAL_MOCK_EVENTS = [
     date: "2025-01-02",
     venue: "OMSC Gymnasium",
     status: "Completed",
+    Program: "BSIT",
     semId: "2nd Sem",
   },
   {
@@ -61,6 +64,7 @@ const INITIAL_MOCK_EVENTS = [
     date: "2025-12-10",
     venue: "OMSC Gymnasium",
     status: "Completed",
+    Program: "BSIT",
     semId: "1st Sem",
   },
   {
@@ -69,6 +73,7 @@ const INITIAL_MOCK_EVENTS = [
     date: "2026-01-06",
     venue: "OMSC Gymnasium",
     status: "Cancelled",
+    Program: "BSIT",
     semId: "2nd Sem",
   },
 ];
@@ -95,8 +100,9 @@ export default function Event() {
     eventName: "",
     eventDate: "",
     venue: "",
-    status: "Select Status",
-    semester: "Select Sem",
+    status: "Status",
+    Program: "Program",
+    semester: "Semester",
   });
 
   const [errors, setErrors] = useState({});
@@ -105,7 +111,7 @@ export default function Event() {
   const monthDropdownRef = useRef(null);
 
   // Style for table header and rows
-  const eventColumns = "1fr 1.3fr 1.3fr 1.3fr 1.3fr 1.3fr 1.7fr";
+  const eventColumns = "0.6fr 1fr 1fr 1.2fr 1.2fr 1.1fr 1fr 1.7fr";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -144,8 +150,9 @@ export default function Event() {
       eventName: "",
       eventDate: "",
       venue: "",
-      status: "Select Status",
-      semester: "Select Sem",
+      status: "Status",
+      program: "Program",
+      semester: "Semester",
     });
     setErrors({});
     setIsPanelOpen(true);
@@ -159,6 +166,7 @@ export default function Event() {
       eventDate: eventItem.date,
       venue: eventItem.venue,
       status: eventItem.status,
+      program: eventItem.Program,
       semester: eventItem.semId,
     });
     setErrors({});
@@ -211,9 +219,11 @@ export default function Event() {
     if (!formData.eventDate.trim())
       newErrors.eventDate = "Event Date is required.";
     if (!formData.venue.trim()) newErrors.venue = "Venue is required.";
-    if (formData.status === "Select Status" || !formData.status)
+    if (formData.status === "Status" || !formData.status)
       newErrors.status = "Select Status.";
-    if (formData.semester === "Select Sem" || !formData.semester)
+    if (formData.program === "Program" || !formData.program)
+      newErrors.program = "Select Program.";
+    if (formData.semester === "Semester" || !formData.semester)
       newErrors.semester = "Select Semester.";
 
     setErrors(newErrors);
@@ -374,6 +384,7 @@ export default function Event() {
             <span>Date</span>
             <span>Venue</span>
             <span>Status</span>
+            <span>Program</span>
             <span>Semester ID</span>
             <span className="text-left-aligned">Action</span>
           </div>
@@ -404,6 +415,7 @@ export default function Event() {
                       {event.status}
                     </span>
                   </div>
+                  <span>{event.Program}</span>
                   <span className="uni-sem-text">{event.semId}</span>
                   <div className="uni-action-buttons-group">
                     <button
@@ -545,6 +557,12 @@ export default function Event() {
                     name="status"
                     options={STATUS_OPTIONS}
                     value={formData.status}
+                  />
+                  <FormDropdown
+                    label="Program"
+                    name="program"
+                    options={PROGRAM_OPTIONS}
+                    value={formData.program}
                   />
                   <FormDropdown
                     label="Semester"
