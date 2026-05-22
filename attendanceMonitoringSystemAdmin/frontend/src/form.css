@@ -139,6 +139,15 @@
   justify-content: space-between;
   cursor: pointer;
   transition: var(--transition-smooth);
+
+  /* Itago ang scrollbar sa Firefox at IE/Edge */
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+
+/* Itago ang scrollbar sa Chrome, Safari, at Opera/Blink */
+.uni-dropdown-menu-floating::-webkit-scrollbar {
+  display: none;
 }
 
 .uni-dropdown-item-floating:hover {
