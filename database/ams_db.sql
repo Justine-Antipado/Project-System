@@ -112,7 +112,8 @@ CREATE TABLE `students` (
   `Program` varchar(100) DEFAULT NULL,
   `YearLevel` int(11) DEFAULT NULL,
   `section` int(11) DEFAULT NULL,
-  `StudentQRCode` text DEFAULT NULL
+  `StudentQRCode` text DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
