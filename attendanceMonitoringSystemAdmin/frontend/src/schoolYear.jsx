@@ -245,7 +245,7 @@ export default function SchoolYear() {
                   />
                 </div>
 
-                <button type="submit" className="uni-btn-submit" style={{ marginTop: "20px" }}>
+                <button type="submit" className="uni-btn-submit">
                   Save New School Year
                 </button>
               </form>

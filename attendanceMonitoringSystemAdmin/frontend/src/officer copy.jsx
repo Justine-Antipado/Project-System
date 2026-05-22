@@ -1,48 +1,49 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Trash2, AlertTriangle, X, Check, Plus, SquarePen } from "lucide-react";
+import React, { useState } from "react";
+// Assuming you are using lucide-react for your icons based on the syntax
+import { Trash2, AlertTriangle } from "lucide-react";
 
 const ORGANIZATION_OPTIONS = ["PADC", "YMO", "CBAM", "SSG", "Club"];
 const POSITION_OPTIONS = {
-  PADC: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  YMO: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  CBAM: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  SSG: [
-    "Governor",
-    "Vice Governor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Other",
-  ],
-  Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
-  "Select Org/Club": [],
-};
-
+    PADC: [
+      "Mayor",
+      "Vice Mayor",
+      "Secretary",
+      "Treasurer",
+      "Auditor",
+      "Councilor",
+      "Other",
+    ],
+    YMO: [
+      "Mayor",
+      "Vice Mayor",
+      "Secretary",
+      "Treasurer",
+      "Auditor",
+      "Councilor",
+      "Other",
+    ],
+    CBAM: [
+      "Mayor",
+      "Vice Mayor",
+      "Secretary",
+      "Treasurer",
+      "Auditor",
+      "Councilor",
+      "Other",
+    ],
+    SSG: [
+      "Governor",
+      "Vice Governor",
+      "Secretary",
+      "Treasurer",
+      "Auditor",
+      "Other",
+    ],
+    Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
+    "Select Org/Club": [],
+  };
 export default function Officer() {
+  // Configured a 5-column grid layout to match your table columns
   const officerColumns = "2fr 2fr 2fr 2fr 1fr";
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -51,45 +52,54 @@ export default function Officer() {
 
   const [formMode, setFormMode] = useState("add");
   const [editingId, setEditingId] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
+
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const dropdownContainerRef = useRef(null);
-
-  // Bagong FormData State na akma sa Officer Entity
-  // FIXED: Idineklara ang tamang formData structure para sa Officer
-  const [formData, setFormData] = useState({
-  studentId: "",
-  organization: "Select Org/Club",
-  position: "Select Position",
-  });
-
+  // Mock data for the table to render safely
   const [officers, setOfficers] = useState([
-    { id: "1", studentId: "STU-2024-001", orgId: "PADC", position: "Mayor" },
-    { id: "2", studentId: "STU-2024-002", orgId: "SSG", position: "Governor" },
+    {
+      id: "1",
+      studentId: "STU-2024-001",
+      orgId: "ORG-ALPHA",
+      position: "President",
+    },
+    {
+      id: "2",
+      studentId: "STU-2024-002",
+      orgId: "ORG-BETA",
+      position: "Vice President",
+    },
   ]);
 
   const handleOpenAddForm = () => {
     setFormMode("add");
     setEditingId(null);
     setFormData({
-      studentId: "",
-      organization: "Select Org/Club",
-      position: "Select Position",
+      eventName: "",
+      eventDate: "",
+      venue: "",
+      status: "Status",
+      program: "Program",
+      semester: "Semester",
     });
     setErrors({});
     setIsPanelOpen(true);
   };
 
-  const handleOpenEditForm = (officerItem) => {
+  const handleOpenEditForm = (eventItem) => {
     setFormMode("edit");
-    setEditingId(officerItem.id);
+    setEditingId(eventItem.id);
     setFormData({
-      studentId: officerItem.studentId,
-      organization: officerItem.orgId,
-      position: officerItem.position,
+      eventName: eventItem.name,
+      eventDate: eventItem.date,
+      venue: eventItem.venue,
+      status: eventItem.status,
+      program: eventItem.Program,
+      semester: eventItem.semId,
     });
     setErrors({});
     setIsPanelOpen(true);
@@ -109,6 +119,7 @@ export default function Officer() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    //if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleFieldFocus = (fieldName) => {
@@ -118,67 +129,58 @@ export default function Officer() {
   };
 
   const selectOption = (name, value) => {
-    setFormData((prev) => {
-      const updated = { ...prev, [name]: value };
-      // Kapag binago ang Org, i-reset ang Position field para iwas sa maling assignment
-      if (name === "organization") {
-        updated.position = "Select Position";
-      }
-      return updated;
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setActiveDropdown(null);
+    //if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
-
-  useEffect(() => {
-      const handleClickOutside = (e) => {
-        if (!e.target.closest(".uni-custom-dropdown-container")) {
-          setActiveDropdown(null);
-        }
-      };
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
 
-    if (!formData.studentId.trim())
-      newErrors.studentId = "Student ID is required.";
-    if (formData.organization === "Select Org/Club" || !formData.organization)
-      newErrors.organization = "Select Organization.";
-    if (formData.position === "Select Position" || !formData.position)
-      newErrors.position = "Select Position.";
+    if (!formData.eventName.trim())
+      newErrors.eventName = "Event Name is required.";
+    if (!formData.eventDate.trim())
+      newErrors.eventDate = "Event Date is required.";
+    if (!formData.venue.trim()) newErrors.venue = "Venue is required.";
+    if (formData.status === "Status" || !formData.status)
+      newErrors.status = "Select Status.";
+    if (formData.program === "Program" || !formData.program)
+      newErrors.program = "Select Program.";
+    if (formData.semester === "Semester" || !formData.semester)
+      newErrors.semester = "Select Semester.";
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
       if (formMode === "add") {
-        const newOfficer = {
-          id:
-            officers.length > 0
-              ? String(Math.max(...officers.map((o) => parseInt(o.id))) + 1)
-              : "1",
-          studentId: formData.studentId,
-          orgId: formData.organization,
-          position: formData.position,
+        const newEvent = {
+          id: events.length > 0 ? Math.max(...events.map((e) => e.id)) + 1 : 11,
+          name: formData.eventName,
+          date: formData.eventDate,
+          venue: formData.venue,
+          status: formData.status,
+          Program: formData.program,
+          semId: formData.semester,
         };
-        setOfficers((prev) => [newOfficer, ...prev]);
-        setSuccessMsg("Officer Created Successfully!");
+        setEvents((prev) => [newEvent, ...prev]);
+        setSuccessMsg("Event Created Successfully!");
       } else {
-        setOfficers((prev) =>
+        setEvents((prev) =>
           prev.map((item) =>
             item.id === editingId
               ? {
                   ...item,
-                  studentId: formData.studentId,
-                  orgId: formData.organization,
-                  position: formData.position,
+                  name: formData.eventName,
+                  date: formData.eventDate,
+                  venue: formData.venue,
+                  status: formData.status,
+                  semId: formData.semester,
                 }
               : item,
           ),
         );
-        setSuccessMsg("Officer Configuration Updated Successfully!");
+        setSuccessMsg("Event Configuration Updated Successfully!");
       }
 
       setTimeout(() => {
@@ -205,16 +207,7 @@ export default function Officer() {
       </div>
 
       {activeDropdown === name && (
-        <div
-          className="uni-dropdown-menu-floating"
-          style={{
-            maxHeight: "200px",
-            overflowY: "auto",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          <style>{`.uni-dropdown-menu-floating::-webkit-scrollbar { display: none; }`}</style>
+        <div className="uni-dropdown-menu-floating">
           {options.map((opt) => (
             <div
               key={opt}
@@ -236,14 +229,18 @@ export default function Officer() {
 
   return (
     <>
-      <div className="uni-view fade-in" onClick={() => setActiveDropdown(null)}>
+      <div className="uni-view fade-in">
         <header className="uni-header">
           <h1 className="main-title">OFFICER</h1>
         </header>
 
+        {/* Page filter and btn */}
         <div className="filter-container">
+          <div className="search-wrapper"></div>
+
           <div className="filter-row">
-            <button className="uni-btn-primary" onClick={handleOpenAddForm}>
+            <button className="uni-btn-primary">
+              {/*onClick=handleOpenAddForm...*/}
               <Plus size={16} />
               Add Officer
             </button>
@@ -251,6 +248,7 @@ export default function Officer() {
         </div>
 
         <div className="uni-table-container">
+          {/* Applied gridTemplateColumns dynamically to the header */}
           <div
             className="table-grid-header"
             style={{ display: "grid", gridTemplateColumns: officerColumns }}
@@ -263,6 +261,7 @@ export default function Officer() {
           </div>
 
           <div className="uni-list">
+            {/* Applied gridTemplateColumns dynamically to each data row */}
             {officers.map((officer) => (
               <div
                 className="uni-table-grid-row"
@@ -275,22 +274,18 @@ export default function Officer() {
                 <span>{officer.position}</span>
                 <div
                   className="uni-action-buttons-group"
-                  style={{ justifyContent: "flex-start", gap: "8px" }}
+                  style={{ justifyContent: "flex-start" }}
                 >
                   <button
                     className="uni-action-btn delete"
                     title="Delete Officer"
                     onClick={() => handleOpenDeleteModal(officer)}
                   >
-                    <Trash2 size={16} />
+                    {/* Dinagdag ang Edit button na sumusunod sa pattern mo */}
+                  <button className="uni-action-btn edit" title="Edit Officer" onClick={() => handleOpenEditForm(officer)}>
+                    <svg size={16} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
-
-                  <button
-                    className={`uni-action-btn edit ${editingId === officer.id ? "active-edit" : ""}`}
-                    title="Edit Officer"
-                    onClick={() => handleOpenEditForm(officer)}
-                  >
-                    <SquarePen size={16}></SquarePen>
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -319,65 +314,50 @@ export default function Officer() {
               <div className="uni-form-header">
                 <h3 className="uni-form-heading">
                   {formMode === "add"
-                    ? "Create New Officer"
-                    : `Modify Officer #${editingId}`}
+                    ? "Create New Event"
+                    : `Modify Event #${editingId}`}
                 </h3>
                 <p className="uni-form-subheading">
                   {formMode === "add"
-                    ? "Setup and register new organization officers"
-                    : "Alter values for this officer entry"}
+                    ? "Setup and register new campus events"
+                    : "Alter values for this event entry"}
                 </p>
               </div>
-
               <form onSubmit={handleFormSubmit} className="uni-form-stack">
                 {successMsg && (
                   <div className="uni-success-banner">{successMsg}</div>
                 )}
-
                 <div className="uni-field-group">
-                  <label className="uni-label-text">Student ID No.</label>
+                  <label className="uni-label-text">Studend ID No.</label>
                   <input
                     type="text"
-                    name="studentId"
-                    value={formData.studentId}
+                    name="eventName"
+                    value={formData.eventName}
                     onChange={handleInputChange}
-                    className={`uni-form-input ${errors.studentId ? "error-ring" : ""}`}
-                    placeholder="e.g. STU-2024-001"
-                    onFocus={() => handleFieldFocus("studentId")}
-                    disabled={formMode === "edit"} // Naka-lock ang Student ID kapag nag-e-edit para iwas data corruption
-                    style={
-                      formMode === "edit"
-                        ? { opacity: 0.6, cursor: "not-allowed" }
-                        : {}
-                    }
+                    className={`uni-form-input ${errors.eventName ? "error-ring" : ""}`}
+                    placeholder="e.g. Acquaintance Party"
+                    onFocus={() => handleFieldFocus("eventName")}
                   />
-                  {errors.studentId && (
-                    <span className="uni-error-text">{errors.studentId}</span>
+                  {errors.eventName && (
+                    <span className="uni-error-text">{errors.eventName}</span>
                   )}
                 </div>
-
-                <div
-                  className="uni-form-row-flex"
-                  style={{ display: "flex", gap: "16px" }}
-                >
+                <div className="uni-form-row-flex">
                   <FormDropdown
                     label="Organization"
                     name="organization"
-                    options={ORGANIZATION_OPTIONS}
-                    value={formData.organization}
+                    options={PROGRAM_OPTIONS}
+                    value={formData.program}
                   />
                   <FormDropdown
                     label="Position"
                     name="position"
-                    options={POSITION_OPTIONS[formData.organization] || []} // Dynamic filter ng roles base sa napiling Org
-                    value={formData.position}
+                    options={SEMESTER}
+                    value={formData.semester}
                   />
                 </div>
-
                 <button type="submit" className="uni-btn-submit">
-                  {formMode === "add"
-                    ? "Save New Officer"
-                    : "Apply Alterations"}
+                  {formMode === "add" ? "Save New Event" : "Apply Alterations"}
                 </button>
               </form>
             </div>
