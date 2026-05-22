@@ -1,0 +1,66 @@
+/* ==========================================================================
+   CUSTOM STYLES FOR QR SCANNER EVENTS ATTENDANCE SYSTEM
+   ========================================================================== */
+
+/* 1. Animated Laser Scan Line */
+@keyframes scan-move {
+  0% {
+    top: 4%;
+    opacity: 0.3;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 94%;
+    opacity: 0.3;
+  }
+}
+
+/* Fallback class para sa custom Tailwind dynamic animation configuration */
+.animate-\[scan-move_2\.5s_ease-in-out_infinite\] {
+  animation: scan-move 2.5s ease-in-out infinite;
+}
+
+/* 2. Html5Qrcode Library Inner Layout Overrides */
+/* Sinisiguro nito na ang camera video ay magiging responsive at sakop ang buong container */
+#reader {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+}
+
+#reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 1rem; /* 16px to match rounded-2xl */
+}
+
+/* Itatago nito ang mga default text/buttons na galing mismo sa html5-qrcode library */
+#reader __dashboard_section_csr__,
+#reader img[alt="Camera based scan"] {
+  display: none !important;
+}
+
+/* 3. Custom Scrollbar para sa Table at Log Views (Para malinis tingnan) */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1; /* slate-300 */
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8; /* slate-400 */
+}

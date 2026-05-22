@@ -185,11 +185,11 @@ export default function Event() {
   };
 
   const handleOpenQrModal = (eventItem) => {
-    if (eventItem.status.toLowerCase() === "ongoing") {
-      setSelectedEvent(eventItem);
-      setIsQrModalOpen(true);
-    }
-  };
+  if (eventItem.status.toLowerCase() === "ongoing") {
+    // Papuntang QR scanner page kasama ang Event ID bilang parameter
+    navigate(`/qrScanner?eventId=${eventItem.id}`);
+  }
+};
 
 
   const handleInputChange = (e) => {
@@ -236,6 +236,7 @@ export default function Event() {
           date: formData.eventDate,
           venue: formData.venue,
           status: formData.status,
+          Program: formData.program,
           semId: formData.semester,
         };
         setEvents((prev) => [newEvent, ...prev]);

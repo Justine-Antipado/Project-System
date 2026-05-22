@@ -13,6 +13,7 @@ import Student from "./students";
 import Dashboard from "./dashboard";
 //import AttendanceHistory from './attendanceHistory';
 import Settings from "./settings";
+import QrScannerDashboard from "./scanner";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/schoolYear" element={<SchoolYear />} />
         <Route path="/semester" element={<Semester />} />
         <Route path="/student" element={<Student />} />
+        <Route path="/qrScanner" element={<QrScannerDashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
