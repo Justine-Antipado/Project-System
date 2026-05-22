@@ -1,16 +1,37 @@
 import React, { useState, useRef, useEffect } from "react";
 // Inayos ang import: Idinagdag ang Plus icon para sa bagong button mo
-import { Search, Trash2, AlertTriangle, Plus } from "lucide-react";
+import {
+  Search,
+  Trash2,
+  AlertTriangle,
+  Plus,
+  X,
+  SquarePen,
+} from "lucide-react";
 
 export default function Organization() {
   const [search, setSearch] = useState("");
+
+  // Idagdag ang formData state para sa Organization
+  const [formData, setFormData] = useState({
+    orgId: "",
+    orgName: "",
+  });
 
   // Custom column sizes base sa structure ng table mo
   const orgColumns = "2fr 4fr 1fr";
 
   // State para sa modal at pagpili ng aalisin na item
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedOrganization, setSelectedOrganization] = useState(null);
+
+  const [formMode, setFormMode] = useState("add");
+  const [editingId, setEditingId] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const [errors, setErrors] = useState({});
+  const [successMsg, setSuccessMsg] = useState("");
 
   // Mock data na tumutugma sa iisang row structure mo para gumana ang loop at search
   const [organizations, setOrganizations] = useState([
@@ -18,18 +39,100 @@ export default function Organization() {
     { id: "ORG-BETA", name: "Beta Computer Society" },
   ]);
 
-  // 1. Idinagdag ang handler para sa Add button para hindi ito mag-crash
+  // Handler para sa pagpuno sa input fields
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handler para sa pag-clear ng error kapag nag-focus ang user
+  const handleFieldFocus = (fieldName) => {
+    setErrors((prev) => ({
+      ...prev,
+      [fieldName]: null,
+    }));
+  };
+
+  // Pagbubukas ng Add Form
   const handleOpenAddForm = () => {
-    // Dito mo ilalagay ang logic mo pag nag-add (hal. opens an add modal or page redirect)
-    alert(
-      "Add Organization clicked! Dito mo ilalagay ang setup mo para sa pagdagdag.",
-    );
+    setFormMode("add");
+    setEditingId(null);
+    setFormData({
+      orgId: "", // Kailangan ng ID kapag magdadagdag ng bagong org
+      orgName: "",
+    });
+    setErrors({});
+    setIsPanelOpen(true);
   };
 
   // Click handler para sa delete button
   const handleOpenDeleteModal = (org) => {
     setSelectedOrganization(org);
     setIsDeleteModalOpen(true);
+  };
+
+  // Pagbubukas ng Edit Form gamit ang piniling org item
+  const handleOpenEditForm = (orgItem) => {
+    setFormMode("edit");
+    setEditingId(orgItem.id);
+    setFormData({
+      orgId: orgItem.id,
+      orgName: orgItem.name,
+    });
+    setErrors({});
+    setIsPanelOpen(true);
+  };
+
+  // Multi-purpose Form Submit Logic
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    // Validation base sa fields ng Organization
+    //if (formMode === "add" && !formData.orgId.trim()) {
+    //newErrors.orgId = "Organization ID is required.";
+    //}
+
+    if (!formData.orgName.trim()) {
+      newErrors.orgName = "Organization Name is required.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      if (formMode === "add") {
+        // Siguraduhing hindi duplicate ang ID
+        //if (organizations.some(org => org.id.toLowerCase() === formData.orgId.trim().toLowerCase())) {
+        //setErrors({ orgId: "Organization ID already exists." });
+        //return;
+        //}
+
+        const newOrg = {
+          id: formData.orgId.trim().toUpperCase(),
+          name: formData.orgName.trim(),
+        };
+        setOrganizations((prev) => [newOrg, ...prev]);
+        setSuccessMsg("Organization Created Successfully!");
+      } else {
+        // Edit Mode Logic
+        setOrganizations((prev) =>
+          prev.map((item) =>
+            item.id === editingId
+              ? { ...item, name: formData.orgName.trim() }
+              : item,
+          ),
+        );
+        setSuccessMsg("Organization Updated Successfully!");
+      }
+
+      setTimeout(() => {
+        setSuccessMsg("");
+        setIsPanelOpen(false);
+      }, 1500);
+    }
   };
 
   // Logic para sa aktwal na pagbura kapag kinumpirma
@@ -95,7 +198,10 @@ export default function Organization() {
               >
                 <span className="uni-id-text">{org.id}</span>
                 <span className="uni-highlight-text">{org.name}</span>
-                <div className="uni-action-buttons-group">
+                <div
+                  className="uni-action-buttons-group"
+                  style={{ justifyContent: "flex-start" }}
+                >
                   <button
                     className="uni-action-btn delete"
                     title="Delete Organization"
@@ -103,11 +209,78 @@ export default function Organization() {
                   >
                     <Trash2 size={16} />
                   </button>
+                  <button
+                    className={`uni-action-btn edit ${editingId === org.id ? "active-edit" : ""}`}
+                    title="Edit Configuration"
+                    onClick={() => handleOpenEditForm(org)} // Inayos mula event patungong org
+                  >
+                    <SquarePen size={16} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* MODAL 1: Form Multi-purpose Panel Overlay */}
+        {isPanelOpen && (
+          <div
+            className="uni-modal-overlay"
+            onClick={() => setIsPanelOpen(false)}
+          >
+            <div
+              className="uni-glass-form-card animate-pop-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="uni-panel-close-btn"
+                onClick={() => setIsPanelOpen(false)}
+              >
+                <X size={16} />
+              </button>
+              <div className="uni-form-header">
+                <h3 className="uni-form-heading">
+                  {formMode === "add"
+                    ? "Create New Organization"
+                    : `Modify Organization #${editingId}`}
+                </h3>
+                <p className="uni-form-subheading">
+                  {formMode === "add"
+                    ? "Setup and register new organizations"
+                    : "Alter values for this organization entry"}
+                </p>
+              </div>
+
+              <form onSubmit={handleFormSubmit} className="uni-form-stack">
+                {successMsg && (
+                  <div className="uni-success-banner">{successMsg}</div>
+                )}
+                <div className="uni-field-group">
+                  <label className="uni-label-text">Organization Name</label>
+                  <input
+                    type="text"
+                    name="orgName"
+                    value={formData.orgName}
+                    onChange={handleInputChange}
+                    className={`uni-form-input ${errors.orgName ? "error-ring" : ""}`}
+                    placeholder="e.g. Acquaintance Party"
+                    onFocus={() => handleFieldFocus("orgName")}
+                  />
+                  {errors.orgName && (
+                    <span className="uni-error-text">{errors.orgName}</span>
+                  )}
+                </div>
+
+                <button type="submit" className="uni-btn-submit">
+                  {formMode === "add"
+                    ? "Save New Organization"
+                    : "Apply Alterations"}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* MODAL 2: Delete Secure Confirmation Panel */}
         {isDeleteModalOpen && (

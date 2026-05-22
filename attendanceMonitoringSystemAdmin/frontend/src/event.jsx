@@ -8,7 +8,7 @@ import {
   Check,
   Trash2,
   QrCode,
-  SquarePen, 
+  SquarePen,
   Users,
   X,
   AlertTriangle,
@@ -185,12 +185,11 @@ export default function Event() {
   };
 
   const handleOpenQrModal = (eventItem) => {
-  if (eventItem.status.toLowerCase() === "ongoing") {
-    // Papuntang QR scanner page kasama ang Event ID bilang parameter
-    navigate(`/qrScanner?eventId=${eventItem.id}`);
-  }
-};
-
+    if (eventItem.status.toLowerCase() === "ongoing") {
+      // Papuntang QR scanner page kasama ang Event ID bilang parameter
+      navigate(`/qrScanner?eventId=${eventItem.id}`);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -451,7 +450,9 @@ export default function Event() {
                     <button
                       className="uni-action-btn attendance"
                       title="View Attendance"
-                      onClick={() => navigate(`/eventAttendance?eventId=${event.id}`)}
+                      onClick={() =>
+                        navigate(`/eventAttendance?eventId=${event.id}`)
+                      }
                     >
                       <Users size={16} />
                     </button>
