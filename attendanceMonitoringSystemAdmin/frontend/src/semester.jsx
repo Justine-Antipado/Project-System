@@ -23,18 +23,18 @@ export default function Semester() {
           <h1 className="main-title">SEMESTER</h1>
         </header>
 
-        {/* Page filter and btn */}
+        {/* Page filter and btn 
         <div className="filter-container">
-          {/*<div className="search-wrapper"></div>*/}
+          {/*<div className="search-wrapper"></div>
 
           <div className="filter-row">
             <button className="uni-btn-primary">
-              {/*onClick=handleOpenAddForm...*/}
+              {/*onClick=handleOpenAddForm...
               <Plus size={16} />
               Add Semester
             </button>
           </div>
-        </div>
+        </div>*/}
 
         <div className="uni-table-container">
           <div
