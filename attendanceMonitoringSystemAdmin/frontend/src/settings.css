@@ -20,19 +20,18 @@
 }
 
 .settings-grid {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: clamp(1.25rem, 2.5vw, 2rem);
-  max-width: 1400px;
+  display: block; /* Removed strict 320px grid layout restriction */
+  width: 100%;
+  max-width: 650px; /* Standard wide form dimension for dashboard layouts */
   margin: 2rem auto 0;
-  align-items: start;
 }
 
 .settings-forms-wrapper {
   display: flex;
   flex-direction: column;
   gap: clamp(1.25rem, 2.5vw, 2rem);
-  position: relative; /* Nagbibigay ng malinis na isolate container para sa nested context */
+  width: 100%; /* Forces forms to stretch to the maximum grid width */
+  position: relative;
 }
 
 /* ==========================================================================
@@ -52,7 +51,7 @@
 }
 
 /* Unang Card (Edit Account Info) - Bigyan ng mataas na priority kapag may dropdown */
-.glass-card:has(.dropdown-trigger.active) {
+.glass-card:has(.dropdown-trigger-settings.active) {
   z-index: 50;
 }
 
@@ -183,7 +182,7 @@
 }
 
 .form-input:focus,
-.dropdown-trigger.active {
+.dropdown-trigger-settings.active {
   outline: none;
   background: var(--omsc-dark-muted) !important;
   border-color: var(--omsc-yellow) !important;
@@ -214,11 +213,11 @@
 }
 
 /* Itaas ang z-index ng aktibong lalagyan ng dropdown */
-.custom-dropdown-container:has(.dropdown-trigger.active) {
+.custom-dropdown-container:has(.dropdown-trigger-settings.active) {
   z-index: 100;
 }
 
-.dropdown-trigger {
+.dropdown-trigger-settings {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -226,14 +225,14 @@
   user-select: none;
 }
 
-.dropdown-trigger::after {
+.dropdown-trigger-settings::after {
   content: "▼";
   font-size: 0.65rem;
   color: var(--text-muted);
   transition: transform 0.25s ease;
 }
 
-.dropdown-trigger.active::after {
+.dropdown-trigger-settings.active::after {
   transform: rotate(180deg);
   color: var(--omsc-yellow);
 }

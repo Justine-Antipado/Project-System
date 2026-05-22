@@ -38,6 +38,7 @@ const MONTHS = [
   "December",
 ];
 const SEMESTER = ["1st Sem", "2nd Sem"];
+const SCHOOL_YEAR = ["2023-2024", "2024-2025", "2025-2026"];
 
 const INITIAL_MOCK_EVENTS = [
   {
@@ -48,6 +49,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Ongoing",
     Program: "BSIT",
     semId: "1st Sem",
+    schoolYear: "2025-2026", // Added property to initial state
   },
   {
     id: 12,
@@ -57,6 +59,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Completed",
     Program: "BSIT",
     semId: "2nd Sem",
+    schoolYear: "2024-2025", // Added property to initial state
   },
   {
     id: 13,
@@ -66,6 +69,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Completed",
     Program: "BSIT",
     semId: "1st Sem",
+    schoolYear: "2025-2026", // Added property to initial state
   },
   {
     id: 14,
@@ -75,6 +79,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Cancelled",
     Program: "BSIT",
     semId: "2nd Sem",
+    schoolYear: "2025-2026", // Added property to initial state
   },
 ];
 
@@ -95,13 +100,14 @@ export default function Event() {
   const [editingId, setEditingId] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Form Field State
+  // Form Field State - Added schoolYear with initial state
   const [formData, setFormData] = useState({
     eventName: "",
     eventDate: "",
     venue: "",
     status: "Status",
-    Program: "Program",
+    program: "Program",
+    schoolYear: "School Year",
     semester: "Semester",
   });
 
@@ -152,6 +158,7 @@ export default function Event() {
       venue: "",
       status: "Status",
       program: "Program",
+      schoolYear: "School Year",
       semester: "Semester",
     });
     setErrors({});
@@ -167,6 +174,7 @@ export default function Event() {
       venue: eventItem.venue,
       status: eventItem.status,
       program: eventItem.Program,
+      schoolYear: eventItem.schoolYear || "School Year", // Maps the property when updating
       semester: eventItem.semId,
     });
     setErrors({});
@@ -222,6 +230,8 @@ export default function Event() {
       newErrors.status = "Select Status.";
     if (formData.program === "Program" || !formData.program)
       newErrors.program = "Select Program.";
+    if (formData.schoolYear === "School Year" || !formData.schoolYear)
+      newErrors.schoolYear = "Select School Year."; // Added validation rule
     if (formData.semester === "Semester" || !formData.semester)
       newErrors.semester = "Select Semester.";
 
@@ -236,6 +246,7 @@ export default function Event() {
           venue: formData.venue,
           status: formData.status,
           Program: formData.program,
+          schoolYear: formData.schoolYear, // Saves the new value
           semId: formData.semester,
         };
         setEvents((prev) => [newEvent, ...prev]);
@@ -250,6 +261,8 @@ export default function Event() {
                   date: formData.eventDate,
                   venue: formData.venue,
                   status: formData.status,
+                  Program: formData.program,
+                  schoolYear: formData.schoolYear, // Updates the existing value
                   semId: formData.semester,
                 }
               : item,
@@ -405,7 +418,8 @@ export default function Event() {
                       month: "long",
                       day: "numeric",
                       year: "numeric",
-                    })}
+                      },
+                    )}
                   </span>
                   <span>{event.venue}</span>
                   <div>
@@ -565,6 +579,15 @@ export default function Event() {
                     name="program"
                     options={PROGRAM_OPTIONS}
                     value={formData.program}
+                  />
+                </div>
+                
+                <div className="uni-form-row-flex">
+                  <FormDropdown
+                    label="School Year"
+                    name="schoolYear"
+                    options={SCHOOL_YEAR}
+                    value={formData.schoolYear}
                   />
                   <FormDropdown
                     label="Semester"

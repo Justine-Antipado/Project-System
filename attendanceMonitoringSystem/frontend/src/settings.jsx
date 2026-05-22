@@ -212,78 +212,7 @@ export default function Settings() {
         </h2>
 
         <div className="settings-grid">
-          {/* ── LEFT COLUMN: Profile Sidebar ── */}
-          <div className="glass-card profile-sidebar-card">
-            <div className="avatar-section">
-              {/* Dito ipapakita ang banner kapag nag-success ang sidebar save button */}
-              {sidebarSuccessMsg && (
-                <div
-                  className="success-banner"
-                  style={{
-                    marginBottom: "1rem",
-                    fontSize: "0.85rem",
-                    padding: "8px",
-                  }}
-                >
-                  {sidebarSuccessMsg}
-                </div>
-              )}
 
-              <div
-                className="avatar-pill-wrapper"
-                style={{
-                  position: "relative",
-                  width: "100px",
-                  height: "100px",
-                  margin: "0 auto 1rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#eee",
-                  borderRadius: "50%",
-                }}
-              >
-                <User size={60} color="#ccc" style={{ margin: "auto" }} />
-                <label
-                  className="camera-badge-pill"
-                  htmlFor="pfp-upload"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    background: "var(--omsc-dark-blue)",
-                    color: "white",
-                    padding: "6px",
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                    display: "flex",
-                  }}
-                >
-                  <Camera size={16} />
-                  <input type="file" id="pfp-upload" hidden />
-                </label>
-              </div>
-              <h3
-                className="sidebar-student-name"
-                style={{ fontSize: "1.2rem", fontWeight: 700 }}
-              >
-                {formData.firstName} {formData.lastName}
-              </h3>
-              <p
-                className="sidebar-student-id"
-                style={{ fontSize: "0.85rem", marginBottom: "1.5rem" }}
-              >
-                {formData.schoolIDNo || "No Student ID"}
-              </p>
-            </div>
-            <button
-              type="button"
-              className="btn btn-submit"
-              onClick={handleSidebarSaveClick}
-            >
-              Save Profile Changes
-            </button>
-          </div>
 
           {/* ── RIGHT COLUMN: Isolated Forms Wrapper ── */}
           <div className="settings-forms-wrapper">
