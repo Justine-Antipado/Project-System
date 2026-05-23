@@ -1,5 +1,4 @@
 <?php
-if (ob_get_level()) ob_end_clean();
 
 // I-allow ang iyong React frontend origin
 header("Access-Control-Allow-Origin: http://localhost:5173");
