@@ -1,191 +1,115 @@
 <?php
-// ─────────────────────────────────────────────
-//  register.php  –  Student Registration API
-//  Expects a POST request with JSON body
-// ─────────────────────────────────────────────
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
+// Clear any previous output buffers to avoid accidental whitespace sending headers early
+if (ob_get_level()) ob_end_clean();
 
-// ── 0. Handle preflight (CORS) ───────────────
+// Allow your frontend origin
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Credentials: true");
+
+// Target the preflight OPTIONS request immediately before anything else loads
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// ── 1. Only allow POST ───────────────────────
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method Not Allowed. Use POST.']);
-    exit();
-}
+// --- NOW you can include your database connection config ---
+include_once 'connection.php';
 
-// ── 2. Parse JSON body ───────────────────────
-$raw  = file_get_contents('php://input');
-$data = json_decode($raw, true);
+$data = $_POST;
 
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid JSON body.']);
-    exit();
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($data)) {
+    
+    $schoolIDNo   = trim($data['schoolIDNo'] ?? '');
+    $email        = trim($data['email'] ?? '');
+    $lastName     = trim($data['lastName'] ?? '');
+    $firstName    = trim($data['firstName'] ?? '');
+    $middleName   = !empty($data['middleName']) ? trim($data['middleName']) : null;
+    $password     = $data['password'] ?? '';
 
-// ── 3. DB Connection ─────────────────────────
-include 'connection.php'; // $conn must be a mysqli object
+    // Mas pinalakas na checking para sa mga dropdown placeholders
+    $program   = (empty($data['program']) || $data['program'] === "Select Prog...") ? null : trim($data['program']);
+    $section   = (empty($data['section']) || $data['section'] === "Select Sec...") ? null : trim($data['section']);
+    
+    // I-convert sa integer LAMANG kung numeric ang string, kung hindi ay gawing null
+    $yearLevel = (isset($data['yearLevel']) && is_numeric($data['yearLevel'])) ? (int)$data['yearLevel'] : null;
+    // Kilalanin kung LOGIN o REGISTER ang request
+    $isLoginRequest = empty($email) && !empty($schoolIDNo) && !empty($password);
 
-if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $conn->connect_error]);
-    exit();
-}
+    if ($isLoginRequest) {
+        // --- SYSTEM LOGIN ---
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM students WHERE SchoolIDNo = ?");
+            $stmt->execute([$schoolIDNo]);
+            $student = $stmt->fetch();
 
-// ── 4. Collect & Sanitize Inputs ─────────────
-$schoolIDNo  = trim($data['schoolIDNo']  ?? '');
-$email       = trim($data['email']       ?? '');
-$lastName    = trim($data['lastName']    ?? '');
-$firstName   = trim($data['firstName']  ?? '');
-$middleName  = trim($data['middleName']  ?? '');
-$program     = trim($data['program']    ?? '');
-$yearLevel   = intval($data['yearLevel'] ?? 0);
-$section     = trim($data['section']    ?? '');
-$password    = $data['password']         ?? '';
-$confirmPass = $data['confirmPassword']  ?? '';
+            if (!$student) {
+                http_response_code(400);
+                echo json_encode(["field" => "schoolIDNo", "message" => "School ID not found."]);
+                exit;
+            }
 
-// ── 5. Server-Side Validation ─────────────────
-$errors = [];
+            if (!password_verify($password, $student['password'])) {
+                http_response_code(400);
+                echo json_encode(["field" => "password", "message" => "Incorrect password."]);
+                exit;
+            }
 
-if (empty($schoolIDNo))                         $errors['schoolIDNo']      = 'School ID is required.';
-if (empty($email))                              $errors['email']           = 'Email is required.';
-elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email']       = 'Invalid email format.';
-if (empty($lastName))                           $errors['lastName']        = 'Last Name is required.';
-if (empty($firstName))                          $errors['firstName']       = 'First Name is required.';
-if (empty($program) || $program === 'Select Pro...') $errors['program']   = 'Please select a Program.';
-if ($yearLevel < 1 || $yearLevel > 4)           $errors['yearLevel']      = 'Please select a valid Year Level.';
-if (empty($section) || $section === 'Select Sec...') $errors['section']   = 'Please select a Section.';
+            http_response_code(200);
+            echo json_encode([
+                "message" => "Login successful!",
+                "student" => ["id" => $student['StudentID'], "name" => $student['FirstName']]
+            ]);
+            exit;
 
-// Password requirement checks (mirrors the React front-end)
-if (empty($password)) {
-    $errors['password'] = 'Password is required.';
-} else {
-    $passErrors = [];
-    if (strlen($password) < 8)                          $passErrors[] = 'at least 8 characters';
-    if (!preg_match('/\d/', $password))                 $passErrors[] = 'a number';
-    if (!preg_match('/[!@#$%^&*()\,.?":{}|<>]/', $password)) $passErrors[] = 'a special character';
-    if (!preg_match('/[a-z]/', $password) || !preg_match('/[A-Z]/', $password)) $passErrors[] = 'uppercase & lowercase letters';
-
-    if (!empty($passErrors))
-        $errors['password'] = 'Password must contain: ' . implode(', ', $passErrors) . '.';
-}
-
-if ($password !== $confirmPass)
-    $errors['confirmPassword'] = 'Passwords do not match.';
-
-// ── 6. Duplicate Checks (only if base validation passed) ──
-if (empty($errors['schoolIDNo'])) {
-    $stmt = $conn->prepare('SELECT StudentID FROM students WHERE SchoolIDNo = ? LIMIT 1');
-    $stmt->bind_param('s', $schoolIDNo);
-    $stmt->execute();
-    $stmt->store_result();
-    if ($stmt->num_rows > 0)
-        $errors['schoolIDNo'] = 'School ID is already registered.';
-    $stmt->close();
-}
-
-if (empty($errors['email'])) {
-    // NOTE: If your `students` table has no `email` column yet, add it:
-    //   ALTER TABLE students ADD COLUMN Email varchar(150) UNIQUE;
-    $stmt = $conn->prepare('SELECT StudentID FROM students WHERE Email = ? LIMIT 1');
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $stmt->store_result();
-    if ($stmt->num_rows > 0)
-        $errors['email'] = 'Email address is already in use.';
-    $stmt->close();
-}
-
-// ── 7. Return errors if any ───────────────────
-if (!empty($errors)) {
-    http_response_code(422); // Unprocessable Entity
-    echo json_encode([
-        'success' => false,
-        'message' => 'Validation failed.',
-        'errors'  => $errors,
-    ]);
-    $conn->close();
-    exit();
-}
-
-// ── 8. Hash password & Generate QR payload ───
-$hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-
-// Simple QR payload – you can replace this with a real QR library (e.g. phpqrcode)
-$qrPayload = base64_encode(json_encode([
-    'schoolIDNo' => $schoolIDNo,
-    'name'       => "$firstName $lastName",
-    'program'    => $program,
-    'year'       => $yearLevel,
-    'section'    => $section,
-]));
-
-// ── 9. Insert into database ───────────────────
-$sql = '
-    INSERT INTO students
-        (SchoolIDNo, Email, LastName, FirstName, MiddleName, Program, YearLevel, section, StudentQRCode, password)
-    VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-';
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
-    $conn->close();
-    exit();
-}
-
-$stmt->bind_param(
-    'ssssssisis',
-    $schoolIDNo,
-    $email,
-    $lastName,
-    $firstName,
-    $middleName,
-    $program,
-    $yearLevel,
-    $section,
-    $qrPayload,
-    $hashedPassword
-);
-
-if ($stmt->execute()) {
-    http_response_code(201); // Created
-    echo json_encode([
-        'success'   => true,
-        'message'   => 'Registration successful! You can now sign in.',
-        'studentId' => $stmt->insert_id,
-    ]);
-} else {
-    // Catch any DB-level duplicate/constraint errors as a safety net
-    $errCode = $conn->errno;
-    $errMsg  = $conn->error;
-
-    if ($errCode === 1062) { // Duplicate entry
-        http_response_code(409);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Duplicate entry detected.',
-            'errors'  => ['db' => $errMsg],
-        ]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error during login."]);
+            exit;
+        }
     } else {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Registration failed: ' . $errMsg,
-        ]);
-    }
-}
+        // --- SYSTEM REGISTRATION ---
+        try {
+            // I-secure at i-hash ang password
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            
+            // Mas maganda kung itong md5 hash ang gamitin mo para sa QR text para secured
+            $generatedQRText = md5($schoolIDNo . time());
 
-$stmt->close();
-$conn->close();
+            // Tiyakin na eksaktong magkatugma ang placeholders dito...
+            $sql = "INSERT INTO students (SchoolIDNo, Email, LastName, FirstName, MiddleName, Program, YearLevel, section, StudentQRCode, password) 
+                    VALUES (:schoolIDNo, :email, :lastName, :firstName, :middleName, :program, :yearLevel, :section, :qrCode, :password)";
+            
+            $stmt = $pdo->prepare($sql);
+            
+            // ...at dito sa loob ng execute array (Case-sensitive at may tamang colon syntax)
+            $stmt->execute([
+                ':schoolIDNo'  => $schoolIDNo,
+                ':email'       => $email,
+                ':lastName'    => $lastName,
+                ':firstName'   => $firstName,
+                ':middleName'  => $middleName,
+                ':program'     => $program,
+                ':yearLevel'   => $yearLevel,
+                ':section'     => $section,
+                ':qrCode'      => $generatedQRText,
+                ':password'    => $hashedPassword
+                
+            ]);
+
+            http_response_code(201);
+            echo json_encode(["message" => "Registration successful!"]);
+            exit;
+
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database processing failed: " . $e->getMessage()]);
+            exit;
+        }
+    }
+} else {
+    http_response_code(400);
+    echo json_encode(["message" => "Bad Request. Empty payload."]);
+}
+?>

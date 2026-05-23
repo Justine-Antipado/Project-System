@@ -3,14 +3,13 @@ import "./Auth.css";
 import omscLogo from "./assets/omsc.logo.png";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 // 0. MOCK DATABASE (For duplicating checks)
-const MOCK_DATABASE_USERS = [
-  { idNo: "2024-11111", email: "test@omsc.edu.ph" },
-  { idNo: "2024-22222", email: "user@omsc.edu.ph" },
-];
 
 export default function StudentDashboard() {
+  const [duplicateCheck, setDuplicateCheck] = useState([]);
+
   const navigate = useNavigate();
   // 1. STATE MANAGEMENT
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +17,9 @@ export default function StudentDashboard() {
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  const [formErrors, setFormErrors] = useState({});
+  // Ang laman nito mamaya ay magiging parang ganito: { email: "Email is already in use." }
 
   // States for Password Validation UI
   const [focusedField, setFocusedField] = useState(null);
@@ -98,6 +100,23 @@ export default function StudentDashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // I-fetch ang mga kasalukuyang estudyante mula sa DB pagka-load ng portal
+useEffect(() => {
+  const fetchExistingStudents = async () => {
+    try {
+      // Ituro sa bagong gawa na checkDuplicates.php endpoint
+      const response = await axios.get("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/checkDuplicates.php");
+      if (response.data && Array.isArray(response.data)) {
+        setDuplicateCheck(response.data);
+      }
+    } catch (err) {
+      console.error("Hindi ma-fetch ang data para sa duplicate check:", err);
+    }
+  };
+
+  fetchExistingStudents();
+}, []);
+
   const selectOption = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setActiveDropdown(null);
@@ -111,11 +130,13 @@ export default function StudentDashboard() {
   };
 
   // 4. FORM SUBMISSION
-  const handleSubmit = (e) => {
+  // 4. FORM SUBMISSION (Gumagana para sa PHP PDO Backend)
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     setSuccessMsg("");
 
+    // --- FRONTEND CHECKING VALIDATION ---
     if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
     if (!formData.password) newErrors.password = "Password is required.";
 
@@ -130,36 +151,104 @@ export default function StudentDashboard() {
       if (formData.yearLevel === "Select Year...")
         newErrors.yearLevel = "Year level is required.";
 
-      if (!allPasswordReqsMet && formData.password) {
-        newErrors.password = "Password does not meet requirements.";
+      // --- DUPLICATE CHECKING LOGIC ---
+      if (!newErrors.schoolIDNo) {
+        const isIdDuplicate = duplicateCheck.some(
+          (user) => user?.schoolIDNo?.toLowerCase().trim() === formData.schoolIDNo?.toLowerCase().trim()
+        );
+        if (isIdDuplicate) {
+          newErrors.schoolIDNo = "School ID is already registered.";
+        }
       }
 
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match.";
-      }
-
-      if (
-        !newErrors.schoolIDNo &&
-        MOCK_DATABASE_USERS.some((u) => u.idNo === formData.schoolIDNo)
-      ) {
-        newErrors.schoolIDNo = "School ID is already registered.";
-      }
-      if (
-        !newErrors.email &&
-        MOCK_DATABASE_USERS.some((u) => u.email === formData.email)
-      ) {
-        newErrors.email = "Email is already in use.";
+      if (!newErrors.email) {
+        const isEmailDuplicate = duplicateCheck.some(
+          (user) => user?.email?.toLowerCase().trim() === formData.email?.toLowerCase().trim()
+        );
+        if (isEmailDuplicate) {
+          newErrors.email = "Email is already in use.";
+        }
       }
     }
 
-    setErrors(newErrors);
+    // CRITICAL FIX: Dito natin haharangan ang pag-insert kung may anumang error (kasama ang duplicate)
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // Hihinto ang execute dito, hindi na makakarating sa axios.post!
+    }
 
-    if (Object.keys(newErrors).length === 0) {
-      setSuccessMsg(
-        isLogin
-          ? "Login Successful!"
-          : "Registration Successful! You can now sign in.",
-      );
+    // --- AXIOS NETWORK REQUEST ---
+    try {
+      const apiEndpoint =
+        "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/insertStudents.php";
+
+      const payload = new URLSearchParams();
+      payload.append("schoolIDNo", formData.schoolIDNo);
+      payload.append("password", formData.password);
+
+      if (!isLogin) {
+        payload.append("email", formData.email);
+        payload.append("lastName", formData.lastName);
+        payload.append("firstName", formData.firstName);
+        payload.append("middleName", formData.middleName);
+        payload.append("program", formData.program);
+        payload.append("yearLevel", formData.yearLevel);
+        payload.append("section", formData.section);
+      }
+
+      const response = await axios.post(apiEndpoint, payload, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        setSuccessMsg(
+          isLogin
+            ? "Login Successful!"
+            : "Registration Successful! You can now sign in."
+        );
+
+        if (isLogin) {
+          localStorage.setItem(
+            "studentUser",
+            JSON.stringify(response.data.student)
+          );
+          setTimeout(() => navigate("/dashboard"), 1500);
+        } else {
+          // I-reset ang form fields matapos mag-register
+          setFormData({
+            schoolIDNo: "",
+            email: "",
+            lastName: "",
+            firstName: "",
+            middleName: "",
+            section: "Select Sec...",
+            program: "Select Prog...",
+            yearLevel: "Select Year...",
+            password: "",
+            confirmPassword: "",
+          });
+          
+          // Dagdag na Tip: I-refresh ang duplicate list para kasama na ang bagong gawang account sa susunod na check
+          if (response.data) {
+             setDuplicateCheck(prev => [...prev, { schoolIDNo: formData.schoolIDNo, email: formData.email }]);
+          }
+
+          setTimeout(() => handleToggleMode(), 2000);
+        }
+      }
+    } catch (err) {
+      if (err.response && err.response.data) {
+        const backendError = err.response.data;
+        if (backendError.field) {
+          setErrors({ [backendError.field]: backendError.message });
+        } else {
+          setErrors({ global: backendError.message || "An error occurred." });
+        }
+      } else {
+        setErrors({
+          global: "Hindi makakonekta sa server. Pakisuri kung bukas ang Apache/MySQL sa XAMPP.",
+        });
+      }
     }
   };
 
@@ -178,7 +267,6 @@ export default function StudentDashboard() {
           handleInputFocus(name);
         }}
       >
-        
         <span className="omsc-auth-dropdown-value">{value}</span>
       </div>
 
@@ -271,6 +359,11 @@ export default function StudentDashboard() {
               {successMsg && (
                 <div className="omsc-auth-success-banner">{successMsg}</div>
               )}
+              {errors.global && (
+  <div className="omsc-auth-error-banner" style={{ color: 'white', backgroundColor: '#e63946', padding: '10px', borderRadius: '5px', marginBottom: '15px', textAlign: 'center' }}>
+    {errors.global}
+  </div>
+)}
 
               {isLogin ? (
                 <div className="omsc-auth-input-stack">
