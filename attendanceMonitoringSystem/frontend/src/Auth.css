@@ -1,41 +1,38 @@
 /* --- NEW COLOR PALETTE (Based on provided images) --- */
 :root {
-  --omsc-dark-blue: #0a1d37; /* From Logo and Nav */
-  --omsc-yellow: #facc15; /* Accent from Logo/Nav */
-  --primary-green: #5e7d63; /* Original primary, retained for some elements */
+  --omsc-auth-dark-blue: #0a1d37;
+  --omsc-auth-yellow: #facc15;
+  --omsc-auth-primary-green: #5e7d63;
 
-  --bg-page: #f0f2f5; /* Soft Gray Page Background */
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --input-bg: #e9e9e9; /* Original input background */
+  --omsc-auth-bg-page: #f0f2f5;
+  --omsc-auth-bg-card: rgba(255, 255, 255, 0.95);
+  --omsc-auth-text-main: #111827;
+  --omsc-auth-text-muted: #6b7280;
+  --omsc-auth-input-bg: #e9e9e9;
 
-  /* Validation Colors */
-  --color-error: #ef4444; /* Red */
-  --color-success: #10b981; /* Green */
-  --color-met: #059669; /* Darker Green for text */
+  --omsc-auth-color-error: #ef4444;
+  --omsc-auth-color-success: #10b981;
+  --omsc-auth-color-met: #059669;
 }
 
 * {
   box-sizing: border-box;
-  font-family: "Inter", sans-serif;
-  margin: 0;
-  padding: 0;
 }
 
 /* LAYOUT CONTAINERS */
-.page-container {
+.omsc-auth-page {
   min-height: 100vh;
-  background-color: var(--bg-page);
+  background-color: var(--omsc-auth-bg-page);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
+  font-family: "Inter", sans-serif;
 }
 
-.blob {
+.omsc-auth-blob {
   position: absolute;
   width: 500px;
   height: 500px;
@@ -43,20 +40,19 @@
   filter: blur(120px);
   z-index: 0;
 }
-/* Blooms adapted to new colors */
-.blob-left {
+.omsc-auth-blob-left {
   top: -10%;
   left: -10%;
   background: rgba(191, 219, 254, 0.4);
-} /* Soft Blue */
-.blob-right {
+}
+.omsc-auth-blob-right {
   bottom: -10%;
   right: -10%;
   background: rgba(254, 249, 195, 0.3);
-} /* Soft Yellow */
+}
 
-.auth-card {
-  background: var(--bg-card);
+.omsc-auth-card {
+  background: var(--omsc-auth-bg-card);
   backdrop-filter: blur(20px);
   width: 100%;
   max-width: 980px;
@@ -71,28 +67,26 @@
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.auth-card.reverse {
+.omsc-auth-card-reverse {
   flex-direction: row-reverse;
 }
 
-.form-container {
+.omsc-auth-form-container {
   flex: 1.2;
   padding: 2rem 3.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
   position: relative;
 }
 
 /* TYPOGRAPHY & HEADERS */
-.header-section {
+.omsc-auth-header {
   text-align: center;
   margin-bottom: 1rem;
 }
-.logo-icon {
+.omsc-auth-logo-icon {
   width: 65px;
   height: 65px;
   background: white;
@@ -103,107 +97,116 @@
   justify-content: center;
   margin: 0 auto 1rem;
 }
-.main-title {
+.omsc-auth-main-title {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--omsc-dark-blue);
+  color: var(--omsc-auth-dark-blue);
+  font-family: "Inter", sans-serif;
 }
-.sub-title {
-  color: var(--text-muted);
+.omsc-auth-sub-title {
+  color: var(--omsc-auth-text-muted);
   font-size: 0.8rem;
   margin-top: 0.2rem;
+  font-family: "Inter", sans-serif;
 }
 
 /* INPUT STYLING */
-.field-group {
+.omsc-auth-field-group {
   margin-bottom: 0.6rem;
   position: relative;
   width: 100%;
 }
-.label-text {
+.omsc-auth-label-text {
   display: block;
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--omsc-auth-text-main);
   margin-bottom: 0.2rem;
   margin-left: 0.8rem;
+  font-family: "Inter", sans-serif;
 }
 
-.form-input {
+.omsc-auth-form-input {
   width: 100%;
   height: 44px;
   padding: 0 1.2rem;
-  background: var(--input-bg);
+  background: var(--omsc-auth-input-bg);
   border: 2px solid transparent;
   border-radius: 22px;
   font-size: 0.85rem;
+  font-family: "Inter", sans-serif;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
 }
 
-.form-input:hover {
+.omsc-auth-form-input:hover {
   background: #ffffff;
   border-color: #dcdcdc;
 }
-.form-input:focus,
-.form-input:focus-within {
+.omsc-auth-form-input:focus,
+.omsc-auth-form-input:focus-within {
   outline: none;
   background: #ffffff;
-  border-color: var(--omsc-dark-blue);
+  border-color: var(--omsc-auth-dark-blue);
   box-shadow: 0 0 0 4px rgba(10, 29, 55, 0.08);
 }
 
 /* Validation Styling on Inputs */
-.field-group.has-error .form-input {
-  border-color: var(--color-error);
+.omsc-auth-has-error .omsc-auth-form-input {
+  border-color: var(--omsc-auth-color-error);
   background: #fff;
 }
-.error-text {
-  color: var(--color-error);
+.omsc-auth-error-text {
+  color: var(--omsc-auth-color-error);
   font-size: 10px;
   margin-left: 1rem;
   margin-top: 2px;
   display: block;
+  font-family: "Inter", sans-serif;
 }
 
 /* FLEX ROWS & GRID */
-.input-row-flex {
+.omsc-auth-row-flex {
   display: flex;
   gap: 0.75rem;
   width: 100%;
 }
 
-.input-row-flex .field-group {
+.omsc-auth-row-flex .omsc-auth-field-group {
   flex: 1;
   min-width: 0;
 }
 
-/* DROPDOWN SPECIFIC (Arrow Customization) */
-.custom-dropdown-container {
+.omsc-auth-relative {
+  position: relative;
+}
+
+/* DROPDOWN SPECIFIC */
+.omsc-auth-dropdown-container {
   cursor: pointer;
   z-index: 20;
 }
-.dropdown-trigger {
+.omsc-auth-dropdown-trigger {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   user-select: none;
-  position: relative; /* Needed for ::after arrow */
-  padding-right: 2.5rem; /* Space for the arrow */
+  position: relative;
+  padding-right: 2.5rem;
 }
 
-.dropdown-value {
+.omsc-auth-dropdown-value {
   font-size: 0.75rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  font-family: "Inter", sans-serif;
 }
 
-/* --- THE CUSTOM ARROW (Replaces ChevronDown icon) --- */
-.dropdown-trigger::after {
+.omsc-auth-dropdown-trigger::after {
   content: "";
   position: absolute;
   right: 1.2rem;
@@ -213,20 +216,17 @@
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid var(--text-muted); /* Downward Triangle */
-  transition:
-    transform 0.3s ease,
-    border-top-color 0.3s ease;
+  border-top: 6px solid var(--omsc-auth-text-muted);
+  transition: transform 0.3s ease, border-top-color 0.3s ease;
   pointer-events: none;
 }
 
-/* Arrow state when active (rotated) */
-.dropdown-trigger.active::after {
+.omsc-auth-dropdown-trigger.omsc-auth-active::after {
   transform: translateY(-50%) rotate(180deg);
-  border-top-color: var(--omsc-dark-blue);
+  border-top-color: var(--omsc-auth-dark-blue);
 }
 
-.dropdown-menu {
+.omsc-auth-dropdown-menu {
   position: absolute;
   top: 105%;
   left: 0;
@@ -239,24 +239,25 @@
   z-index: 9999;
 }
 
-.dropdown-item {
+.omsc-auth-dropdown-item {
   padding: 10px 20px;
   font-size: 0.85rem;
-  color: var(--text-main);
+  color: var(--omsc-auth-text-main);
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: background 0.2s;
+  font-family: "Inter", sans-serif;
 }
-.dropdown-item:hover {
-  background: var(--bg-page);
-  color: var(--omsc-dark-blue);
+.omsc-auth-dropdown-item:hover {
+  background: var(--omsc-auth-bg-page);
+  color: var(--omsc-auth-dark-blue);
 }
 
-/* PASSWORD REQUIREMENTS POPUP (Logic UI) */
-.password-requirements-popup {
+/* PASSWORD REQUIREMENTS POPUP */
+.omsc-auth-pass-popup {
   position: absolute;
-  bottom: 110%; /* Above the field */
+  bottom: 110%;
   left: 0;
   width: 100%;
   min-width: 250px;
@@ -266,58 +267,56 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   border: 1px solid #e5e7eb;
   z-index: 100;
-
-  /* Initial State (Hidden) */
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
   transition: all 0.3s ease;
 }
 
-.password-requirements-popup.visible {
+.omsc-auth-pass-popup-visible {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
-.password-requirements-popup h4 {
+.omsc-auth-pass-popup h4 {
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--omsc-auth-text-main);
   margin-bottom: 0.5rem;
+  font-family: "Inter", sans-serif;
 }
 
-.password-requirements-popup ul {
+.omsc-auth-pass-popup ul {
   list-style: none;
   padding: 0;
 }
 
-.password-requirements-popup li {
+.omsc-auth-pass-popup li {
   font-size: 11px;
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 4px;
   transition: color 0.2s ease;
+  font-family: "Inter", sans-serif;
 }
 
-/* Met/Unmet States (Requested colors/symbols) */
-.password-requirements-popup li.unmet {
-  color: var(--text-muted);
+.omsc-auth-req-unmet {
+  color: var(--omsc-auth-text-muted);
 }
-.password-requirements-popup li.unmet svg {
-  color: var(--color-error); /* Red X */
-}
-
-.password-requirements-popup li.met {
-  color: var(--color-met); /* Green Text */
-}
-.password-requirements-popup li.met svg {
-  color: var(--color-success); /* Green Check */
+.omsc-auth-req-unmet svg {
+  color: var(--omsc-auth-color-error);
 }
 
-/* Arrow pointing down to the input */
-.popup-arrow {
+.omsc-auth-req-met {
+  color: var(--omsc-auth-color-met);
+}
+.omsc-auth-req-met svg {
+  color: var(--omsc-auth-color-success);
+}
+
+.omsc-auth-popup-arrow {
   position: absolute;
   top: 100%;
   left: 2rem;
@@ -325,11 +324,11 @@
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid #fff; /* Match popup background */
+  border-top: 8px solid #fff;
 }
 
 /* BUTTONS */
-.btn {
+.omsc-auth-btn {
   width: 100%;
   height: 46px;
   border-radius: 23px;
@@ -337,26 +336,27 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
+  font-family: "Inter", sans-serif;
 }
-.btn-submit {
-  background: var(--omsc-dark-blue);
+.omsc-auth-btn-submit {
+  background: var(--omsc-auth-dark-blue);
   color: #fff;
   margin-top: 0.5rem;
 }
-.btn-submit:hover {
-  background: #112a50; /* Slightly lighter blue */
+.omsc-auth-btn-submit:hover {
+  background: #112a50;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(10, 29, 55, 0.2);
 }
-.btn-toggle {
+.omsc-auth-btn-toggle {
   background: #f1f5f9;
-  color: var(--omsc-dark-blue);
+  color: var(--omsc-auth-dark-blue);
   margin-top: 0.6rem;
   font-size: 0.8rem;
 }
-.btn-google {
+.omsc-auth-btn-google {
   background: white;
-  color: var(--text-main);
+  color: var(--omsc-auth-text-main);
   border: 1px solid #ddd;
   display: flex;
   align-items: center;
@@ -365,22 +365,20 @@
   margin-top: 0.8rem;
   font-size: 0.85rem;
 }
-
-.btn-google:hover {
+.omsc-auth-btn-google:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
-
-.google-icon {
+.omsc-auth-google-icon {
   width: 18px;
   height: 18px;
 }
-.btn-toggle:hover {
+.omsc-auth-btn-toggle:hover {
   background: #e2e8f0;
 }
 
 /* UTILS */
-.eye-btn {
+.omsc-auth-eye-btn {
   position: absolute;
   right: 15px;
   top: 50%;
@@ -388,31 +386,33 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--omsc-auth-text-muted);
   display: flex;
   align-items: center;
   z-index: 2;
 }
-.input-with-icon {
+.omsc-auth-input-icon-wrap {
   position: relative;
   width: 100%;
 }
-.or-divider {
+.omsc-auth-or-divider {
   text-align: center;
   margin: 0.5rem 0;
   font-size: 11px;
   font-weight: 800;
   color: #bbb;
+  font-family: "Inter", sans-serif;
 }
-.footer-credits {
+.omsc-auth-footer {
   text-align: center;
   font-size: 10px;
   color: #aaa;
   margin-top: 1rem;
+  font-family: "Inter", sans-serif;
 }
 
-/* Form Success Banner */
-.success-banner {
+/* Success Banner */
+.omsc-auth-success-banner {
   background-color: #d1fae5;
   color: #065f46;
   border: 1px solid #a7f3d0;
@@ -421,92 +421,110 @@
   font-size: 0.8rem;
   text-align: center;
   margin-bottom: 1rem;
+  font-family: "Inter", sans-serif;
 }
 
-/* INFO PANEL (New Layout for Logo) */
-.info-panel {
+/* INFO PANEL */
+.omsc-auth-info-panel {
   flex: 1;
-  background: var(--omsc-dark-blue);
+  background: var(--omsc-auth-dark-blue);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3rem;
 }
-.info-content {
+.omsc-auth-info-content {
   text-align: center;
   width: 100%;
 }
-
-/* Logo Container */
-.college-logo-container {
+.omsc-auth-college-logo-wrap {
   margin-bottom: 1.5rem;
 }
-.college-logo {
-  max-width: 120px; /* Adjust based on your logo shape */
+.omsc-auth-college-logo {
+  max-width: 120px;
   height: auto;
 }
-
-.top-note {
+.omsc-auth-top-note {
   font-size: 0.75rem;
   text-align: center;
   margin-bottom: 1.2rem;
   opacity: 0.9;
   font-style: italic;
+  font-family: "Inter", sans-serif;
 }
-.hero-heading {
+.omsc-auth-hero-heading {
   font-size: 2.5rem;
   font-weight: 900;
   text-align: center;
   line-height: 1.1;
+  font-family: "Inter", sans-serif;
 }
-
-.yellow-divider {
+.omsc-auth-yellow-divider {
   width: 60px;
   height: 4px;
-  background: var(--omsc-yellow);
+  background: var(--omsc-auth-yellow);
   margin: 1rem auto 2rem;
   border-radius: 2px;
 }
-.panel-subtext {
+.omsc-auth-panel-subtext {
   font-size: 0.85rem;
   opacity: 0.8;
   max-width: 300px;
   margin: 0 auto;
+  font-family: "Inter", sans-serif;
+}
+
+/* FORM STACKS */
+.omsc-auth-input-stack {
+  display: flex;
+  flex-direction: column;
+}
+.omsc-auth-reg-stack {
+  display: flex;
+  flex-direction: column;
+}
+.omsc-auth-action-btns {
+  display: flex;
+  flex-direction: column;
 }
 
 /* ANIMATIONS */
-.fade-in {
+.omsc-auth-fade-in {
   opacity: 1;
   transform: translateX(0);
 }
-.fade-out {
+.omsc-auth-fade-out {
   opacity: 0;
   transform: translateX(20px);
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 900px) {
-  .auth-card {
+  .omsc-auth-card {
     flex-direction: column !important;
     min-height: auto;
     max-width: 480px;
     border-radius: 25px;
   }
-  .info-panel {
+  .omsc-auth-info-panel {
     display: none;
   }
-  .form-container {
+  .omsc-auth-form-container {
     padding: 2rem;
   }
-  .input-row-flex {
+  .omsc-auth-row-flex {
     flex-direction: column;
     gap: 0;
   }
-
-  /* Dropdowns row still stays flexed on mobile if room */
-  .input-row-flex.dropdown-row {
+  .omsc-auth-row-flex.omsc-auth-dropdown-row {
     flex-direction: row;
     gap: 0.5rem;
   }
+}
+
+/* Dropdown placeholder text styling */
+.omsc-auth-dropdown-placeholder {
+  color: var(--omsc-auth-text-muted);
+  opacity: 0.7;
 }

@@ -1,19 +1,19 @@
 /* --- NEW COLOR PALETTE (Based on provided images) --- */
 :root {
-  --omsc-dark-blue: #0a1d37; /* From Logo and Nav */
-  --omsc-yellow: #facc15; /* Accent from Logo/Nav */
-  --primary-green: #5e7d63; /* Original primary, retained for some elements */
+  --omsc-dark-blue-ap: #0a1d37; /* From Logo and Nav */
+   --omsc-yellow-ap: #facc15; /* Accent from Logo/Nav */
+  --primary-green-ap: #5e7d63; /* Original primary, retained for some elements */
 
-  --bg-page: #f0f2f5; /* Soft Gray Page Background */
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --input-bg: #e9e9e9; /* Original input background */
+  --bg-page-ap: #f0f2f5; /* Soft Gray Page Background */
+  --bg-card-ap: rgba(255, 255, 255, 0.95);
+  --text-main-ap: #111827;
+  --text-muted-ap: #6b7280;
+  --input-bg-ap: #e9e9e9; /* Original input background */
 
   /* Validation Colors */
-  --color-error: #ef4444; /* Red */
-  --color-success: #10b981; /* Green */
-  --color-met: #059669; /* Darker Green for text */
+  --color-error-ap: #ef4444; /* Red */
+  --color-success-ap: #10b981; /* Green */
+  --color-met-ap: #059669; /* Darker Green for text */
 }
 
 * {
@@ -24,9 +24,9 @@
 }
 
 /* LAYOUT CONTAINERS */
-.page-container {
+.ap-screen-container {
   min-height: 100vh;
-  background-color: var(--bg-page);
+  background-color: var(--bg-page-ap);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,7 +35,7 @@
   overflow: hidden;
 }
 
-.blob {
+.ap-glow-blur {
   position: absolute;
   width: 500px;
   height: 500px;
@@ -44,19 +44,19 @@
   z-index: 0;
 }
 /* Blooms adapted to new colors */
-.blob-left {
+.ap-glow-start {
   top: -10%;
   left: -10%;
   background: rgba(191, 219, 254, 0.4);
 } /* Soft Blue */
-.blob-right {
+.ap-glow-end {
   bottom: -10%;
   right: -10%;
   background: rgba(254, 249, 195, 0.3);
 } /* Soft Yellow */
 
-.auth-card {
-  background: var(--bg-card);
+.ap-form-shell {
+  background: var(--bg-card-ap);
   backdrop-filter: blur(20px);
   width: 100%;
   max-width: 980px;
@@ -71,11 +71,11 @@
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.auth-card.reverse {
+.ap-form-shell.ap-layout-flipped {
   flex-direction: row-reverse;
 }
 
-.form-container {
+.ap-form-inner {
   flex: 1.2;
   padding: 2rem 3.5rem;
   display: flex;
@@ -88,11 +88,11 @@
 }
 
 /* TYPOGRAPHY & HEADERS */
-.header-section {
+.ap-header-block {
   text-align: center;
   margin-bottom: 1rem;
 }
-.logo-icon {
+.ap-icon-avatar {
   width: 65px;
   height: 65px;
   background: white;
@@ -103,37 +103,37 @@
   justify-content: center;
   margin: 0 auto 1rem;
 }
-.main-title {
+.ap-title-main {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--omsc-dark-blue);
+  color: var(--omsc-dark-blue-ap);
 }
-.sub-title {
-  color: var(--text-muted);
+.ap-title-sub {
+  color: var(--text-muted-ap);
   font-size: 0.8rem;
   margin-top: 0.2rem;
 }
 
 /* INPUT STYLING */
-.field-group {
+.ap-field-wrapper {
   margin-bottom: 0.6rem;
   position: relative;
   width: 100%;
 }
-.label-text {
+.ap-field-label {
   display: block;
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-main-ap);
   margin-bottom: 0.2rem;
   margin-left: 0.8rem;
 }
 
-.form-input {
+.ap-input-control {
   width: 100%;
   height: 44px;
   padding: 0 1.2rem;
-  background: var(--input-bg);
+  background: var(--input-bg-ap);
   border: 2px solid transparent;
   border-radius: 22px;
   font-size: 0.85rem;
@@ -142,25 +142,25 @@
   align-items: center;
 }
 
-.form-input:hover {
+.ap-input-control:hover {
   background: #ffffff;
   border-color: #dcdcdc;
 }
-.form-input:focus,
-.form-input:focus-within {
+.ap-input-control:focus,
+.ap-input-control:focus-within {
   outline: none;
   background: #ffffff;
-  border-color: var(--omsc-dark-blue);
+  border-color: var(--omsc-dark-blue-ap);
   box-shadow: 0 0 0 4px rgba(10, 29, 55, 0.08);
 }
 
 /* Validation Styling on Inputs */
-.field-group.has-error .form-input {
-  border-color: var(--color-error);
+.ap-field-wrapper.ap-state-error .ap-input-control {
+  border-color: var(--color-error-ap);
   background: #fff;
 }
-.error-text {
-  color: var(--color-error);
+.ap-error-message {
+  color: var(--color-error-ap);
   font-size: 10px;
   margin-left: 1rem;
   margin-top: 2px;
@@ -168,26 +168,26 @@
 }
 
 /* FLEX ROWS & GRID */
-.input-row-flex {
+.ap-row-flexible {
   display: flex;
   gap: 0.75rem;
   width: 100%;
 }
 
-.input-row-flex .field-group {
+.ap-row-flexible .ap-field-wrapper {
   flex: 1; /* Hahatiin ang space nang pantay-pantay */
   min-width: 0; /* Importante ito para gumana ang ellipsis */
   width: 100%;
 }
 
 /* DROPDOWN SPECIFIC (Arrow Customization) */
-.custom-dropdown-container {
+.ap-dropdown-scope {
   cursor: pointer;
   position: relative; /* Essential for absolute positioning of menu */
   width: 100%; /* Forces it to follow the flex-basis of the row */
   min-width: 0;
 }
-.dropdown-trigger {
+.ap-dropdown-toggle {
   width: 100%;
   display: flex;
   align-items: center;
@@ -197,15 +197,13 @@
   height: 44px;
   overflow: hidden;
   box-sizing: border-box;
-
   position: relative;
 }
 
-.dropdown-value {
+.ap-dropdown-current {
   font-size: 0.75rem;
   overflow: hidden;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
   display: block;
   width: 100%;
@@ -213,7 +211,7 @@
 }
 
 /* --- THE CUSTOM ARROW (Replaces ChevronDown icon) --- */
-.dropdown-trigger::after {
+.ap-dropdown-toggle::after {
   content: "";
   position: absolute;
   right: 1.2rem;
@@ -223,7 +221,7 @@
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid var(--text-muted);
+  border-top: 6px solid var(--text-muted-ap);
   transition:
     transform 0.3s ease,
     border-top-color 0.3s ease;
@@ -231,12 +229,12 @@
 }
 
 /* Arrow state when active (rotated) */
-.dropdown-trigger.active::after {
+.ap-dropdown-toggle.ap-state-active::after {
   transform: translateY(-50%) rotate(180deg);
-  border-top-color: var(--omsc-dark-blue);
+  border-top-color: var(--omsc-dark-blue-ap);
 }
 
-.dropdown-menu {
+.ap-dropdown-overlay {
   position: absolute;
   top: calc(100% + 5px); /* Small gap */
   left: 0;
@@ -248,24 +246,32 @@
   max-height: 200px; /* Prevents menu from covering the whole screen */
   border: 1px solid #eee;
   z-index: 9999;
+
+  -ms-overflow-style: none;  /* IE at Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-.dropdown-item {
-  padding: 10px 15px;
-  font-size: 0.85rem;
-  color: var(--text-main);
-  white-space: nowrap; /* Keep items on one line */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background 0.2s;
+.ap-dropdown-overlay::-webkit-scrollbar {
+  display: none;
 }
-.dropdown-item:hover {
-  background: var(--bg-page);
-  color: var(--omsc-dark-blue);
+
+.ap-dropdown-row {
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  color: var(--omsc-auth-text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+  font-family: "Inter", sans-serif;
+}
+.ap-dropdown-row:hover {
+  background: var(--bg-page-ap);
+  color: var(--omsc-dark-blue-ap);
 }
 
 /* PASSWORD REQUIREMENTS POPUP (Logic UI) */
-.password-requirements-popup {
+.ap-reqs-bubble {
   position: absolute;
   bottom: 110%; /* Above the field */
   left: 0;
@@ -277,7 +283,6 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   border: 1px solid #e5e7eb;
   z-index: 100;
-
   /* Initial State (Hidden) */
   opacity: 0;
   visibility: hidden;
@@ -285,25 +290,25 @@
   transition: all 0.3s ease;
 }
 
-.password-requirements-popup.visible {
+.ap-reqs-bubble.ap-state-visible {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
-.password-requirements-popup h4 {
+.ap-reqs-bubble h4 {
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-main-ap);
   margin-bottom: 0.5rem;
 }
 
-.password-requirements-popup ul {
+.ap-reqs-bubble ul {
   list-style: none;
   padding: 0;
 }
 
-.password-requirements-popup li {
+.ap-reqs-bubble li {
   font-size: 11px;
   display: flex;
   align-items: center;
@@ -313,22 +318,22 @@
 }
 
 /* Met/Unmet States (Requested colors/symbols) */
-.password-requirements-popup li.unmet {
-  color: var(--text-muted);
+.ap-reqs-bubble li.ap-req-unmet {
+  color: var(--text-muted-ap);
 }
-.password-requirements-popup li.unmet svg {
-  color: var(--color-error); /* Red X */
+.ap-reqs-bubble li.ap-req-unmet svg {
+  color: var(--color-error-ap); /* Red X */
 }
 
-.password-requirements-popup li.met {
-  color: var(--color-met); /* Green Text */
+.ap-reqs-bubble li.ap-req-met {
+  color: var(--color-met-ap); /* Green Text */
 }
-.password-requirements-popup li.met svg {
-  color: var(--color-success); /* Green Check */
+.ap-reqs-bubble li.ap-req-met svg {
+  color: var(--color-success-ap); /* Green Check */
 }
 
 /* Arrow pointing down to the input */
-.popup-arrow {
+.ap-bubble-pointer {
   position: absolute;
   top: 100%;
   left: 2rem;
@@ -340,7 +345,7 @@
 }
 
 /* BUTTONS */
-.btn {
+.ap-btn {
   width: 100%;
   height: 46px;
   border-radius: 23px;
@@ -349,25 +354,25 @@
   transition: all 0.3s ease;
   border: none;
 }
-.btn-submit {
-  background: var(--omsc-dark-blue);
+.ap-btn-primary {
+  background: var(--omsc-dark-blue-ap);
   color: #fff;
   margin-top: 0.5rem;
 }
-.btn-submit:hover {
+.ap-btn-primary:hover {
   background: #112a50; /* Slightly lighter blue */
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(10, 29, 55, 0.2);
 }
-.btn-toggle {
+.ap-btn-switch {
   background: #f1f5f9;
-  color: var(--omsc-dark-blue);
+  color: var(--omsc-dark-blue-ap);
   margin-top: 0.6rem;
   font-size: 0.8rem;
 }
-.btn-google {
+.ap-btn-oauth {
   background: white;
-  color: var(--text-main);
+  color: var(--text-main-ap);
   border: 1px solid #ddd;
   display: flex;
   align-items: center;
@@ -377,21 +382,21 @@
   font-size: 0.85rem;
 }
 
-.btn-google:hover {
+.ap-btn-oauth:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
 
-.google-icon {
+.ap-oauth-icon {
   width: 18px;
   height: 18px;
 }
-.btn-toggle:hover {
+.ap-btn-switch:hover {
   background: #e2e8f0;
 }
 
 /* UTILS */
-.eye-btn {
+.ap-visibility-toggle {
   position: absolute;
   right: 15px;
   top: 50%;
@@ -399,23 +404,23 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-muted-ap);
   display: flex;
   align-items: center;
   z-index: 2;
 }
-.input-with-icon {
+.ap-input-icon-group {
   position: relative;
   width: 100%;
 }
-.or-divider {
+.ap-text-divider {
   text-align: center;
   margin: 0.5rem 0;
   font-size: 11px;
   font-weight: 800;
   color: #bbb;
 }
-.footer-credits {
+.ap-footer-text {
   text-align: center;
   font-size: 10px;
   color: #aaa;
@@ -423,7 +428,7 @@
 }
 
 /* Form Success Banner */
-.success-banner {
+.ap-alert-success {
   background-color: #d1fae5;
   color: #065f46;
   border: 1px solid #a7f3d0;
@@ -435,51 +440,51 @@
 }
 
 /* INFO PANEL (New Layout for Logo) */
-.info-panel {
+.ap-branding-panel {
   flex: 1;
-  background: var(--omsc-dark-blue);
+  background: var(--omsc-dark-blue-ap);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3rem;
 }
-.info-content {
+.ap-branding-content {
   text-align: center;
   width: 100%;
 }
 
 /* Logo Container */
-.college-logo-container {
+.ap-logo-wrapper {
   margin-bottom: 1.5rem;
 }
-.college-logo {
+.ap-logo-img {
   max-width: 120px; /* Adjust based on your logo shape */
   height: auto;
 }
 
-.top-note {
+.ap-branding-tagline {
   font-size: 0.75rem;
   text-align: center;
   margin-bottom: 1.2rem;
   opacity: 0.9;
   font-style: italic;
 }
-.hero-heading {
+.ap-branding-headline {
   font-size: 2.5rem;
   font-weight: 900;
   text-align: center;
   line-height: 1.1;
 }
 
-.yellow-divider {
+.ap-accent-line {
   width: 60px;
   height: 4px;
-  background: var(--omsc-yellow);
+  background: var( --omsc-yellow-ap);
   margin: 1rem auto 2rem;
   border-radius: 2px;
 }
-.panel-subtext {
+.ap-branding-body {
   font-size: 0.85rem;
   opacity: 0.8;
   max-width: 300px;
@@ -487,36 +492,40 @@
 }
 
 /* ANIMATIONS */
-.fade-in {
+.ap-anim-fadein {
   opacity: 1;
   transform: translateX(0);
 }
-.fade-out {
+.ap-anim-fadeout {
   opacity: 0;
   transform: translateX(20px);
 }
 
+.ap-pos-relative {
+  position: relative;
+}
+
 /* Responsive adjustments */
 @media (max-width: 900px) {
-  .auth-card {
+  .ap-form-shell {
     flex-direction: column !important;
     min-height: auto;
     max-width: 480px;
     border-radius: 25px;
   }
-  .info-panel {
+  .ap-branding-panel {
     display: none;
   }
-  .form-container {
+  .ap-form-inner {
     padding: 2rem;
   }
-  .input-row-flex {
+  .ap-row-flexible {
     flex-direction: column;
     gap: 0;
   }
 
   /* Dropdowns row still stays flexed on mobile if room */
-  .input-row-flex.dropdown-row {
+  .ap-row-flexible.ap-row-dropdowns {
     flex-direction: row;
     gap: 0.5rem;
   }

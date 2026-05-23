@@ -19,7 +19,9 @@ export default function App() {
   return (
     <Routes>
       {/* Redirect root to dashboard */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/AdminAuth" replace />} />
+
+      <Route path="/AdminAuth" element={<AdminAuth />} />
 
       {/* All admin pages share the Layout (sidebar) */}
       <Route element={<Layout />}>
@@ -37,7 +39,7 @@ export default function App() {
       </Route>
 
       {/* Catch-all fallback */}
-      <Route path="*" element={<Navigate to="/Dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/AdminAuth" replace />} />
     </Routes>
   );
 }
