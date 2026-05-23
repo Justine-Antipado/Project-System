@@ -6,10 +6,10 @@ import { useNavigate } from "react-router-dom";
 
 // --- INITIAL MOCK DATABASE ---
 // This acts as your temporary backend database storage
-{/*const INITIAL_MOCK_USERS = [
+const INITIAL_MOCK_USERS = [
   {
     SchoolIDNo: "2024-00001",
-    schoolIDNo: "2024-00001", 
+    schoolIDNo: "2024-00001", // keeping both casing styles to safely support your existing validations
     email: "juan.delacruz@omsc.edu.ph",
     password: "Password123!",
     firstName: "Juan",
@@ -31,11 +31,11 @@ import { useNavigate } from "react-router-dom";
     yearLevel: "2",
     section: "B"
   }
-];*/}
+];
 
 export default function Auth() {
   // Use mock data array to manage simulated backend state locally
-  //const [localUsers, setLocalUsers] = useState(INITIAL_MOCK_USERS);
+  const [localUsers, setLocalUsers] = useState(INITIAL_MOCK_USERS);
 
   const navigate = useNavigate();
   // 1. STATE MANAGEMENT
@@ -124,17 +124,6 @@ export default function Auth() {
     }, 400);
   };
 
-  // magsisimula ang 5-segundong timer para burahin ito.
-useEffect(() => {
-  if (errors.global) {
-    const timer = setTimeout(() => {
-      setErrors((prev) => ({ ...prev, global: "" }));
-    }, 5000); // 5000 milliseconds = 5 seconds. Pwede mong palitan kung gusto mo mas mabilis/matagal.
-
-    return () => clearTimeout(timer); // Nililinis ang timer kapag na-unmount o nagbago ang error
-  }
-}, [errors.global]);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".omsc-auth-dropdown-container")) {
@@ -159,60 +148,43 @@ useEffect(() => {
   };
 
   // 4. FORM SUBMISSION
-  // --- SUBMIT HANDLER ---
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
     setSuccessMsg("");
 
+    // --- FRONTEND CHECKING VALIDATION ---
     if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
     if (!formData.password) newErrors.password = "Password is required.";
 
     // 1. KUNG SIGN IN / LOGIN MODE
-  if (isLogin) {
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    try {
-      // I-package ang data bilang FormData para tugma sa $_POST ng PHP
-      const loginData = new FormData();
-      loginData.append("schoolIDNo", formData.schoolIDNo);
-      loginData.append("password", formData.password);
-
-      // Tumawag sa bagong login backend script gamit ang URL path mapping na may spaces (%20)
-      const loginRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/login_auth.php", {
-        method: "POST",
-        body: loginData,
-      });
-
-      const result = await loginRes.json();
-
-      if (loginRes.ok) {
-        // Kapag successful (Status 200)
-        setSuccessMsg(result.message || "Login Successful!");
-        
-        // I-save ang user object (mula sa database) sa localStorage tulad ng dati mong dashboard rules
-        localStorage.setItem("studentUser", JSON.stringify(result.user));
-        
-        setTimeout(() => navigate("/studentDashboard"), 1500);
-      } else {
-        // Kapag nabigo ang login credentials (Status 401/400)
-        // Gumagamit ng pinag-isang secure banner profile error katulad ng orihinal mong validation style
-        setErrors({
-          schoolIDNo: result.message || "Invalid School ID or Password.",
-          password: result.message || "Invalid School ID or Password."
-        });
+    if (isLogin) {
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
       }
-    } catch (err) {
-      setErrors({ global: "Server network error. Please check your connection." });
+
+      // Hanapin ang user sa local mock state array
+      const foundUser = localUsers.find(
+        (user) =>
+          (user?.schoolIDNo || user?.SchoolIDNo)?.toLowerCase().trim() === formData.schoolIDNo?.toLowerCase().trim()
+      );
+
+      // SECURE CHECK: Parehong ID at Password ang magpapatrigger ng iisang error message
+      if (!foundUser || foundUser.password !== formData.password) {
+        newErrors.schoolIDNo = "Invalid School ID or Password.";
+        newErrors.password = "Invalid School ID or Password.";
+        setErrors(newErrors);
+        return;
+      }
+
+      setSuccessMsg("Login Successful!");
+      localStorage.setItem("studentUser", JSON.stringify(foundUser));
+      setTimeout(() => navigate("/dashboard"), 1500);
+      return; 
     }
-    return; 
-  }
 
-
-    // --- REGISTRATION LOGIC ONLY ---
+    // 2. KUNG SIGN UP / REGISTRATION MODE
     if (!isLogin) {
       if (!formData.email) newErrors.email = "Email is required.";
       if (!formData.lastName) newErrors.lastName = "Last Name required.";
@@ -224,81 +196,71 @@ useEffect(() => {
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match.";
       }
+
       if (formData.password && !allPasswordReqsMet) {
         newErrors.password = "Password does not meet the requirements.";
       }
 
+      // --- MOCK DUPLICATE CHECKING ---
+      if (!newErrors.schoolIDNo) {
+        const isIdDuplicate = localUsers.some(
+          (user) =>
+            (user?.schoolIDNo || user?.SchoolIDNo)?.toLowerCase().trim() ===
+            formData.schoolIDNo?.toLowerCase().trim()
+        );
+        if (isIdDuplicate) {
+          newErrors.schoolIDNo = "School ID is already registered.";
+        }
+      }
+
+      if (!newErrors.email) {
+        const isEmailDuplicate = localUsers.some(
+          (user) =>
+            user?.email?.toLowerCase().trim() === formData.email?.toLowerCase().trim()
+        );
+        if (isEmailDuplicate) {
+          newErrors.email = "Email is already in use.";
+        }
+      }
+
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
-        return;
+        return; 
       }
-//C:\xampp\htdocs\Attendance Project System\attendanceMonitoringSystem\backend\register_new_student.php
-      try {
-        // Step 1: Tumawag sa check endpoint para sa duplicates
-        const checkRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/checkDup.php");
-        if (!checkRes.ok) throw new Error("Failed to validate records.");
-        
-        const existingUsers = await checkRes.json();
 
-        // Step 2: I-verify ang schoolIDNo at email laban sa database data
-        const isIdDuplicate = existingUsers.some(
-          (user) => user.SchoolIDNo.toLowerCase().trim() === formData.schoolIDNo.toLowerCase().trim()
-        );
-        const isEmailDuplicate = existingUsers.some(
-          (user) => user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim()
-        );
+      // --- SIMULATED DATA INSERTION ---
+      const newUserRecord = {
+        SchoolIDNo: formData.schoolIDNo,
+        schoolIDNo: formData.schoolIDNo,
+        password: formData.password,
+        email: formData.email,
+        lastName: formData.lastName,
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        program: formData.program,
+        yearLevel: formData.yearLevel,
+        section: formData.section
+      };
 
-        if (isIdDuplicate) newErrors.schoolIDNo = "School ID is already registered.";
-        if (isEmailDuplicate) newErrors.email = "Email is already in use.";
+      setLocalUsers((prev) => [...prev, newUserRecord]);
+      setSuccessMsg("Registration Successful! You can now sign in.");
+      
+      setFormData({
+        schoolIDNo: "",
+        email: "",
+        lastName: "",
+        firstName: "",
+        middleName: "",
+        section: "Select Sec...",
+        program: "Select Prog...",
+        yearLevel: "Select Year...",
+        password: "",
+        confirmPassword: "",
+      });
 
-        if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          return;
-        }
-
-        // Step 3: Kung walang error, ituloy ang database dynamic insertion
-        const postData = new FormData();
-        postData.append("schoolIDNo", formData.schoolIDNo);
-        postData.append("email", formData.email);
-        postData.append("lastName", formData.lastName);
-        postData.append("firstName", formData.firstName);
-        postData.append("middleName", formData.middleName);
-        postData.append("program", formData.program);
-        postData.append("yearLevel", formData.yearLevel);
-        postData.append("section", formData.section);
-        postData.append("password", formData.password);
-
-        const registerRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/register_new_student.php", {
-          method: "POST",
-          body: postData,
-        });
-
-        const resultText = await registerRes.json();
-
-        if (registerRes.status === 201) {
-          setSuccessMsg(resultText.message || "Registration Successful! Redirecting...");
-          setFormData({
-            schoolIDNo: "",
-            email: "",
-            lastName: "",
-            firstName: "",
-            middleName: "",
-            section: "Select Sec...",
-            program: "Select Prog...",
-            yearLevel: "Select Year...",
-            password: "",
-            confirmPassword: "",
-          });
-          setTimeout(() => handleToggleMode(), 2000);
-        } else {
-          setErrors({ global: resultText.message || "Something went wrong." });
-        }
-      } catch (err) {
-        setErrors({ global: "Server network error. Please try again later." });
-      }
+      setTimeout(() => handleToggleMode(), 2000);
     }
   };
-
   // 6. SUB-COMPONENTS
   const CustomDropdown = ({ label, name, options, value }) => (
     <div

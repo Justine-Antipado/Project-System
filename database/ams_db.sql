@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2026 at 11:17 AM
+-- Generation Time: May 23, 2026 at 06:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -106,14 +106,15 @@ CREATE TABLE `semesters` (
 CREATE TABLE `students` (
   `StudentID` int(11) NOT NULL,
   `SchoolIDNo` varchar(50) NOT NULL,
+  `Email` varchar(150) DEFAULT NULL,
   `LastName` varchar(100) NOT NULL,
   `FirstName` varchar(100) NOT NULL,
   `MiddleName` varchar(100) DEFAULT NULL,
   `Program` varchar(100) DEFAULT NULL,
   `YearLevel` int(11) DEFAULT NULL,
-  `section` int(11) DEFAULT NULL,
+  `section` varchar(11) DEFAULT NULL,
   `StudentQRCode` text DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL
+  `Password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -170,7 +171,12 @@ ALTER TABLE `semesters`
 --
 ALTER TABLE `students`
   ADD PRIMARY KEY (`StudentID`),
-  ADD UNIQUE KEY `SchoolIDNo` (`SchoolIDNo`);
+  ADD UNIQUE KEY `SchoolIDNo` (`SchoolIDNo`),
+  ADD UNIQUE KEY `SchoolIDNo_2` (`SchoolIDNo`),
+  ADD UNIQUE KEY `unique_school_id` (`SchoolIDNo`),
+  ADD UNIQUE KEY `Email` (`Email`),
+  ADD UNIQUE KEY `Email_2` (`Email`),
+  ADD UNIQUE KEY `unique_email` (`Email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -216,7 +222,7 @@ ALTER TABLE `semesters`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudentID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `StudentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Constraints for dumped tables

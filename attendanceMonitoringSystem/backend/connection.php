@@ -12,7 +12,7 @@ $PDO_code = [
 
 try {
     $pdo = new PDO($dsn, $username, $password, $PDO_code);
-    echo "Database connected successfully!<br>";
+    //echo "Database connected successfully!<br>";
 } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
