@@ -3,12 +3,39 @@ import "./Auth.css";
 import omscLogo from "./assets/omsc.logo.png";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
-// 0. MOCK DATABASE (For duplicating checks)
+// --- INITIAL MOCK DATABASE ---
+// This acts as your temporary backend database storage
+const INITIAL_MOCK_USERS = [
+  {
+    SchoolIDNo: "2024-00001",
+    schoolIDNo: "2024-00001", // keeping both casing styles to safely support your existing validations
+    email: "juan.delacruz@omsc.edu.ph",
+    password: "Password123!",
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    middleName: "Protasio",
+    program: "BSIT",
+    yearLevel: "3",
+    section: "A"
+  },
+  {
+    SchoolIDNo: "2024-00002",
+    schoolIDNo: "2024-00002",
+    email: "maria.clara@omsc.edu.ph",
+    password: "SecurePass321!",
+    firstName: "Maria",
+    lastName: "Clara",
+    middleName: "",
+    program: "BSCS",
+    yearLevel: "2",
+    section: "B"
+  }
+];
 
 export default function StudentDashboard() {
-  const [duplicateCheck, setDuplicateCheck] = useState([]);
+  // Use mock data array to manage simulated backend state locally
+  const [localUsers, setLocalUsers] = useState(INITIAL_MOCK_USERS);
 
   const navigate = useNavigate();
   // 1. STATE MANAGEMENT
@@ -19,9 +46,6 @@ export default function StudentDashboard() {
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   const [formErrors, setFormErrors] = useState({});
-  // Ang laman nito mamaya ay magiging parang ganito: { email: "Email is already in use." }
-
-  // States for Password Validation UI
   const [focusedField, setFocusedField] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -84,10 +108,21 @@ export default function StudentDashboard() {
       setErrors({});
       setSuccessMsg("");
       setFocusedField(null);
+      
+      setFormData({
+        schoolIDNo: "",
+        email: "",
+        lastName: "",
+        firstName: "",
+        middleName: "",
+        section: "Select Sec...",
+        program: "Select Prog...",
+        yearLevel: "Select Year...",
+        password: "",
+        confirmPassword: "",
+      });
     }, 400);
   };
-
-  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -100,38 +135,20 @@ export default function StudentDashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // I-fetch ang mga kasalukuyang estudyante mula sa DB pagka-load ng portal
-useEffect(() => {
-  const fetchExistingStudents = async () => {
-    try {
-      // Ituro sa bagong gawa na checkDuplicates.php endpoint
-      const response = await axios.get("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/checkDuplicates.php");
-      if (response.data && Array.isArray(response.data)) {
-        setDuplicateCheck(response.data);
-      }
-    } catch (err) {
-      console.error("Hindi ma-fetch ang data para sa duplicate check:", err);
-    }
-  };
-
-  fetchExistingStudents();
-}, []);
-
   const selectOption = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setActiveDropdown(null);
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Logic for Google Login
   const handleGoogleLogin = () => {
-    console.log("Redirecting to Google OAuth...");
-    // Add your Firebase or Auth0 Google logic here
+    console.log("Redirecting to Google OAuth Mock...");
+    setSuccessMsg("Google Login Mock Successful!");
+    setTimeout(() => navigate("/dashboard"), 1500);
   };
 
   // 4. FORM SUBMISSION
-  // 4. FORM SUBMISSION (Gumagana para sa PHP PDO Backend)
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
     setSuccessMsg("");
@@ -140,21 +157,56 @@ useEffect(() => {
     if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
     if (!formData.password) newErrors.password = "Password is required.";
 
+    // 1. KUNG SIGN IN / LOGIN MODE
+    if (isLogin) {
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      // Hanapin ang user sa local mock state array
+      const foundUser = localUsers.find(
+        (user) =>
+          (user?.schoolIDNo || user?.SchoolIDNo)?.toLowerCase().trim() === formData.schoolIDNo?.toLowerCase().trim()
+      );
+
+      // SECURE CHECK: Parehong ID at Password ang magpapatrigger ng iisang error message
+      if (!foundUser || foundUser.password !== formData.password) {
+        newErrors.schoolIDNo = "Invalid School ID or Password.";
+        newErrors.password = "Invalid School ID or Password.";
+        setErrors(newErrors);
+        return;
+      }
+
+      setSuccessMsg("Login Successful!");
+      localStorage.setItem("studentUser", JSON.stringify(foundUser));
+      setTimeout(() => navigate("/dashboard"), 1500);
+      return; 
+    }
+
+    // 2. KUNG SIGN UP / REGISTRATION MODE
     if (!isLogin) {
       if (!formData.email) newErrors.email = "Email is required.";
       if (!formData.lastName) newErrors.lastName = "Last Name required.";
       if (!formData.firstName) newErrors.firstName = "First Name required.";
-      if (formData.section === "Select Sec...")
-        newErrors.section = "Section is required.";
-      if (formData.program === "Select Prog...")
-        newErrors.program = "Program is required.";
-      if (formData.yearLevel === "Select Year...")
-        newErrors.yearLevel = "Year level is required.";
+      if (formData.section === "Select Sec...") newErrors.section = "Section is required.";
+      if (formData.program === "Select Prog...") newErrors.program = "Program is required.";
+      if (formData.yearLevel === "Select Year...") newErrors.yearLevel = "Year level is required.";
+      
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match.";
+      }
 
-      // --- DUPLICATE CHECKING LOGIC ---
+      if (formData.password && !allPasswordReqsMet) {
+        newErrors.password = "Password does not meet the requirements.";
+      }
+
+      // --- MOCK DUPLICATE CHECKING ---
       if (!newErrors.schoolIDNo) {
-        const isIdDuplicate = duplicateCheck.some(
-          (user) => user?.schoolIDNo?.toLowerCase().trim() === formData.schoolIDNo?.toLowerCase().trim()
+        const isIdDuplicate = localUsers.some(
+          (user) =>
+            (user?.schoolIDNo || user?.SchoolIDNo)?.toLowerCase().trim() ===
+            formData.schoolIDNo?.toLowerCase().trim()
         );
         if (isIdDuplicate) {
           newErrors.schoolIDNo = "School ID is already registered.";
@@ -162,96 +214,53 @@ useEffect(() => {
       }
 
       if (!newErrors.email) {
-        const isEmailDuplicate = duplicateCheck.some(
-          (user) => user?.email?.toLowerCase().trim() === formData.email?.toLowerCase().trim()
+        const isEmailDuplicate = localUsers.some(
+          (user) =>
+            user?.email?.toLowerCase().trim() === formData.email?.toLowerCase().trim()
         );
         if (isEmailDuplicate) {
           newErrors.email = "Email is already in use.";
         }
       }
-    }
 
-    // CRITICAL FIX: Dito natin haharangan ang pag-insert kung may anumang error (kasama ang duplicate)
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return; // Hihinto ang execute dito, hindi na makakarating sa axios.post!
-    }
-
-    // --- AXIOS NETWORK REQUEST ---
-    try {
-      const apiEndpoint =
-        "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/insertStudents.php";
-
-      const payload = new URLSearchParams();
-      payload.append("schoolIDNo", formData.schoolIDNo);
-      payload.append("password", formData.password);
-
-      if (!isLogin) {
-        payload.append("email", formData.email);
-        payload.append("lastName", formData.lastName);
-        payload.append("firstName", formData.firstName);
-        payload.append("middleName", formData.middleName);
-        payload.append("program", formData.program);
-        payload.append("yearLevel", formData.yearLevel);
-        payload.append("section", formData.section);
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return; 
       }
 
-      const response = await axios.post(apiEndpoint, payload, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      // --- SIMULATED DATA INSERTION ---
+      const newUserRecord = {
+        SchoolIDNo: formData.schoolIDNo,
+        schoolIDNo: formData.schoolIDNo,
+        password: formData.password,
+        email: formData.email,
+        lastName: formData.lastName,
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        program: formData.program,
+        yearLevel: formData.yearLevel,
+        section: formData.section
+      };
+
+      setLocalUsers((prev) => [...prev, newUserRecord]);
+      setSuccessMsg("Registration Successful! You can now sign in.");
+      
+      setFormData({
+        schoolIDNo: "",
+        email: "",
+        lastName: "",
+        firstName: "",
+        middleName: "",
+        section: "Select Sec...",
+        program: "Select Prog...",
+        yearLevel: "Select Year...",
+        password: "",
+        confirmPassword: "",
       });
 
-      if (response.status === 200 || response.status === 201) {
-        setSuccessMsg(
-          isLogin
-            ? "Login Successful!"
-            : "Registration Successful! You can now sign in."
-        );
-
-        if (isLogin) {
-          localStorage.setItem(
-            "studentUser",
-            JSON.stringify(response.data.student)
-          );
-          setTimeout(() => navigate("/dashboard"), 1500);
-        } else {
-          // I-reset ang form fields matapos mag-register
-          setFormData({
-            schoolIDNo: "",
-            email: "",
-            lastName: "",
-            firstName: "",
-            middleName: "",
-            section: "Select Sec...",
-            program: "Select Prog...",
-            yearLevel: "Select Year...",
-            password: "",
-            confirmPassword: "",
-          });
-          
-          // Dagdag na Tip: I-refresh ang duplicate list para kasama na ang bagong gawang account sa susunod na check
-          if (response.data) {
-             setDuplicateCheck(prev => [...prev, { schoolIDNo: formData.schoolIDNo, email: formData.email }]);
-          }
-
-          setTimeout(() => handleToggleMode(), 2000);
-        }
-      }
-    } catch (err) {
-      if (err.response && err.response.data) {
-        const backendError = err.response.data;
-        if (backendError.field) {
-          setErrors({ [backendError.field]: backendError.message });
-        } else {
-          setErrors({ global: backendError.message || "An error occurred." });
-        }
-      } else {
-        setErrors({
-          global: "Hindi makakonekta sa server. Pakisuri kung bukas ang Apache/MySQL sa XAMPP.",
-        });
-      }
+      setTimeout(() => handleToggleMode(), 2000);
     }
   };
-
   // 6. SUB-COMPONENTS
   const CustomDropdown = ({ label, name, options, value }) => (
     <div
@@ -303,31 +312,17 @@ useEffect(() => {
       <div className="omsc-auth-popup-arrow"></div>
       <h4>Password Requirements:</h4>
       <ul>
-        <li
-          className={reqs.length ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}
-        >
-          {reqs.length ? <Check size={14} /> : <X size={14} />} At least 8
-          characters
+        <li className={reqs.length ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}>
+          {reqs.length ? <Check size={14} /> : <X size={14} />} At least 8 characters
         </li>
-        <li
-          className={reqs.number ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}
-        >
-          {reqs.number ? <Check size={14} /> : <X size={14} />} Contains a
-          number
+        <li className={reqs.number ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}>
+          {reqs.number ? <Check size={14} /> : <X size={14} />} Contains a number
         </li>
-        <li
-          className={reqs.special ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}
-        >
-          {reqs.special ? <Check size={14} /> : <X size={14} />} Contains a
-          special char
+        <li className={reqs.special ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}>
+          {reqs.special ? <Check size={14} /> : <X size={14} />} Contains a special char
         </li>
-        <li
-          className={
-            reqs.upperLower ? "omsc-auth-req-met" : "omsc-auth-req-unmet"
-          }
-        >
-          {reqs.upperLower ? <Check size={14} /> : <X size={14} />} Uppercase &
-          Lowercase
+        <li className={reqs.upperLower ? "omsc-auth-req-met" : "omsc-auth-req-unmet"}>
+          {reqs.upperLower ? <Check size={14} /> : <X size={14} />} Uppercase & Lowercase
         </li>
       </ul>
     </div>
@@ -339,12 +334,8 @@ useEffect(() => {
         <div className="omsc-auth-blob omsc-auth-blob-left"></div>
         <div className="omsc-auth-blob omsc-auth-blob-right"></div>
 
-        <div
-          className={`omsc-auth-card ${isLogin ? "" : "omsc-auth-card-reverse"}`}
-        >
-          <div
-            className={`omsc-auth-form-container ${isAnimating ? "omsc-auth-fade-out" : "omsc-auth-fade-in"}`}
-          >
+        <div className={`omsc-auth-card ${isLogin ? "" : "omsc-auth-card-reverse"}`}>
+          <div className={`omsc-auth-form-container ${isAnimating ? "omsc-auth-fade-out" : "omsc-auth-fade-in"}`}>
             <div className="omsc-auth-header">
               <div className="omsc-auth-logo-icon">
                 <User color="#0a1d37" size={32} />
@@ -360,19 +351,25 @@ useEffect(() => {
                 <div className="omsc-auth-success-banner">{successMsg}</div>
               )}
               {errors.global && (
-  <div className="omsc-auth-error-banner" style={{ color: 'white', backgroundColor: '#e63946', padding: '10px', borderRadius: '5px', marginBottom: '15px', textAlign: 'center' }}>
-    {errors.global}
-  </div>
-)}
+                <div
+                  className="omsc-auth-error-banner"
+                  style={{
+                    color: "white",
+                    backgroundColor: "#e63946",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    marginBottom: "15px",
+                    textAlign: "center",
+                  }}
+                >
+                  {errors.global}
+                </div>
+              )}
 
               {isLogin ? (
                 <div className="omsc-auth-input-stack">
-                  <div
-                    className={`omsc-auth-field-group ${errors.schoolIDNo ? "omsc-auth-has-error" : ""}`}
-                  >
-                    <label className="omsc-auth-label-text">
-                      School ID Number
-                    </label>
+                  <div className={`omsc-auth-field-group ${errors.schoolIDNo ? "omsc-auth-has-error" : ""}`}>
+                    <label className="omsc-auth-label-text">School ID Number</label>
                     <input
                       type="text"
                       name="schoolIDNo"
@@ -380,17 +377,13 @@ useEffect(() => {
                       onChange={handleInputChange}
                       onFocus={() => handleInputFocus("schoolIDNo")}
                       className="omsc-auth-form-input"
-                      placeholder="2024-XXXXX"
+                      placeholder="2024-00001"
                     />
                     {errors.schoolIDNo && (
-                      <span className="omsc-auth-error-text">
-                        {errors.schoolIDNo}
-                      </span>
+                      <span className="omsc-auth-error-text">{errors.schoolIDNo}</span>
                     )}
                   </div>
-                  <div
-                    className={`omsc-auth-field-group omsc-auth-relative ${errors.password ? "omsc-auth-has-error" : ""}`}
-                  >
+                  <div className={`omsc-auth-field-group omsc-auth-relative ${errors.password ? "omsc-auth-has-error" : ""}`}>
                     <label className="omsc-auth-label-text">Password</label>
                     <div className="omsc-auth-input-icon-wrap">
                       <input
@@ -412,20 +405,14 @@ useEffect(() => {
                       </button>
                     </div>
                     {errors.password && (
-                      <span className="omsc-auth-error-text">
-                        {errors.password}
-                      </span>
+                      <span className="omsc-auth-error-text">{errors.password}</span>
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="omsc-auth-reg-stack">
-                  <div
-                    className={`omsc-auth-field-group ${errors.schoolIDNo ? "omsc-auth-has-error" : ""}`}
-                  >
-                    <label className="omsc-auth-label-text">
-                      School ID No.
-                    </label>
+                  <div className={`omsc-auth-field-group ${errors.schoolIDNo ? "omsc-auth-has-error" : ""}`}>
+                    <label className="omsc-auth-label-text">School ID No.</label>
                     <input
                       type="text"
                       name="schoolIDNo"
@@ -436,18 +423,12 @@ useEffect(() => {
                       placeholder="2024-00001"
                     />
                     {errors.schoolIDNo && (
-                      <span className="omsc-auth-error-text">
-                        {errors.schoolIDNo}
-                      </span>
+                      <span className="omsc-auth-error-text">{errors.schoolIDNo}</span>
                     )}
                   </div>
 
-                  <div
-                    className={`omsc-auth-field-group ${errors.email ? "omsc-auth-has-error" : ""}`}
-                  >
-                    <label className="omsc-auth-label-text">
-                      Email Address
-                    </label>
+                  <div className={`omsc-auth-field-group ${errors.email ? "omsc-auth-has-error" : ""}`}>
+                    <label className="omsc-auth-label-text">Email Address</label>
                     <input
                       type="email"
                       name="email"
@@ -458,16 +439,12 @@ useEffect(() => {
                       placeholder="juan.delacruz@omsc.edu.ph"
                     />
                     {errors.email && (
-                      <span className="omsc-auth-error-text">
-                        {errors.email}
-                      </span>
+                      <span className="omsc-auth-error-text">{errors.email}</span>
                     )}
                   </div>
 
                   <div className="omsc-auth-row-flex">
-                    <div
-                      className={`omsc-auth-field-group ${errors.lastName ? "omsc-auth-has-error" : ""}`}
-                    >
+                    <div className={`omsc-auth-field-group ${errors.lastName ? "omsc-auth-has-error" : ""}`}>
                       <label className="omsc-auth-label-text">Last Name</label>
                       <input
                         type="text"
@@ -479,14 +456,10 @@ useEffect(() => {
                         placeholder="Dela Cruz"
                       />
                       {errors.lastName && (
-                        <span className="omsc-auth-error-text">
-                          {errors.lastName}
-                        </span>
+                        <span className="omsc-auth-error-text">{errors.lastName}</span>
                       )}
                     </div>
-                    <div
-                      className={`omsc-auth-field-group ${errors.firstName ? "omsc-auth-has-error" : ""}`}
-                    >
+                    <div className={`omsc-auth-field-group ${errors.firstName ? "omsc-auth-has-error" : ""}`}>
                       <label className="omsc-auth-label-text">First Name</label>
                       <input
                         type="text"
@@ -498,17 +471,13 @@ useEffect(() => {
                         placeholder="Juan"
                       />
                       {errors.firstName && (
-                        <span className="omsc-auth-error-text">
-                          {errors.firstName}
-                        </span>
+                        <span className="omsc-auth-error-text">{errors.firstName}</span>
                       )}
                     </div>
                   </div>
 
                   <div className="omsc-auth-field-group">
-                    <label className="omsc-auth-label-text">
-                      Middle Name (Optional)
-                    </label>
+                    <label className="omsc-auth-label-text">Middle Name (Optional)</label>
                     <input
                       type="text"
                       name="middleName"
@@ -542,9 +511,7 @@ useEffect(() => {
                   </div>
 
                   <div className="omsc-auth-row-flex omsc-auth-relative">
-                    <div
-                      className={`omsc-auth-field-group omsc-auth-relative ${errors.password ? "omsc-auth-has-error" : ""}`}
-                    >
+                    <div className={`omsc-auth-field-group omsc-auth-relative ${errors.password ? "omsc-auth-has-error" : ""}`}>
                       <label className="omsc-auth-label-text">Password</label>
                       <div className="omsc-auth-input-icon-wrap">
                         <input
@@ -570,15 +537,11 @@ useEffect(() => {
                         visible={shouldShowPopup}
                       />
                       {errors.password && (
-                        <span className="omsc-auth-error-text">
-                          {errors.password}
-                        </span>
+                        <span className="omsc-auth-error-text">{errors.password}</span>
                       )}
                     </div>
 
-                    <div
-                      className={`omsc-auth-field-group omsc-auth-relative ${errors.confirmPassword ? "omsc-auth-has-error" : ""}`}
-                    >
+                    <div className={`omsc-auth-field-group omsc-auth-relative ${errors.confirmPassword ? "omsc-auth-has-error" : ""}`}>
                       <label className="omsc-auth-label-text">Confirm</label>
                       <div className="omsc-auth-input-icon-wrap">
                         <input
@@ -595,17 +558,11 @@ useEffect(() => {
                           onClick={() => setShowConfirmPass(!showConfirmPass)}
                           className="omsc-auth-eye-btn"
                         >
-                          {showConfirmPass ? (
-                            <EyeOff size={20} />
-                          ) : (
-                            <Eye size={20} />
-                          )}
+                          {showConfirmPass ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
                       {errors.confirmPassword && (
-                        <span className="omsc-auth-error-text">
-                          {errors.confirmPassword}
-                        </span>
+                        <span className="omsc-auth-error-text">{errors.confirmPassword}</span>
                       )}
                     </div>
                   </div>
@@ -613,10 +570,7 @@ useEffect(() => {
               )}
 
               <div className="omsc-auth-action-btns">
-                <button
-                  type="submit"
-                  className="omsc-auth-btn omsc-auth-btn-submit"
-                >
+                <button type="submit" className="omsc-auth-btn omsc-auth-btn-submit">
                   {isLogin ? "Sign In" : "Sign Up"}
                 </button>
 
@@ -639,9 +593,7 @@ useEffect(() => {
                   onClick={handleToggleMode}
                   className="omsc-auth-btn omsc-auth-btn-toggle"
                 >
-                  {isLogin
-                    ? "Create Account"
-                    : "Already have an account? Sign In"}
+                  {isLogin ? "Create Account" : "Already have an account? Sign In"}
                 </button>
               </div>
             </form>
@@ -653,18 +605,13 @@ useEffect(() => {
           <div className="omsc-auth-info-panel">
             <div className="omsc-auth-info-content">
               <div className="omsc-auth-college-logo-wrap">
-                <img
-                  src={omscLogo}
-                  alt="OMSC Logo"
-                  className="omsc-auth-college-logo"
-                />
+                <img src={omscLogo} alt="OMSC Logo" className="omsc-auth-college-logo" />
               </div>
               <p className="omsc-auth-top-note">Educate. Empower. Excel.</p>
               <h1 className="omsc-auth-hero-heading">Welcome Back!</h1>
               <div className="omsc-auth-yellow-divider"></div>
               <p className="omsc-auth-panel-subtext">
-                Access your student portal to track attendance and school
-                events.
+                Access your student portal to track attendance and school events.
               </p>
             </div>
           </div>

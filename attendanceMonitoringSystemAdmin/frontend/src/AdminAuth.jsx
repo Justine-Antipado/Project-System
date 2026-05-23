@@ -9,6 +9,33 @@ const MOCK_DATABASE_USERS = [
   { idNo: "2024-22222", email: "user@omsc.edu.ph" },
 ];
 
+const INITIAL_MOCK_USERS = [
+  {
+    SchoolIDNo: "2024-00001",
+    schoolIDNo: "2024-00001", // keeping both casing styles to safely support your existing validations
+    email: "juan.delacruz@omsc.edu.ph",
+    password: "Password123!",
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    middleName: "Protasio",
+    program: "BSIT",
+    yearLevel: "3",
+    section: "A"
+  },
+  {
+    SchoolIDNo: "2024-00002",
+    schoolIDNo: "2024-00002",
+    email: "maria.clara@omsc.edu.ph",
+    password: "SecurePass321!",
+    firstName: "Maria",
+    lastName: "Clara",
+    middleName: "",
+    program: "BSCS",
+    yearLevel: "2",
+    section: "B"
+  }
+];
+
 export default function AdminAuth() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
@@ -34,6 +61,10 @@ export default function AdminAuth() {
   });
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Ginawang dynamic state para magamit mo ang 'localUsers' sa login at signup mechanics
+  const [localUsers, setLocalUsers] = useState(INITIAL_MOCK_USERS);
+  const [registeredDBUsers, setRegisteredDBUsers] = useState(MOCK_DATABASE_USERS);
 
   const sections = ["A", "B", "C", "D", "E"];
   const programs = ["BSIT", "BSCS", "BSHM", "BSBA", "BEED"];
@@ -140,6 +171,31 @@ export default function AdminAuth() {
 
     if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
     if (!formData.password) newErrors.password = "Password is required.";
+if (isLogin) {
+if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      // Hanapin ang user sa local mock state array
+      const foundUser = localUsers.find(
+        (user) =>
+          (user?.schoolIDNo || user?.SchoolIDNo)?.toLowerCase().trim() === formData.schoolIDNo?.toLowerCase().trim()
+      );
+
+      // SECURE CHECK: Parehong ID at Password ang magpapatrigger ng iisang error message
+      if (!foundUser || foundUser.password !== formData.password) {
+        newErrors.schoolIDNo = "Invalid School ID or Password.";
+        newErrors.password = "Invalid School ID or Password.";
+        setErrors(newErrors);
+        return;
+      }
+
+      setSuccessMsg("Login Successful!");
+      localStorage.setItem("studentUser", JSON.stringify(foundUser));
+      setTimeout(() => navigate("/dashboard"), 1500);
+      return; 
+}
 
     if (!isLogin) {
       if (!formData.email) newErrors.email = "Email is required.";
