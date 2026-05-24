@@ -37,6 +37,7 @@ const INITIAL_MOCK_USERS = [
 ];
 
 export default function AdminAuth() {
+  const [organizations, setOrganizations] = useState([]);
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
@@ -69,7 +70,7 @@ export default function AdminAuth() {
   const sections = ["A", "B", "C", "D", "E"];
   const programs = ["BSIT", "BSCS", "BSHM", "BSBA", "BEED"];
   const years = ["1", "2", "3", "4"];
-  const organizations = ["PADC", "YMO", "CBAM", "SSG", "Club"];
+  //const organizations = ["PADC", "YMO", "CBAM", "SSG", "Club"];
   const termYears = ["2024-2025", "2025-2026", "2026-2027"];
   const positionOptions = {
     PADC: ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
@@ -134,6 +135,13 @@ export default function AdminAuth() {
     }, 400);
   };
 
+
+  useEffect(() => {
+
+  fetchOrganizations();
+
+}, []);
+
   const dropdownRefs = useRef({});
 
   useEffect(() => {
@@ -153,7 +161,7 @@ export default function AdminAuth() {
   const selectOption = (name, value) => {
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-      if (name === "organization") newData.position = "Select Position";
+      if (name === "organization") newData.position = "Select Pos...";
       return newData;
     });
     setActiveDropdown(null);
@@ -164,38 +172,81 @@ export default function AdminAuth() {
     console.log("Redirecting to Google OAuth...");
   };
 
-  const handleSubmit = (e) => {
+  const fetchOrganizations = async () => {
+
+  try {
+
+    const response = await fetch(
+      "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/getOrganizations.php"
+    );
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      setOrganizations(result.data);
+
+    }
+
+  } catch (error) {
+
+    console.error("Error fetching organizations:", error);
+
+  }
+};
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     setSuccessMsg("");
 
+    
+
     if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
     if (!formData.password) newErrors.password = "Password is required.";
-if (isLogin) {
-if (Object.keys(newErrors).length > 0) {
+    
+    if (isLogin) {
+      if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return;
       }
 
-      // Hanapin ang user sa local mock state array
-      const foundUser = localUsers.find(
-        (user) =>
-          (user?.schoolIDNo || user?.SchoolIDNo)?.toLowerCase().trim() === formData.schoolIDNo?.toLowerCase().trim()
-      );
+      setErrors({});
 
-      // SECURE CHECK: Parehong ID at Password ang magpapatrigger ng iisang error message
-      if (!foundUser || foundUser.password !== formData.password) {
-        newErrors.schoolIDNo = "Invalid School ID or Password.";
-        newErrors.password = "Invalid School ID or Password.";
-        setErrors(newErrors);
-        return;
+      try {
+        // Ihanda ang FormData para sa PHP $_POST superglobal
+        const dataToSend = new FormData();
+        dataToSend.append("schoolIDNo", formData.schoolIDNo);
+        dataToSend.append("password", formData.password);
+
+        // Baguhin ang URL base sa actual path ng iyong PHP script
+        const response = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/admin_login_auth.php", {
+          method: "POST",
+          body: dataToSend, // Ipinapasa ang data bilang FormData
+          
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Kung may error (400, 401, 405, 500) mula sa PHP backend
+          newErrors.schoolIDNo = data.message || "Invalid School ID or Password.";
+          newErrors.password = data.message || "Invalid School ID or Password.";
+          setErrors(newErrors);
+          return;
+        }
+
+        // Kung matagumpay ang login (Status 200)
+        setSuccessMsg(data.message); // "Login successful!"
+        localStorage.setItem("studentUser", JSON.stringify(data.user));
+        
+        setTimeout(() => navigate("/dashboard"), 1500);
+      } catch (error) {
+        // Handle connection or parsing failures gracefully
+        setErrors({ global: "Cannot connect to backend server. Please try again later." });
       }
-
-      setSuccessMsg("Login Successful!");
-      localStorage.setItem("studentUser", JSON.stringify(foundUser));
-      setTimeout(() => navigate("/dashboard"), 1500);
       return; 
-}
+    }
 
     if (!isLogin) {
       if (!formData.email) newErrors.email = "Email is required.";
@@ -213,21 +264,77 @@ if (Object.keys(newErrors).length > 0) {
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match.";
       }
-      if (!newErrors.schoolIDNo && MOCK_DATABASE_USERS.some((u) => u.idNo === formData.schoolIDNo)) {
-        newErrors.schoolIDNo = "School ID is already registered.";
-      }
-      if (!newErrors.email && MOCK_DATABASE_USERS.some((u) => u.email === formData.email)) {
-        newErrors.email = "Email is already in use.";
-      }
-    }
 
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      setSuccessMsg(
-        isLogin
-          ? "Login Successful!"
-          : "Registration Successful! You can now sign in.",
-      );
+      try {
+        const checkRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/checkDup.php");
+        if (!checkRes.ok) throw new Error("Failed to validate records.");
+        
+        const existingUsers = await checkRes.json();
+
+        const isIdDuplicate = existingUsers.some(
+          (user) => user.SchoolIDNo.toLowerCase().trim() === formData.schoolIDNo.toLowerCase().trim()
+        );
+        const isEmailDuplicate = existingUsers.some(
+          (user) => user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim()
+        );
+
+        if (isIdDuplicate) newErrors.schoolIDNo = "School ID is already registered.";
+        if (isEmailDuplicate) newErrors.email = "Email is already in use.";
+
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+
+        const postData = new FormData();
+        postData.append("schoolIDNo", formData.schoolIDNo);
+        postData.append("email", formData.email);
+        postData.append("lastName", formData.lastName);
+        postData.append("firstName", formData.firstName);
+        postData.append("middleName", formData.middleName);
+        postData.append("program", formData.program);
+        postData.append("yearLevel", formData.yearLevel);
+        postData.append("section", formData.section);
+        postData.append("organization", formData.organization);
+        postData.append("position", formData.position);
+        
+        // ITINAMA ANG TYPO DITO: Mula "term_yer" ginawang "term_year"
+        postData.append("term_year", formData.term_year); 
+        postData.append("password", formData.password);
+
+        const registerRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/register_admin.php", {
+          method: "POST",
+          body: postData,
+        });
+
+        const resultText = await registerRes.json();
+
+        if (registerRes.status === 201) {
+          setSuccessMsg(resultText.message || "Registration Successful! Redirecting...");
+          
+          // Isinaayos ang mga string sa reset state para magtugma sa top declarations
+          setFormData({
+            schoolIDNo: "",
+            email: "",
+            lastName: "",
+            firstName: "",
+            middleName: "",
+            section: "Select Sec...",
+            program: "Select Pro...", 
+            yearLevel: "Select Yea...", 
+            organization: "Select Org...",
+            position: "Select Pos...",
+            term_year: "Select Ter...",
+            password: "",
+            confirmPassword: "",
+          });
+          setTimeout(() => handleToggleMode(), 2000);
+        } else {
+          setErrors({ global: resultText.message || "Something went wrong." });
+        }
+      } catch (err) {
+        setErrors({ global: "Server network error. Please try again later." });
+      }
     }
   };
 
@@ -458,7 +565,7 @@ if (Object.keys(newErrors).length > 0) {
                     <CustomDropdown
                       label="Org/Club"
                       name="organization"
-                      options={organizations}
+                      options={organizations.map((org) => org.OrgName)}
                       value={formData.organization}
                     />
                     <CustomDropdown

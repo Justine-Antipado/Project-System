@@ -175,6 +175,8 @@ useEffect(() => {
         return;
       }
 
+      setErrors({});
+
       try {
         // Ihanda ang FormData para sa PHP $_POST superglobal
         const dataToSend = new FormData();
