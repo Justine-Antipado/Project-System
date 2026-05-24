@@ -1,46 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Trash2, AlertTriangle, X, Check, Plus, SquarePen } from "lucide-react";
+import axios from "axios";
 
-const ORGANIZATION_OPTIONS = ["PADC", "YMO", "CBAM", "SSG", "Club"];
+const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+
 const POSITION_OPTIONS = {
-  PADC: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  YMO: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  CBAM: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  SSG: [
-    "Governor",
-    "Vice Governor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Other",
-  ],
-  Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
-  "Select Org/Club": [],
+  PADC:  ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
+  YMO:   ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
+  CBAM:  ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
+  SSG:   ["Governor", "Vice Governor", "Secretary", "Treasurer", "Auditor", "Other"],
+  Club:  ["President", "Vice President", "Secretary", "Treasurer", "Other"],
 };
+const DEFAULT_POSITIONS = ["President", "Vice President", "Secretary", "Treasurer", "Auditor", "Other"];
 
 export default function Officer() {
   const officerColumns = "2fr 2fr 2fr 2fr 1fr";
@@ -56,20 +27,63 @@ export default function Officer() {
   const [successMsg, setSuccessMsg] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const dropdownContainerRef = useRef(null);
-
-  // Bagong FormData State na akma sa Officer Entity
-  // FIXED: Idineklara ang tamang formData structure para sa Officer
   const [formData, setFormData] = useState({
-  studentId: "",
-  organization: "Select Org/Club",
-  position: "Select Position",
+    studentId: "",
+    organization: "Select Org/Club",
+    position: "Select Position",
   });
 
-  const [officers, setOfficers] = useState([
-    { id: "1", studentId: "STU-2024-001", orgId: "PADC", position: "Mayor" },
-    { id: "2", studentId: "STU-2024-002", orgId: "SSG", position: "Governor" },
-  ]);
+  const [officers, setOfficers] = useState([]);
+  const [organizationOptions, setOrganizationOptions] = useState([]);
+
+  // ─── Fetch ───────────────────────────────────────────────────────────────
+
+  const fetchOfficers = async () => {
+    try {
+      const res = await axios.get(`${API}/getOfficers.php`);
+      if (res.data.success) {
+        const mapped = res.data.data.map((o) => ({
+          id:        String(o.OfficersID),
+          studentId: o.SchoolIDNo,
+          orgId:     o.OrgName,
+          position:  o.Position,
+        }));
+        setOfficers(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to fetch officers:", err);
+    }
+  };
+
+  const fetchOrganizations = async () => {
+    try {
+      const res = await axios.get(`${API}/getOrganizations.php`);
+      if (res.data.success === true) {
+        setOrganizationOptions(res.data.data.map((org) => org.OrgName));
+      }
+    } catch (err) {
+      console.error("Failed to fetch organizations:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchOfficers();
+    fetchOrganizations();
+  }, []);
+
+  // ─── Click outside dropdown ───────────────────────────────────────────────
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".uni-custom-dropdown-container")) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ─── Form Handlers ────────────────────────────────────────────────────────
 
   const handleOpenAddForm = () => {
     setFormMode("add");
@@ -87,9 +101,9 @@ export default function Officer() {
     setFormMode("edit");
     setEditingId(officerItem.id);
     setFormData({
-      studentId: officerItem.studentId,
+      studentId:    officerItem.studentId,
       organization: officerItem.orgId,
-      position: officerItem.position,
+      position:     officerItem.position,
     });
     setErrors({});
     setIsPanelOpen(true);
@@ -98,12 +112,6 @@ export default function Officer() {
   const handleOpenDeleteModal = (officer) => {
     setSelectedOfficer(officer);
     setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    setOfficers(officers.filter((off) => off.id !== selectedOfficer.id));
-    setIsDeleteModalOpen(false);
-    setSelectedOfficer(null);
   };
 
   const handleInputChange = (e) => {
@@ -120,26 +128,13 @@ export default function Officer() {
   const selectOption = (name, value) => {
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
-      // Kapag binago ang Org, i-reset ang Position field para iwas sa maling assignment
-      if (name === "organization") {
-        updated.position = "Select Position";
-      }
+      if (name === "organization") updated.position = "Select Position";
       return updated;
     });
     setActiveDropdown(null);
   };
 
-  useEffect(() => {
-      const handleClickOutside = (e) => {
-        if (!e.target.closest(".uni-custom-dropdown-container")) {
-          setActiveDropdown(null);
-        }
-      };
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -153,40 +148,77 @@ export default function Officer() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      if (formMode === "add") {
-        const newOfficer = {
-          id:
-            officers.length > 0
-              ? String(Math.max(...officers.map((o) => parseInt(o.id))) + 1)
-              : "1",
-          studentId: formData.studentId,
-          orgId: formData.organization,
-          position: formData.position,
-        };
-        setOfficers((prev) => [newOfficer, ...prev]);
-        setSuccessMsg("Officer Created Successfully!");
-      } else {
-        setOfficers((prev) =>
-          prev.map((item) =>
-            item.id === editingId
-              ? {
-                  ...item,
-                  studentId: formData.studentId,
-                  orgId: formData.organization,
-                  position: formData.position,
-                }
-              : item,
-          ),
-        );
-        setSuccessMsg("Officer Configuration Updated Successfully!");
-      }
+      try {
+        if (formMode === "add") {
+          const payload = new FormData();
+          payload.append("schoolIDNo", formData.studentId.trim());
+          payload.append("orgName",    formData.organization);
+          payload.append("position",   formData.position);
 
-      setTimeout(() => {
-        setSuccessMsg("");
-        setIsPanelOpen(false);
-      }, 1500);
+          const res = await axios.post(`${API}/addOfficer.php`, payload);
+          if (res.data.success) {
+            const d = res.data.data;
+            setOfficers((prev) => [{
+              id:        String(d.OfficersID),
+              studentId: d.SchoolIDNo,
+              orgId:     d.OrgName,
+              position:  d.Position,
+            }, ...prev]);
+            setSuccessMsg("Officer Created Successfully!");
+          }
+        } else {
+          const payload = new FormData();
+          payload.append("officersId", editingId);
+          payload.append("orgName",    formData.organization);
+          payload.append("position",   formData.position);
+
+          const res = await axios.post(`${API}/editOfficer.php`, payload);
+          if (res.data.success) {
+            setOfficers((prev) =>
+              prev.map((item) =>
+                item.id === editingId
+                  ? { ...item, orgId: formData.organization, position: formData.position }
+                  : item,
+              ),
+            );
+            setSuccessMsg("Officer Updated Successfully!");
+          }
+        }
+
+        setTimeout(() => {
+          setSuccessMsg("");
+          setIsPanelOpen(false);
+        }, 1500);
+
+      }  catch (err) {
+  const data = err.response?.data;
+  if (data?.field) {
+    // ✅ Show under the specific field (e.g. studentId)
+    setErrors({ [data.field]: data.message });
+  } else {
+    // Fallback to global banner for other server errors
+    setErrors({ global: data?.message || "Server error. Please try again." });
+  }
+}
     }
   };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const payload = new FormData();
+      payload.append("officersId", selectedOfficer.id);
+      const res = await axios.post(`${API}/deleteOfficer.php`, payload);
+      if (res.data.success) {
+        setOfficers(officers.filter((o) => o.id !== selectedOfficer.id));
+        setIsDeleteModalOpen(false);
+        setSelectedOfficer(null);
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
+
+  // ─── Sub-component ────────────────────────────────────────────────────────
 
   const FormDropdown = ({ label, name, options, value }) => (
     <div
@@ -234,6 +266,8 @@ export default function Officer() {
     </div>
   );
 
+  // ─── Render ───────────────────────────────────────────────────────────────
+
   return (
     <>
       <div className="uni-view fade-in" onClick={() => setActiveDropdown(null)}>
@@ -257,7 +291,7 @@ export default function Officer() {
           >
             <span>Officers ID</span>
             <span>Student ID</span>
-            <span>Organization ID</span>
+            <span>Organization</span>
             <span>Position</span>
             <span>Action</span>
           </div>
@@ -269,7 +303,7 @@ export default function Officer() {
                 key={officer.id}
                 style={{ display: "grid", gridTemplateColumns: officerColumns }}
               >
-                <span className="uni-id-text">{officer.id}</span>
+                <span className="uni-id-text">ID-{officer.id}</span>
                 <span>{officer.studentId}</span>
                 <span>{officer.orgId}</span>
                 <span>{officer.position}</span>
@@ -284,13 +318,12 @@ export default function Officer() {
                   >
                     <Trash2 size={16} />
                   </button>
-
                   <button
                     className={`uni-action-btn edit ${editingId === officer.id ? "active-edit" : ""}`}
                     title="Edit Officer"
                     onClick={() => handleOpenEditForm(officer)}
                   >
-                    <SquarePen size={16}></SquarePen>
+                    <SquarePen size={16} />
                   </button>
                 </div>
               </div>
@@ -298,7 +331,7 @@ export default function Officer() {
           </div>
         </div>
 
-        {/* MODAL 1: Form Multi-purpose Panel Overlay */}
+        {/* MODAL 1: Add / Edit Panel */}
         {isPanelOpen && (
           <div
             className="uni-modal-overlay"
@@ -320,7 +353,7 @@ export default function Officer() {
                 <h3 className="uni-form-heading">
                   {formMode === "add"
                     ? "Create New Officer"
-                    : `Modify Officer #${editingId}`}
+                    : `Modify Officer ID-${editingId}`}
                 </h3>
                 <p className="uni-form-subheading">
                   {formMode === "add"
@@ -333,6 +366,17 @@ export default function Officer() {
                 {successMsg && (
                   <div className="uni-success-banner">{successMsg}</div>
                 )}
+                {errors.global && (
+                  <div className="uni-error-banner"
+                  style={{
+                    color: "white",
+                    backgroundColor: "#e63946",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    marginBottom: "15px",
+                    textAlign: "center",
+                  }}>{errors.global}</div>
+                )}
 
                 <div className="uni-field-group">
                   <label className="uni-label-text">Student ID No.</label>
@@ -342,14 +386,10 @@ export default function Officer() {
                     value={formData.studentId}
                     onChange={handleInputChange}
                     className={`uni-form-input ${errors.studentId ? "error-ring" : ""}`}
-                    placeholder="e.g. STU-2024-001"
+                    placeholder="e.g. 2024-00001"
                     onFocus={() => handleFieldFocus("studentId")}
-                    disabled={formMode === "edit"} // Naka-lock ang Student ID kapag nag-e-edit para iwas data corruption
-                    style={
-                      formMode === "edit"
-                        ? { opacity: 0.6, cursor: "not-allowed" }
-                        : {}
-                    }
+                    disabled={formMode === "edit"}
+                    style={formMode === "edit" ? { opacity: 0.6, cursor: "not-allowed" } : {}}
                   />
                   {errors.studentId && (
                     <span className="uni-error-text">{errors.studentId}</span>
@@ -363,28 +403,26 @@ export default function Officer() {
                   <FormDropdown
                     label="Organization"
                     name="organization"
-                    options={ORGANIZATION_OPTIONS}
+                    options={organizationOptions}
                     value={formData.organization}
                   />
                   <FormDropdown
                     label="Position"
                     name="position"
-                    options={POSITION_OPTIONS[formData.organization] || []} // Dynamic filter ng roles base sa napiling Org
+                    options={POSITION_OPTIONS[formData.organization] || DEFAULT_POSITIONS}
                     value={formData.position}
                   />
                 </div>
 
                 <button type="submit" className="uni-btn-submit">
-                  {formMode === "add"
-                    ? "Save New Officer"
-                    : "Apply Alterations"}
+                  {formMode === "add" ? "Save New Officer" : "Apply Alterations"}
                 </button>
               </form>
             </div>
           </div>
         )}
 
-        {/* MODAL 2: Delete Secure Confirmation Panel */}
+        {/* MODAL 2: Delete Confirmation */}
         {isDeleteModalOpen && (
           <div
             className="uni-modal-overlay"

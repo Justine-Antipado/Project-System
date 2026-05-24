@@ -13,16 +13,23 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
+import axios from "axios";
+
+// ─── STYLESHEETS ───
 import "./event.css";
 import "./universalTable.css";
 import "./modalOverlay.css";
 import "./deleteModal.css";
 import "./form.css";
-//import "./customDropdown.css";
-//import './keyframeandani.css';
+
+// ─── CONFIGURATIONS & CONSTANTS ───
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
 const STATUS_OPTIONS = ["Ongoing", "Completed", "Cancelled"];
 const PROGRAM_OPTIONS = ["BSIT", "BSCS", "BSIS"];
+const SEMESTER = ["1st Sem", "2nd Sem"];
+const SCHOOL_YEAR = ["2023-2024", "2024-2025", "2025-2026"];
 const MONTHS = [
   "January",
   "February",
@@ -37,8 +44,6 @@ const MONTHS = [
   "November",
   "December",
 ];
-const SEMESTER = ["1st Sem", "2nd Sem"];
-const SCHOOL_YEAR = ["2023-2024", "2024-2025", "2025-2026"];
 
 const INITIAL_MOCK_EVENTS = [
   {
@@ -49,7 +54,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Ongoing",
     Program: "BSIT",
     semId: "1st Sem",
-    schoolYear: "2025-2026", // Added property to initial state
+    schoolYear: "2025-2026",
   },
   {
     id: 12,
@@ -59,7 +64,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Completed",
     Program: "BSIT",
     semId: "2nd Sem",
-    schoolYear: "2024-2025", // Added property to initial state
+    schoolYear: "2024-2025",
   },
   {
     id: 13,
@@ -69,7 +74,7 @@ const INITIAL_MOCK_EVENTS = [
     status: "Completed",
     Program: "BSIT",
     semId: "1st Sem",
-    schoolYear: "2025-2026", // Added property to initial state
+    schoolYear: "2025-2026",
   },
   {
     id: 14,
@@ -79,15 +84,27 @@ const INITIAL_MOCK_EVENTS = [
     status: "Cancelled",
     Program: "BSIT",
     semId: "2nd Sem",
-    schoolYear: "2025-2026", // Added property to initial state
+    schoolYear: "2025-2026",
   },
 ];
 
 export default function Event() {
   const navigate = useNavigate();
+  const monthDropdownRef = useRef(null);
+
+  // ─── REUSABLE LAYOUT CONFIGS ───
+  const eventColumns = "0.6fr 1fr 1fr 1.2fr 1.2fr 1.1fr 1fr 1.7fr";
+
+  // ─── STATE MANAGEMENT ───
+  // Data States
   const [events, setEvents] = useState(INITIAL_MOCK_EVENTS);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // Search & Filter States
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
+
+  // UI & Dropdown Visibility States
   const [isMonthOpen, setIsMonthOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
@@ -96,11 +113,9 @@ export default function Event() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
+  // Form Processing States
   const [formMode, setFormMode] = useState("add");
   const [editingId, setEditingId] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
-  // Form Field State - Added schoolYear with initial state
   const [formData, setFormData] = useState({
     eventName: "",
     eventDate: "",
@@ -110,15 +125,10 @@ export default function Event() {
     schoolYear: "School Year",
     semester: "Semester",
   });
-
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
 
-  const monthDropdownRef = useRef(null);
-
-  // Style for table header and rows
-  const eventColumns = "0.6fr 1fr 1fr 1.2fr 1.2fr 1.1fr 1fr 1.7fr";
-
+  // ─── EFFECTS (EVENT LISTENERS) ───
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -135,6 +145,7 @@ export default function Event() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ─── SEARCH & FILTER LOGIC ───
   const filteredEvents = events.filter((r) => {
     const matchesSearch =
       r.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -149,6 +160,7 @@ export default function Event() {
     return matchesSearch && matchesMonth;
   });
 
+  // ─── EVENT HANDLERS: MODALS & NAVIGATION ───
   const handleOpenAddForm = () => {
     setFormMode("add");
     setEditingId(null);
@@ -174,7 +186,7 @@ export default function Event() {
       venue: eventItem.venue,
       status: eventItem.status,
       program: eventItem.Program,
-      schoolYear: eventItem.schoolYear || "School Year", // Maps the property when updating
+      schoolYear: eventItem.schoolYear || "School Year",
       semester: eventItem.semId,
     });
     setErrors({});
@@ -194,15 +206,14 @@ export default function Event() {
 
   const handleOpenQrModal = (eventItem) => {
     if (eventItem.status.toLowerCase() === "ongoing") {
-      // Papuntang QR scanner page kasama ang Event ID bilang parameter
       navigate(`/qrScanner?eventId=${eventItem.id}`);
     }
   };
 
+  // ─── EVENT HANDLERS: FORM ACTIONS & VALIDATION ───
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    //if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleFieldFocus = (fieldName) => {
@@ -214,7 +225,6 @@ export default function Event() {
   const selectOption = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setActiveDropdown(null);
-    //if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleFormSubmit = (e) => {
@@ -231,7 +241,7 @@ export default function Event() {
     if (formData.program === "Program" || !formData.program)
       newErrors.program = "Select Program.";
     if (formData.schoolYear === "School Year" || !formData.schoolYear)
-      newErrors.schoolYear = "Select School Year."; // Added validation rule
+      newErrors.schoolYear = "Select School Year.";
     if (formData.semester === "Semester" || !formData.semester)
       newErrors.semester = "Select Semester.";
 
@@ -246,7 +256,7 @@ export default function Event() {
           venue: formData.venue,
           status: formData.status,
           Program: formData.program,
-          schoolYear: formData.schoolYear, // Saves the new value
+          schoolYear: formData.schoolYear,
           semId: formData.semester,
         };
         setEvents((prev) => [newEvent, ...prev]);
@@ -262,7 +272,7 @@ export default function Event() {
                   venue: formData.venue,
                   status: formData.status,
                   Program: formData.program,
-                  schoolYear: formData.schoolYear, // Updates the existing value
+                  schoolYear: formData.schoolYear,
                   semId: formData.semester,
                 }
               : item,
@@ -278,6 +288,7 @@ export default function Event() {
     }
   };
 
+  // ─── SUB-COMPONENTS ───
   const FormDropdown = ({ label, name, options, value }) => (
     <div
       className={`uni-field-group uni-custom-dropdown-container ${errors[name] ? "uni-has-error" : ""}`}
@@ -315,15 +326,16 @@ export default function Event() {
     </div>
   );
 
+  // ─── RENDER INTERFACE (JSX) ───
   return (
     <>
-      {/* Page title */}
       <div className="uni-view fade-in">
+        {/* Header Seksyon */}
         <header className="uni-header">
           <h1 className="main-title">EVENTS</h1>
         </header>
 
-        {/* Page filter and btn */}
+        {/* Filters at Search Controls */}
         <div className="filter-container">
           <div className="search-wrapper">
             <Search size={18} className="search-icon" />
@@ -335,13 +347,14 @@ export default function Event() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+
           <div className="filter-row">
             <button className="uni-btn-primary" onClick={handleOpenAddForm}>
               <Plus size={16} />
               Add Event
             </button>
 
-            {/* ── CUSTOM DROPDOWN ── */}
+            {/* Custom Month Dropdown */}
             <div className="custom-dropdown-uni" ref={monthDropdownRef}>
               <div
                 className={`dropdown-trigger-uni ${isMonthOpen ? "active" : ""}`}
@@ -387,7 +400,9 @@ export default function Event() {
           </div>
         </div>
 
+        {/* Master Table Seksyon */}
         <div className="uni-table-container">
+          {/* Table Header */}
           <div
             className="table-grid-header"
             style={{ gridTemplateColumns: eventColumns }}
@@ -402,6 +417,7 @@ export default function Event() {
             <span className="text-left-aligned">Action</span>
           </div>
 
+          {/* Table Body List */}
           <div className="uni-list">
             {filteredEvents.map((event) => {
               const isOngoing = event.status.toLowerCase() === "ongoing";
@@ -418,8 +434,7 @@ export default function Event() {
                       month: "long",
                       day: "numeric",
                       year: "numeric",
-                      },
-                    )}
+                    })}
                   </span>
                   <span>{event.venue}</span>
                   <div>
@@ -431,6 +446,8 @@ export default function Event() {
                   </div>
                   <span>{event.Program}</span>
                   <span className="uni-sem-text">{event.semId}</span>
+
+                  {/* Action Buttons */}
                   <div className="uni-action-buttons-group">
                     <button
                       className="uni-action-btn delete"
@@ -474,6 +491,7 @@ export default function Event() {
                 </div>
               );
             })}
+
             {filteredEvents.length === 0 && (
               <div className="uni-no-records">
                 No entries matched your filter parameters.
@@ -482,7 +500,7 @@ export default function Event() {
           </div>
         </div>
 
-        {/* MODAL 1: Form Multi-purpose Panel Overlay */}
+        {/* MODAL 1: Form Panel (Add / Edit Event) */}
         {isPanelOpen && (
           <div
             className="uni-modal-overlay"
@@ -581,7 +599,7 @@ export default function Event() {
                     value={formData.program}
                   />
                 </div>
-                
+
                 <div className="uni-form-row-flex">
                   <FormDropdown
                     label="School Year"

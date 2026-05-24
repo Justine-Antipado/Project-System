@@ -3,38 +3,11 @@ import "./AdminAuth.css";
 import omscLogo from "./assets/omsc.logo.png";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const MOCK_DATABASE_USERS = [
-  { idNo: "2024-11111", email: "test@omsc.edu.ph" },
-  { idNo: "2024-22222", email: "user@omsc.edu.ph" },
-];
+const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
-const INITIAL_MOCK_USERS = [
-  {
-    SchoolIDNo: "2024-00001",
-    schoolIDNo: "2024-00001", // keeping both casing styles to safely support your existing validations
-    email: "juan.delacruz@omsc.edu.ph",
-    password: "Password123!",
-    firstName: "Juan",
-    lastName: "Dela Cruz",
-    middleName: "Protasio",
-    program: "BSIT",
-    yearLevel: "3",
-    section: "A"
-  },
-  {
-    SchoolIDNo: "2024-00002",
-    schoolIDNo: "2024-00002",
-    email: "maria.clara@omsc.edu.ph",
-    password: "SecurePass321!",
-    firstName: "Maria",
-    lastName: "Clara",
-    middleName: "",
-    program: "BSCS",
-    yearLevel: "2",
-    section: "B"
-  }
-];
+
 
 export default function AdminAuth() {
   const [organizations, setOrganizations] = useState([]);
@@ -63,15 +36,12 @@ export default function AdminAuth() {
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Ginawang dynamic state para magamit mo ang 'localUsers' sa login at signup mechanics
-  const [localUsers, setLocalUsers] = useState(INITIAL_MOCK_USERS);
-  const [registeredDBUsers, setRegisteredDBUsers] = useState(MOCK_DATABASE_USERS);
-
+ 
   const sections = ["A", "B", "C", "D", "E"];
   const programs = ["BSIT", "BSCS", "BSHM", "BSBA", "BEED"];
   const years = ["1", "2", "3", "4"];
   //const organizations = ["PADC", "YMO", "CBAM", "SSG", "Club"];
-  const termYears = ["2024-2025", "2025-2026", "2026-2027"];
+ // const termYears = ["2024-2025", "2025-2026", "2026-2027"];
   const positionOptions = {
     PADC: ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
     YMO: ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
@@ -80,6 +50,8 @@ export default function AdminAuth() {
     Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
     "Select Org/Club": [],
   };
+
+  const [termYears, setTermYears] = useState([]);
 
   const validatePassword = (pass) => {
     return {
@@ -136,11 +108,7 @@ export default function AdminAuth() {
   };
 
 
-  useEffect(() => {
-
-  fetchOrganizations();
-
-}, []);
+  
 
   const dropdownRefs = useRef({});
 
@@ -173,27 +141,32 @@ export default function AdminAuth() {
   };
 
   const fetchOrganizations = async () => {
-
   try {
-
-    const response = await fetch(
-      "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/getOrganizations.php"
-    );
-
-    const result = await response.json();
-
-    if (result.success) {
-
-      setOrganizations(result.data);
-
+    const res = await axios.get(`${API}/getOrganizations.php`);
+    if (res.data.success === true) {        // 👈 matches PHP's "success" => true
+      setOrganizations(res.data.data);
     }
-
   } catch (error) {
-
     console.error("Error fetching organizations:", error);
-
   }
 };
+
+const fetchTermYears = async () => {
+  try {
+    const res = await axios.get(`${API}/showSchoolYear.php`);
+    if (res.data.status === "success") {  // ✅ match PHP's "status"
+      const ranges = res.data.data.map((row) => row.YearRange);
+      setTermYears(ranges);
+    }
+  } catch (error) {
+    console.error("Error fetching term years:", error);
+  }
+};
+
+useEffect(() => {
+  fetchOrganizations();
+  fetchTermYears();   // 👈 add this
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -214,38 +187,22 @@ export default function AdminAuth() {
       setErrors({});
 
       try {
-        // Ihanda ang FormData para sa PHP $_POST superglobal
-        const dataToSend = new FormData();
-        dataToSend.append("schoolIDNo", formData.schoolIDNo);
-        dataToSend.append("password", formData.password);
+  const formPayload = new FormData();
+  formPayload.append("schoolIDNo", formData.schoolIDNo);
+  formPayload.append("password", formData.password);
 
-        // Baguhin ang URL base sa actual path ng iyong PHP script
-        const response = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/admin_login_auth.php", {
-          method: "POST",
-          body: dataToSend, // Ipinapasa ang data bilang FormData
-          
-        });
+  const res = await axios.post(`${API}/admin_login_auth.php`, formPayload);
 
-        const data = await response.json();
+  // Axios throws on 4xx/5xx, so reaching here means 2xx
+  setSuccessMsg(res.data.message);
+  localStorage.setItem("studentUser", JSON.stringify(res.data.user));
+  setTimeout(() => navigate("/dashboard"), 1500);
 
-        if (!response.ok) {
-          // Kung may error (400, 401, 405, 500) mula sa PHP backend
-          newErrors.schoolIDNo = data.message || "Invalid School ID or Password.";
-          newErrors.password = data.message || "Invalid School ID or Password.";
-          setErrors(newErrors);
-          return;
-        }
-
-        // Kung matagumpay ang login (Status 200)
-        setSuccessMsg(data.message); // "Login successful!"
-        localStorage.setItem("studentUser", JSON.stringify(data.user));
-        
-        setTimeout(() => navigate("/dashboard"), 1500);
-      } catch (error) {
-        // Handle connection or parsing failures gracefully
-        setErrors({ global: "Cannot connect to backend server. Please try again later." });
-      }
-      return; 
+} catch (error) {
+  const msg = error.response?.data?.message || "Invalid School ID or Password.";
+  setErrors({ schoolIDNo: msg, password: msg });
+}
+return; 
     }
 
     if (!isLogin) {
@@ -266,75 +223,60 @@ export default function AdminAuth() {
       }
 
       try {
-        const checkRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/checkDup.php");
-        if (!checkRes.ok) throw new Error("Failed to validate records.");
-        
-        const existingUsers = await checkRes.json();
+  // STEP 1: Duplicate check
+  const checkRes = await axios.get(`${API}/checkDup.php`);
+  const existingUsers = checkRes.data;
 
-        const isIdDuplicate = existingUsers.some(
-          (user) => user.SchoolIDNo.toLowerCase().trim() === formData.schoolIDNo.toLowerCase().trim()
-        );
-        const isEmailDuplicate = existingUsers.some(
-          (user) => user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim()
-        );
+  const isIdDuplicate = existingUsers.some(
+    (user) => user.SchoolIDNo.toLowerCase().trim() === formData.schoolIDNo.toLowerCase().trim()
+  );
+  const isEmailDuplicate = existingUsers.some(
+    (user) => user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim()
+  );
 
-        if (isIdDuplicate) newErrors.schoolIDNo = "School ID is already registered.";
-        if (isEmailDuplicate) newErrors.email = "Email is already in use.";
+  if (isIdDuplicate) newErrors.schoolIDNo = "School ID is already registered.";
+  if (isEmailDuplicate) newErrors.email = "Email is already in use.";
 
-        if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          return;
-        }
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
 
-        const postData = new FormData();
-        postData.append("schoolIDNo", formData.schoolIDNo);
-        postData.append("email", formData.email);
-        postData.append("lastName", formData.lastName);
-        postData.append("firstName", formData.firstName);
-        postData.append("middleName", formData.middleName);
-        postData.append("program", formData.program);
-        postData.append("yearLevel", formData.yearLevel);
-        postData.append("section", formData.section);
-        postData.append("organization", formData.organization);
-        postData.append("position", formData.position);
-        
-        // ITINAMA ANG TYPO DITO: Mula "term_yer" ginawang "term_year"
-        postData.append("term_year", formData.term_year); 
-        postData.append("password", formData.password);
+  // STEP 2: Register
+  const postData = new FormData();
+  postData.append("schoolIDNo",  formData.schoolIDNo);
+  postData.append("email",       formData.email);
+  postData.append("lastName",    formData.lastName);
+  postData.append("firstName",   formData.firstName);
+  postData.append("middleName",  formData.middleName);
+  postData.append("program",     formData.program);
+  postData.append("yearLevel",   formData.yearLevel);
+  postData.append("section",     formData.section);
+  postData.append("organization",formData.organization);
+  postData.append("position",    formData.position);
+  postData.append("term_year",   formData.term_year);
+  postData.append("password",    formData.password);
 
-        const registerRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend/register_admin.php", {
-          method: "POST",
-          body: postData,
-        });
+  const registerRes = await axios.post(`${API}/register_admin.php`, postData, {
+    // Axios auto-detects FormData and sets multipart header,
+    // but the explicit override below ensures PHP sees $_POST correctly
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
-        const resultText = await registerRes.json();
+  // axios.post only reaches here on 2xx — but register returns 201
+  setSuccessMsg(registerRes.data.message || "Registration Successful! Redirecting...");
+  setFormData({
+    schoolIDNo: "", email: "", lastName: "", firstName: "", middleName: "",
+    section: "Select Sec...", program: "Select Pro...", yearLevel: "Select Yea...",
+    organization: "Select Org...", position: "Select Pos...", term_year: "Select Ter...",
+    password: "", confirmPassword: "",
+  });
+  setTimeout(() => handleToggleMode(), 2000);
 
-        if (registerRes.status === 201) {
-          setSuccessMsg(resultText.message || "Registration Successful! Redirecting...");
-          
-          // Isinaayos ang mga string sa reset state para magtugma sa top declarations
-          setFormData({
-            schoolIDNo: "",
-            email: "",
-            lastName: "",
-            firstName: "",
-            middleName: "",
-            section: "Select Sec...",
-            program: "Select Pro...", 
-            yearLevel: "Select Yea...", 
-            organization: "Select Org...",
-            position: "Select Pos...",
-            term_year: "Select Ter...",
-            password: "",
-            confirmPassword: "",
-          });
-          setTimeout(() => handleToggleMode(), 2000);
-        } else {
-          setErrors({ global: resultText.message || "Something went wrong." });
-        }
-      } catch (err) {
-        setErrors({ global: "Server network error. Please try again later." });
-      }
+} catch (error) {
+  const msg = error.response?.data?.message || "Server network error. Please try again later.";
+  setErrors({ global: msg });
+}
     }
   };
 
@@ -416,6 +358,21 @@ export default function AdminAuth() {
 
             <form className="ap-main-form" onSubmit={handleSubmit}>
               {successMsg && <div className="ap-alert-success">{successMsg}</div>}
+              {errors.global && (
+                <div
+                  className="omsc-auth-error-banner"
+                  style={{
+                    color: "white",
+                    backgroundColor: "#e63946",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    marginBottom: "15px",
+                    textAlign: "center",
+                  }}
+                >
+                  {errors.global}
+                </div>
+              )}
 
               {isLogin ? (
                 <div className="ap-stack-vertical">

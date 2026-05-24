@@ -4,6 +4,10 @@ import omscLogo from "./assets/omsc.logo.png";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
+import axios from "axios";
+
+const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend";
+
 // --- INITIAL MOCK DATABASE ---
 // This acts as your temporary backend database storage
 {/*const INITIAL_MOCK_USERS = [
@@ -161,144 +165,115 @@ useEffect(() => {
   // 4. FORM SUBMISSION
   // --- SUBMIT HANDLER ---
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    setSuccessMsg("");
+  e.preventDefault();
+  const newErrors = {};
+  setSuccessMsg("");
 
-    if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
-    if (!formData.password) newErrors.password = "Password is required.";
+  if (!formData.schoolIDNo) newErrors.schoolIDNo = "School ID is required.";
+  if (!formData.password) newErrors.password = "Password is required.";
 
-    // 1. KUNG SIGN IN / LOGIN MODE
+  // ── LOGIN ──
   if (isLogin) {
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      const dataToSend = new FormData();
+      dataToSend.append("schoolIDNo", formData.schoolIDNo);
+      dataToSend.append("password", formData.password);
+
+      const res = await axios.post(`${API}/login_auth.php`, dataToSend);
+
+      setSuccessMsg(res.data.message);
+      localStorage.setItem("studentUser", JSON.stringify(res.data.user));
+      setTimeout(() => navigate("/studentDashboard"), 1500);
+
+    } catch (error) {
+      const msg = error.response?.data?.message || "Invalid School ID or Password.";
+      setErrors({ schoolIDNo: msg, password: msg });
+    }
+    return;
+  }
+
+  // ── REGISTRATION ──
+  if (!isLogin) {
+    if (!formData.email) newErrors.email = "Email is required.";
+    if (!formData.lastName) newErrors.lastName = "Last Name required.";
+    if (!formData.firstName) newErrors.firstName = "First Name required.";
+    if (formData.section === "Select Sec...") newErrors.section = "Section is required.";
+    if (formData.program === "Select Prog...") newErrors.program = "Program is required.";
+    if (formData.yearLevel === "Select Year...") newErrors.yearLevel = "Year level is required.";
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match.";
+    }
+    if (formData.password && !allPasswordReqsMet) {
+      newErrors.password = "Password does not meet the requirements.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      // Step 1: Duplicate check
+      const checkRes = await axios.get(`${API}/checkDup.php`);
+      const existingUsers = checkRes.data;
+
+      const isIdDuplicate = existingUsers.some(
+        (user) => user.SchoolIDNo.toLowerCase().trim() === formData.schoolIDNo.toLowerCase().trim()
+      );
+      const isEmailDuplicate = existingUsers.some(
+        (user) => user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim()
+      );
+
+      if (isIdDuplicate) newErrors.schoolIDNo = "School ID is already registered.";
+      if (isEmailDuplicate) newErrors.email = "Email is already in use.";
+
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return;
       }
 
-      setErrors({});
+      // Step 2: Register
+      const postData = new FormData();
+      postData.append("schoolIDNo",  formData.schoolIDNo);
+      postData.append("email",       formData.email);
+      postData.append("lastName",    formData.lastName);
+      postData.append("firstName",   formData.firstName);
+      postData.append("middleName",  formData.middleName);
+      postData.append("program",     formData.program);
+      postData.append("yearLevel",   formData.yearLevel);
+      postData.append("section",     formData.section);
+      postData.append("password",    formData.password);
 
-      try {
-        // Ihanda ang FormData para sa PHP $_POST superglobal
-        const dataToSend = new FormData();
-        dataToSend.append("schoolIDNo", formData.schoolIDNo);
-        dataToSend.append("password", formData.password);
+      const registerRes = await axios.post(`${API}/register_new_student.php`, postData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-        // Baguhin ang URL base sa actual path ng iyong PHP script
-        const response = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/login_auth.php", {
-          method: "POST",
-          body: dataToSend, // Ipinapasa ang data bilang FormData
-          
-        });
+      // axios throws on non-2xx so reaching here = success
+      setSuccessMsg(registerRes.data.message || "Registration Successful! Redirecting...");
+      setFormData({
+        schoolIDNo: "", email: "", lastName: "", firstName: "", middleName: "",
+        section: "Select Sec...", program: "Select Prog...", yearLevel: "Select Year...",
+        password: "", confirmPassword: "",
+      });
+      setTimeout(() => handleToggleMode(), 2000);
 
-        const data = await response.json();
+    } catch (err) {
+      // Handles both network errors and 4xx/5xx from PHP
+      const msg = err.response?.data?.message || "Server network error. Please try again later.";
 
-        if (!response.ok) {
-          // Kung may error (400, 401, 405, 500) mula sa PHP backend
-          newErrors.schoolIDNo = data.message || "Invalid School ID or Password.";
-          newErrors.password = data.message || "Invalid School ID or Password.";
-          setErrors(newErrors);
-          return;
-        }
-
-        // Kung matagumpay ang login (Status 200)
-        setSuccessMsg(data.message); // "Login successful!"
-        localStorage.setItem("studentUser", JSON.stringify(data.user));
-        
-        setTimeout(() => navigate("/studentDashboard"), 1500);
-      } catch (error) {
-        // Handle connection or parsing failures gracefully
-        setErrors({ global: "Cannot connect to backend server. Please try again later." });
-      }
-      return; 
+      // Registration PHP returns 500 for DB errors, 400 for bad payload
+      // Show as global error to match original behavior
+      setErrors({ global: msg });
     }
-
-
-    // --- REGISTRATION LOGIC ONLY ---
-    if (!isLogin) {
-      if (!formData.email) newErrors.email = "Email is required.";
-      if (!formData.lastName) newErrors.lastName = "Last Name required.";
-      if (!formData.firstName) newErrors.firstName = "First Name required.";
-      if (formData.section === "Select Sec...") newErrors.section = "Section is required.";
-      if (formData.program === "Select Prog...") newErrors.program = "Program is required.";
-      if (formData.yearLevel === "Select Year...") newErrors.yearLevel = "Year level is required.";
-      
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match.";
-      }
-      if (formData.password && !allPasswordReqsMet) {
-        newErrors.password = "Password does not meet the requirements.";
-      }
-
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
-        return;
-      }
-//C:\xampp\htdocs\Attendance Project System\attendanceMonitoringSystem\backend\register_new_student.php
-      try {
-        // Step 1: Tumawag sa check endpoint para sa duplicates
-        const checkRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/checkDup.php");
-        if (!checkRes.ok) throw new Error("Failed to validate records.");
-        
-        const existingUsers = await checkRes.json();
-
-        // Step 2: I-verify ang schoolIDNo at email laban sa database data
-        const isIdDuplicate = existingUsers.some(
-          (user) => user.SchoolIDNo.toLowerCase().trim() === formData.schoolIDNo.toLowerCase().trim()
-        );
-        const isEmailDuplicate = existingUsers.some(
-          (user) => user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim()
-        );
-
-        if (isIdDuplicate) newErrors.schoolIDNo = "School ID is already registered.";
-        if (isEmailDuplicate) newErrors.email = "Email is already in use.";
-
-        if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          return;
-        }
-
-        // Step 3: Kung walang error, ituloy ang database dynamic insertion
-        const postData = new FormData();
-        postData.append("schoolIDNo", formData.schoolIDNo);
-        postData.append("email", formData.email);
-        postData.append("lastName", formData.lastName);
-        postData.append("firstName", formData.firstName);
-        postData.append("middleName", formData.middleName);
-        postData.append("program", formData.program);
-        postData.append("yearLevel", formData.yearLevel);
-        postData.append("section", formData.section);
-        postData.append("password", formData.password);
-
-        const registerRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/register_new_student.php", {
-          method: "POST",
-          body: postData,
-        });
-
-        const resultText = await registerRes.json();
-
-        if (registerRes.status === 201) {
-          setSuccessMsg(resultText.message || "Registration Successful! Redirecting...");
-          setFormData({
-            schoolIDNo: "",
-            email: "",
-            lastName: "",
-            firstName: "",
-            middleName: "",
-            section: "Select Sec...",
-            program: "Select Prog...",
-            yearLevel: "Select Year...",
-            password: "",
-            confirmPassword: "",
-          });
-          setTimeout(() => handleToggleMode(), 2000);
-        } else {
-          setErrors({ global: resultText.message || "Something went wrong." });
-        }
-      } catch (err) {
-        setErrors({ global: "Server network error. Please try again later." });
-      }
-    }
-  };
+  }
+};
 
   // 6. SUB-COMPONENTS
   const CustomDropdown = ({ label, name, options, value }) => (

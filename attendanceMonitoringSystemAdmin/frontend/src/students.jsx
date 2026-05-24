@@ -11,39 +11,9 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
+import axios from "axios";
 
-const INITIAL_MOCK_STUDENTS = [
-  {
-    id: "STU-001",
-    schoolIdNo: "2024-0123",
-    firstName: "Ranjet Ayn",
-    lastName: "Mulingbayan",
-    middleName: "L.",
-    program: "BSIT",
-    yearLevel: 2,
-    section: "B",
-  },
-  {
-    id: "STU-002",
-    schoolIdNo: "2024-0567",
-    firstName: "John",
-    lastName: "Doe",
-    middleName: "M.",
-    program: "BSBA",
-    yearLevel: 3,
-    section: "A",
-  },
-  {
-    id: "STU-003",
-    schoolIdNo: "2023-0987",
-    firstName: "Jane",
-    lastName: "Smith",
-    middleName: "S.",
-    program: "BEED",
-    yearLevel: 4,
-    section: "C",
-  },
-];
+const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
 const PROGRAMS = ["BSIT", "BEED", "BSOA", "BSBA"];
 const YEAR_LEVELS = [1, 2, 3, 4];
@@ -53,7 +23,7 @@ export default function Student() {
   const studentColumns = "1fr 1.2fr 1.5fr 1.5fr 1.2fr 1fr 1fr 1fr 1.2fr";
 
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [students, setStudents] = useState(INITIAL_MOCK_STUDENTS);
+  const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
 
   // ── DROPDOWN FILTERS STATES ──
@@ -89,6 +59,31 @@ export default function Student() {
 
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
+
+  // ── READ: FETCH & MAP DATABASE RECORDS ──
+  const fetchStudents = () => {
+  axios.get(`${API}/showStudent.php`)
+    .then((res) => {
+      if (res.data.status === "success") {
+        const mappedStudents = res.data.data.map((dbStudent) => ({
+          id: dbStudent.StudentID || dbStudent.id,
+          schoolIdNo: dbStudent.SchoolIDNo || dbStudent.schoolIdNo,
+          firstName: dbStudent.FirstName || dbStudent.firstName,
+          lastName: dbStudent.LastName || dbStudent.lastName,
+          middleName: dbStudent.MiddleName || dbStudent.middleName,
+          program: dbStudent.Program || dbStudent.program,
+          yearLevel: Number(dbStudent.YearLevel || dbStudent.yearLevel),
+          section: dbStudent.Section || dbStudent.section,
+        }));
+        setStudents(mappedStudents);
+      }
+    })
+    .catch((err) => console.error("Error reading database records:", err));
+};
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   // ── CLICK OUTSIDE TO CLOSE DROP DOWNS ──
   useEffect(() => {
@@ -130,11 +125,20 @@ export default function Student() {
     setIsDeleteModalOpen(true);
   };
 
+  // ── DELETE: BACKEND DISPATCH ──
   const handleConfirmDelete = () => {
-    setStudents((prev) => prev.filter((item) => item.id !== selectedStudentForDelete.id));
-    setIsDeleteModalOpen(false);
-    setSelectedStudentForDelete(null);
-  };
+  axios.post(`${API}/deleteStudent.php`, { id: selectedStudentForDelete.id })
+    .then((res) => {
+      if (res.data.status === "success") {
+        setStudents((prev) => prev.filter((item) => item.id !== selectedStudentForDelete.id));
+        setIsDeleteModalOpen(false);
+        setSelectedStudentForDelete(null);
+      } else {
+        alert("Failed to delete record: " + res.data.message);
+      }
+    })
+    .catch((err) => console.error("Error deleting student:", err));
+};
 
   const handleOpenEditForm = (studentItem) => {
     setFormMode("edit");
@@ -168,6 +172,7 @@ export default function Student() {
     setActiveDropdown(null);
   };
 
+  // ── UPDATE: BACKEND DISPATCH ──
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
@@ -182,37 +187,39 @@ export default function Student() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      setStudents((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                middleName: formData.middleName,
-                schoolIdNo: formData.schoolIdNo,
-                program: formData.program,
-                yearLevel: Number(formData.yearLevel),
-                section: formData.section,
-              }
-            : item
-        )
-      );
-      
-      setSuccessMsg("Student Record Updated Successfully!");
+  const payload = {
+    id: editingId,
+    firstName: formData.firstName,
+    lastName: formData.lastName,
+    middleName: formData.middleName,
+    schoolIdNo: formData.schoolIdNo,
+    program: formData.program,
+    yearLevel: Number(formData.yearLevel),
+    section: formData.section,
+  };
 
-      setTimeout(() => {
-        setSuccessMsg("");
-        setIsFormModalOpen(false);
-        setEditingId(null);
-      }, 1500);
-    }
+  axios.post(`${API}/updateStudent.php`, payload)
+    .then((res) => {
+      if (res.data.status === "success") {
+        setStudents((prev) =>
+          prev.map((item) => (item.id === editingId ? { ...item, ...payload } : item))
+        );
+        setSuccessMsg("Student Record Updated Successfully!");
+        setTimeout(() => {
+          setSuccessMsg("");
+          setIsFormModalOpen(false);
+          setEditingId(null);
+        }, 1500);
+      } else {
+        alert("Database update error: " + res.data.message);
+      }
+    })
+    .catch((err) => console.error("Error updating student record:", err));
+}
   };
 
   const FormDropdown = ({ label, name, options, value }) => (
-    <div
-      className={`uni-field-group uni-custom-dropdown-container ${errors[name] ? "uni-has-error" : ""}`}
-    >
+    <div className={`uni-field-group uni-custom-dropdown-container ${errors[name] ? "uni-has-error" : ""}`}>
       <label className="uni-label-text">{label}</label>
       <div
         className={`uni-form-input uni-dropdown-trigger ${errors[name] ? "error-ring" : ""} ${activeDropdown === name ? "active" : ""}`}
@@ -274,10 +281,7 @@ export default function Student() {
               >
                 <BookOpen size={18} className="icon-left" />
                 <span>{selectedProgram || "Select Prog"}</span>
-                <ChevronDown
-                  size={16}
-                  className={`arrow ${isProgramOpen ? "rotate" : ""}`}
-                />
+                <ChevronDown size={16} className={`arrow ${isProgramOpen ? "rotate" : ""}`} />
               </div>
 
               {isProgramOpen && (
@@ -301,9 +305,7 @@ export default function Student() {
                       }}
                     >
                       {prog}
-                      {selectedProgram === prog && (
-                        <Check size={14} className="check-icon" />
-                      )}
+                      {selectedProgram === prog && <Check size={14} className="check-icon" />}
                     </div>
                   ))}
                 </div>
@@ -317,13 +319,8 @@ export default function Student() {
                 onClick={() => setIsYearOpen(!isYearOpen)}
               >
                 <GraduationCap size={18} className="icon-left" />
-                <span>
-                  {selectedYear ? `Year ${selectedYear}` : "Select Year"}
-                </span>
-                <ChevronDown
-                  size={16}
-                  className={`arrow ${isYearOpen ? "rotate" : ""}`}
-                />
+                <span>{selectedYear ? `Year ${selectedYear}` : "Select Year"}</span>
+                <ChevronDown size={16} className={`arrow ${isYearOpen ? "rotate" : ""}`} />
               </div>
 
               {isYearOpen && (
@@ -347,9 +344,7 @@ export default function Student() {
                       }}
                     >
                       Year {yr}
-                      {selectedYear === yr && (
-                        <Check size={14} className="check-icon" />
-                      )}
+                      {selectedYear === yr && <Check size={14} className="check-icon" />}
                     </div>
                   ))}
                 </div>
@@ -363,13 +358,8 @@ export default function Student() {
                 onClick={() => setIsSectionOpen(!isSectionOpen)}
               >
                 <Layers size={18} className="icon-left" />
-                <span>
-                  {selectedSection ? `Section ${selectedSection}` : "Select Sec"}
-                </span>
-                <ChevronDown
-                  size={16}
-                  className={`arrow ${isSectionOpen ? "rotate" : ""}`}
-                />
+                <span>{selectedSection ? `Section ${selectedSection}` : "Select Sec"}</span>
+                <ChevronDown size={16} className={`arrow ${isSectionOpen ? "rotate" : ""}`} />
               </div>
 
               {isSectionOpen && (
@@ -393,9 +383,7 @@ export default function Student() {
                       }}
                     >
                       Section {sec}
-                      {selectedSection === sec && (
-                        <Check size={14} className="check-icon" />
-                      )}
+                      {selectedSection === sec && <Check size={14} className="check-icon" />}
                     </div>
                   ))}
                 </div>
@@ -406,10 +394,7 @@ export default function Student() {
 
         {/* ── STUDENTS DATA TABLE ── */}
         <div className="uni-table-container">
-          <div
-            className="table-grid-header"
-            style={{ gridTemplateColumns: studentColumns }}
-          >
+          <div className="table-grid-header" style={{ gridTemplateColumns: studentColumns }}>
             <span>Student ID</span>
             <span>School ID NO.</span>
             <span>First Name</span>
@@ -429,10 +414,8 @@ export default function Student() {
                   className="uni-table-grid-row"
                   style={{ gridTemplateColumns: studentColumns }}
                 >
-                  <span className="uni-id-text">{student.id}</span>
-                  <span className="uni-highlight-text">
-                    {student.schoolIdNo}
-                  </span>
+                  <span className="uni-id-text">ID-{student.id}</span>
+                  <span className="uni-highlight-text">{student.schoolIdNo}</span>
                   <span>{student.firstName}</span>
                   <span>{student.lastName}</span>
                   <span>{student.middleName}</span>
@@ -440,10 +423,7 @@ export default function Student() {
                   <span>Year {student.yearLevel}</span>
                   <span>Section {student.section}</span>
 
-                  <div
-                    className="uni-action-buttons-group"
-                    style={{ justifyContent: "flex-start" }}
-                  >
+                  <div className="uni-action-buttons-group" style={{ justifyContent: "flex-start" }}>
                     <button
                       className="uni-action-btn delete"
                       title="Delete Record"
@@ -465,34 +445,22 @@ export default function Student() {
             })}
 
             {filteredStudents.length === 0 && (
-              <div className="uni-no-records">
-                No entries matched your filter parameters.
-              </div>
+              <div className="uni-no-records">No entries matched your filter parameters.</div>
             )}
           </div>
         </div>
 
         {/* ── MODAL 1: STUDENT FORM PANEL OVERLAY ── */}
         {isFormModalOpen && (
-          <div
-            className="uni-modal-overlay"
-            onClick={() => setIsFormModalOpen(false)}
-          >
-            <div
-              className="uni-glass-form-card animate-pop-in"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                className="uni-panel-close-btn"
-                onClick={() => setIsFormModalOpen(false)}
-              >
+          <div className="uni-modal-overlay" onClick={() => setIsFormModalOpen(false)}>
+            <div className="uni-glass-form-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
+              <button type="button" className="uni-panel-close-btn" onClick={() => setIsFormModalOpen(false)}>
                 <X size={16} />
               </button>
 
               <div className="uni-form-header">
                 <h3 className="uni-form-heading">
-                  {formMode === "add" ? "Create New Student" : `Modify Student Record (#${editingId})`}
+                  {formMode === "add" ? "Create New Student" : `Modify Student Record (ID${editingId})`}
                 </h3>
                 <p className="uni-form-subheading">
                   {formMode === "add" ? "Register a new profile" : "Alter attributes for this structural profile entry"}
@@ -500,11 +468,8 @@ export default function Student() {
               </div>
 
               <form onSubmit={handleFormSubmit} className="uni-form-stack">
-                {successMsg && (
-                  <div className="uni-success-banner">{successMsg}</div>
-                )}
+                {successMsg && <div className="uni-success-banner">{successMsg}</div>}
 
-                {/* Name Inputs Row */}
                 <div className="uni-form-row-flex">
                   <div className="uni-field-group">
                     <label className="uni-label-text">First Name</label>
@@ -517,9 +482,7 @@ export default function Student() {
                       placeholder="e.g. John"
                       onFocus={() => handleFieldFocus("firstName")}
                     />
-                    {errors.firstName && (
-                      <span className="uni-error-text">{errors.firstName}</span>
-                    )}
+                    {errors.firstName && <span className="uni-error-text">{errors.firstName}</span>}
                   </div>
 
                   <div className="uni-field-group">
@@ -533,9 +496,7 @@ export default function Student() {
                       placeholder="e.g. Doe"
                       onFocus={() => handleFieldFocus("lastName")}
                     />
-                    {errors.lastName && (
-                      <span className="uni-error-text">{errors.lastName}</span>
-                    )}
+                    {errors.lastName && <span className="uni-error-text">{errors.lastName}</span>}
                   </div>
                 </div>
 
@@ -563,31 +524,14 @@ export default function Student() {
                       placeholder="e.g. 2024-0000"
                       onFocus={() => handleFieldFocus("schoolIdNo")}
                     />
-                    {errors.schoolIdNo && (
-                      <span className="uni-error-text">{errors.schoolIdNo}</span>
-                    )}
+                    {errors.schoolIdNo && <span className="uni-error-text">{errors.schoolIdNo}</span>}
                   </div>
                 </div>
 
                 <div className="uni-form-row-flex">
-                  <FormDropdown
-                    label="Program"
-                    name="program"
-                    options={PROGRAMS}
-                    value={formData.program}
-                  />
-                  <FormDropdown
-                    label="Year Level"
-                    name="yearLevel"
-                    options={YEAR_LEVELS}
-                    value={formData.yearLevel}
-                  />
-                  <FormDropdown
-                    label="Section"
-                    name="section"
-                    options={SECTIONS}
-                    value={formData.section}
-                  />
+                  <FormDropdown label="Program" name="program" options={PROGRAMS} value={formData.program} />
+                  <FormDropdown label="Year Level" name="yearLevel" options={YEAR_LEVELS} value={formData.yearLevel} />
+                  <FormDropdown label="Section" name="section" options={SECTIONS} value={formData.section} />
                 </div>
 
                 <button type="submit" className="uni-btn-submit">
@@ -600,14 +544,8 @@ export default function Student() {
 
         {/* ── MODAL 2: DELETE CONFIRMATION OVERLAY ── */}
         {isDeleteModalOpen && (
-          <div
-            className="uni-modal-overlay"
-            onClick={() => setIsDeleteModalOpen(false)}
-          >
-            <div
-              className="uni-confirm-modal-card animate-pop-in"
-              onClick={(e) => e.stopPropagation()}
-            >
+          <div className="uni-modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
+            <div className="uni-confirm-modal-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
               <div className="uni-confirm-icon-wrapper">
                 <AlertTriangle size={28} className="warn-icon" />
               </div>
@@ -615,29 +553,21 @@ export default function Student() {
               <p>
                 Are you sure you want to permanently remove{" "}
                 <strong>
-                  {selectedStudentForDelete?.firstName}{" "}
-                  {selectedStudentForDelete?.lastName}
+                  {selectedStudentForDelete?.firstName} {selectedStudentForDelete?.lastName}
                 </strong>
                 ? This action cannot be reverted.
               </p>
               <div className="uni-confirm-actions">
-                <button
-                  className="uni-btn-cancel"
-                  onClick={() => setIsDeleteModalOpen(false)}
-                >
+                <button className="uni-btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>
                   Cancel
                 </button>
-                <button
-                  className="uni-btn-danger-confirm"
-                  onClick={handleConfirmDelete}
-                >
+                <button className="uni-btn-danger-confirm" onClick={handleConfirmDelete}>
                   Delete Record
                 </button>
               </div>
             </div>
           </div>
         )}
-
       </div>
     </>
   );

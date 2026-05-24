@@ -9,6 +9,11 @@ import {
   SquarePen,
 } from "lucide-react";
 
+import axios from "axios";
+
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+
 export default function Organization() {
   const [search, setSearch] = useState("");
 
@@ -28,17 +33,32 @@ export default function Organization() {
 
   const [formMode, setFormMode] = useState("add");
   const [editingId, setEditingId] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  //const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
 
   // Mock data na tumutugma sa iisang row structure mo para gumana ang loop at search
-  const [organizations, setOrganizations] = useState([
-    { id: "ORG-ALPHA", name: "Alpha Organization" },
-    { id: "ORG-BETA", name: "Beta Computer Society" },
-  ]);
+  const [organizations, setOrganizations] = useState([]);
 
+  const fetchOrganizations = async () => {
+    try {
+      const res = await axios.get(`${API}/getOrganizations.php`);
+      if (res.data.success === true) {
+        const mapped = res.data.data.map((org) => ({
+          id: org.OrgID,
+          name: org.OrgName,
+        }));
+        setOrganizations(mapped);
+      }
+    } catch (error) {
+      console.error("Failed to fetch organizations:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrganizations();
+  }, []);
   // Handler para sa pagpuno sa input fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,14 +107,9 @@ export default function Organization() {
   };
 
   // Multi-purpose Form Submit Logic
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-
-    // Validation base sa fields ng Organization
-    //if (formMode === "add" && !formData.orgId.trim()) {
-    //newErrors.orgId = "Organization ID is required.";
-    //}
 
     if (!formData.orgName.trim()) {
       newErrors.orgName = "Organization Name is required.";
@@ -103,52 +118,81 @@ export default function Organization() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      if (formMode === "add") {
-        // Siguraduhing hindi duplicate ang ID
-        //if (organizations.some(org => org.id.toLowerCase() === formData.orgId.trim().toLowerCase())) {
-        //setErrors({ orgId: "Organization ID already exists." });
-        //return;
-        //}
+      try {
+        if (formMode === "add") {
+          const payload = new FormData();
+          payload.append("orgName", formData.orgName.trim());
+          const res = await axios.post(`${API}/addOrganization.php`, payload);
+          if (res.data.success) {
+            const { OrgID, OrgName } = res.data.data;
+            setOrganizations((prev) => [{ id: OrgID, name: OrgName }, ...prev]);
+            setSuccessMsg("Organization Created Successfully!");
+          }
+        } else {
+          const payload = new FormData();
+          payload.append("orgId", editingId);
+          payload.append("orgName", formData.orgName.trim());
+          const res = await axios.post(`${API}/editOrganization.php`, payload);
+          if (res.data.success) {
+            setOrganizations((prev) =>
+              prev.map((item) =>
+                item.id === editingId
+                  ? { ...item, name: formData.orgName.trim() }
+                  : item,
+              ),
+            );
+            setSuccessMsg("Organization Updated Successfully!");
+          }
+        }
 
-        const newOrg = {
-          id: formData.orgId.trim().toUpperCase(),
-          name: formData.orgName.trim(),
-        };
-        setOrganizations((prev) => [newOrg, ...prev]);
-        setSuccessMsg("Organization Created Successfully!");
-      } else {
-        // Edit Mode Logic
-        setOrganizations((prev) =>
-          prev.map((item) =>
-            item.id === editingId
-              ? { ...item, name: formData.orgName.trim() }
-              : item,
-          ),
-        );
-        setSuccessMsg("Organization Updated Successfully!");
+        setTimeout(() => {
+          // ✅ Only ONE setTimeout — inside try
+          setSuccessMsg("");
+          setIsPanelOpen(false);
+        }, 1500);
+      } catch (error) {
+        const msg =
+          error.response?.data?.message || "Server error. Please try again.";
+
+        // duplicate organization error
+        if (
+          msg.includes("already exists") ||
+          msg.includes("Another organization")
+        ) {
+          setErrors({
+            orgName: msg,
+          });
+        } else {
+          setErrors({
+            global: msg,
+          });
+        }
       }
-
-      setTimeout(() => {
-        setSuccessMsg("");
-        setIsPanelOpen(false);
-      }, 1500);
+      // ✅ Nothing here — the duplicate was removed
     }
   };
 
   // Logic para sa aktwal na pagbura kapag kinumpirma
-  const handleConfirmDelete = () => {
-    setOrganizations(
-      organizations.filter((org) => org.id !== selectedOrganization.id),
-    );
-    setIsDeleteModalOpen(false);
-    setSelectedOrganization(null);
+  const handleConfirmDelete = async () => {
+    try {
+      const payload = new FormData();
+      payload.append("orgId", selectedOrganization.id);
+      const res = await axios.post(`${API}/deleteOrganization.php`, payload);
+      if (res.data.success) {
+        setOrganizations(
+          organizations.filter((org) => org.id !== selectedOrganization.id),
+        );
+        setIsDeleteModalOpen(false);
+        setSelectedOrganization(null);
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
   };
 
   // Logic para sa real-time filter ng search input mo
-  const filteredOrganizations = organizations.filter(
-    (org) =>
-      org.id.toLowerCase().includes(search.toLowerCase()) ||
-      org.name.toLowerCase().includes(search.toLowerCase()),
+  const filteredOrganizations = organizations.filter((org) =>
+    org.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -196,7 +240,7 @@ export default function Organization() {
                 key={org.id}
                 style={{ display: "grid", gridTemplateColumns: orgColumns }}
               >
-                <span className="uni-id-text">{org.id}</span>
+                <span className="uni-id-text">ID-{org.id}</span>
                 <span className="uni-highlight-text">{org.name}</span>
                 <div
                   className="uni-action-buttons-group"
@@ -243,7 +287,7 @@ export default function Organization() {
                 <h3 className="uni-form-heading">
                   {formMode === "add"
                     ? "Create New Organization"
-                    : `Modify Organization #${editingId}`}
+                    : `Modify Organization ID-${editingId}`}
                 </h3>
                 <p className="uni-form-subheading">
                   {formMode === "add"
@@ -255,6 +299,9 @@ export default function Organization() {
               <form onSubmit={handleFormSubmit} className="uni-form-stack">
                 {successMsg && (
                   <div className="uni-success-banner">{successMsg}</div>
+                )}
+                {errors.global && (
+                  <div className="uni-error-banner">{errors.global}</div>
                 )}
                 <div className="uni-field-group">
                   <label className="uni-label-text">Organization Name</label>

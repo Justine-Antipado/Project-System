@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, Trash2, AlertTriangle, X, Check } from "lucide-react";
+import axios from "axios";
 
-const INITIAL_MOCK_SCHOOL_YEARS = [
+const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+{/*const INITIAL_MOCK_SCHOOL_YEARS = [
   { id: "SY2025-2026", yearRange: "2025-2026" },
   { id: "SY2024-2025", yearRange: "2024-2025" },
   { id: "SY2023-2024", yearRange: "2023-2024" },
-];
+];*/}
 
 export default function SchoolYear() {
   const schoolYearColumns = "2fr 2fr 2fr";
@@ -21,7 +23,7 @@ export default function SchoolYear() {
     }, []);
 
   // Data List State
-  const [schoolYears, setSchoolYears] = useState(INITIAL_MOCK_SCHOOL_YEARS);
+  const [schoolYears, setSchoolYears] = useState([]);
   const [selectedSchoolYear, setSelectedSchoolYear] = useState(null);
 
   // Modal at Dropdown controllers
@@ -47,10 +49,18 @@ export default function SchoolYear() {
   };
 
   const handleConfirmDelete = () => {
-    setSchoolYears((prev) => prev.filter((item) => item.id !== selectedSchoolYear.id));
-    setIsDeleteModalOpen(false);
-    setSelectedSchoolYear(null);
-  };
+  axios.post(`${API}/deleteSchoolYear.php`, { id: selectedSchoolYear.id })
+    .then((res) => {
+      if (res.data.status === "success") {
+        setSchoolYears((prev) => prev.filter((item) => item.id !== selectedSchoolYear.id));
+        setIsDeleteModalOpen(false);
+        setSelectedSchoolYear(null);
+      } else {
+        alert("Delete failed: " + res.data.message);
+      }
+    })
+    .catch((err) => console.error("Delete error:", err));
+};
 
   const handleOpenAddForm = () => {
     let nextStart = 2026; // Default fallback kung walang laman ang listahan
@@ -77,29 +87,57 @@ export default function SchoolYear() {
   };
 
   const handleFieldFocus = (fieldName) => {
-    if (errors[fieldName]) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-    }
-  };
+  // Clear both yearStart and yearEnd errors together
+  if (fieldName === "yearStart" || fieldName === "yearEnd") {
+    setErrors((prev) => ({ ...prev, yearStart: "", yearEnd: "" }));
+  } else {
+    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+  }
+};
 
   const selectOption = (name, value) => {
-    setFormData((prev) => {
-      const updated = { ...prev, [name]: value };
-      
-      // Smart Logic: Kapag binago ang yearStart, automatic mag-a-adjust ang yearEnd ng +1
-      if (name === "yearStart") {
-        updated.yearEnd = value + 1;
+  setFormData((prev) => {
+    const updated = { ...prev, [name]: value };
+    if (name === "yearStart") {
+      updated.yearEnd = value + 1;
+    }
+    return updated;
+  });
+
+  // Clear both year errors on any year dropdown change
+  if (name === "yearStart" || name === "yearEnd") {
+    setErrors((prev) => ({ ...prev, yearStart: "", yearEnd: "" }));
+  } else {
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  }
+
+  setActiveDropdown(null);
+};
+
+  const fetchSchoolYears = () => {
+  axios.get(`${API}/showSchoolYear.php`)
+    .then((res) => {
+      if (res.data.status === "success") {
+        const mapped = res.data.data.map((row) => ({
+          id: row.YearID,
+          yearRange: row.YearRange,
+        }));
+        setSchoolYears(mapped);
       }
-      return updated;
-    });
-    setActiveDropdown(null);
-  };
+    })
+    .catch((err) => console.error("Fetch error:", err));
+};
+
+useEffect(() => {
+  fetchSchoolYears();
+}, []);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
 
     // Validations
+    
     if (!formData.yearStart) newErrors.yearStart = "Select Year Start.";
     if (!formData.yearEnd) newErrors.yearEnd = "Select Year End.";
     if (formData.yearStart >= formData.yearEnd) {
@@ -109,29 +147,25 @@ export default function SchoolYear() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      const generatedId = `SY${formData.yearStart}-${formData.yearEnd}`;
-      const generatedRange = `${formData.yearStart}-${formData.yearEnd}`;
+  const generatedId    = `SY${formData.yearStart}-${formData.yearEnd}`;
+  const generatedRange = `${formData.yearStart}-${formData.yearEnd}`;
 
-      // Check para iwas duplicate entry
-      const isDuplicate = schoolYears.some((sy) => sy.id === generatedId);
-      if (isDuplicate) {
-        setErrors({ yearStart: "This School Year already exists." });
-        return;
+  axios.post(`${API}/addSchoolYear.php`, { id: generatedId, yearRange: generatedRange })
+    .then((res) => {
+      if (res.data.status === "success") {
+        // Refresh list from DB instead of manually prepending
+        fetchSchoolYears();
+        setSuccessMsg("School Year and Semesters Created Successfully!");
+        setTimeout(() => {
+          setSuccessMsg("");
+          setIsPanelOpen(false);
+        }, 1500);
+      } else {
+        setErrors({ yearStart: res.data.message, yearEnd: res.data.message, });
       }
-
-      const newSY = {
-        id: generatedId,
-        yearRange: generatedRange,
-      };
-
-      setSchoolYears((prev) => [newSY, ...prev]);
-      setSuccessMsg("School Year Created Successfully!");
-
-      setTimeout(() => {
-        setSuccessMsg("");
-        setIsPanelOpen(false);
-      }, 1500);
-    }
+    })
+    .catch((err) => console.error("Add error:", err));
+}
   };
 
   // Dropdown Component Block (Inayos para sa numeric at custom values)
@@ -196,8 +230,8 @@ export default function SchoolYear() {
           <div className="uni-list">
             {schoolYears.map((schoolYear) => (
               <div key={schoolYear.id} className="uni-table-grid-row" style={{ gridTemplateColumns: schoolYearColumns }}>
-                <span className="uni-id-text">{schoolYear.id}</span>
-                <span>{schoolYear.yearRange}</span>
+                <span className="uni-id-text">ID-{schoolYear.id}</span>
+                <span>SY{schoolYear.yearRange}</span>
                 <div className="uni-action-buttons-group" style={{ justifyContent: "flex-start" }}>
                   <button
                     className="uni-action-btn delete"
