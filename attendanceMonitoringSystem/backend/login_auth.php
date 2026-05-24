@@ -1,7 +1,7 @@
 <?php
 if (ob_get_level())
     ob_end_clean();
-
+//login_auth.php
 header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -41,16 +41,18 @@ try {
     $stmt->execute([':schoolIDNo' => $schoolIDNo]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    
+
     // 2. Pagpapasya kung Hashed o Plain Text ang Password:
     // Gumawa ng checker para gumana sa plain-text inputs AT sa encrypted security entries.
     $isPasswordValid = false;
     if ($user) {
         // Tinitingnan kung nakatago sa database gamit ang standard password_hash system format
-        if (password_verify($password, $user['password'])) {
+        if (password_verify($password, $user['Password'])) {
             $isPasswordValid = true;
         } 
         // fallback matching mechanism kung plain text pa ang nakasulat sa table record habang nagte-test
-        elseif ($user['password'] === $password) {
+        elseif ($user['Password'] === $password) {
             $isPasswordValid = true;
         }
     }
@@ -64,7 +66,7 @@ try {
     }
 
     // Tanggalin ang sensitibong impormasyon bago ibalik sa React application client space
-    unset($user['password']);
+    unset($user['Password']);
     
     header('Content-Type: application/json');
     http_response_code(200);

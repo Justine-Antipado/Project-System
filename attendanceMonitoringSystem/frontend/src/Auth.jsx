@@ -170,46 +170,45 @@ useEffect(() => {
 
     // 1. KUNG SIGN IN / LOGIN MODE
   if (isLogin) {
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
 
-    try {
-      // I-package ang data bilang FormData para tugma sa $_POST ng PHP
-      const loginData = new FormData();
-      loginData.append("schoolIDNo", formData.schoolIDNo);
-      loginData.append("password", formData.password);
+      try {
+        // Ihanda ang FormData para sa PHP $_POST superglobal
+        const dataToSend = new FormData();
+        dataToSend.append("schoolIDNo", formData.schoolIDNo);
+        dataToSend.append("password", formData.password);
 
-      // Tumawag sa bagong login backend script gamit ang URL path mapping na may spaces (%20)
-      const loginRes = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/login_auth.php", {
-        method: "POST",
-        body: loginData,
-      });
+        // Baguhin ang URL base sa actual path ng iyong PHP script
+        const response = await fetch("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/login_auth.php", {
+          method: "POST",
+          body: dataToSend, // Ipinapasa ang data bilang FormData
+          
+        });
 
-      const result = await loginRes.json();
+        const data = await response.json();
 
-      if (loginRes.ok) {
-        // Kapag successful (Status 200)
-        setSuccessMsg(result.message || "Login Successful!");
-        
-        // I-save ang user object (mula sa database) sa localStorage tulad ng dati mong dashboard rules
-        localStorage.setItem("studentUser", JSON.stringify(result.user));
+        if (!response.ok) {
+          // Kung may error (400, 401, 405, 500) mula sa PHP backend
+          newErrors.schoolIDNo = data.message || "Invalid School ID or Password.";
+          newErrors.password = data.message || "Invalid School ID or Password.";
+          setErrors(newErrors);
+          return;
+        }
+
+        // Kung matagumpay ang login (Status 200)
+        setSuccessMsg(data.message); // "Login successful!"
+        localStorage.setItem("studentUser", JSON.stringify(data.user));
         
         setTimeout(() => navigate("/studentDashboard"), 1500);
-      } else {
-        // Kapag nabigo ang login credentials (Status 401/400)
-        // Gumagamit ng pinag-isang secure banner profile error katulad ng orihinal mong validation style
-        setErrors({
-          schoolIDNo: result.message || "Invalid School ID or Password.",
-          password: result.message || "Invalid School ID or Password."
-        });
+      } catch (error) {
+        // Handle connection or parsing failures gracefully
+        setErrors({ global: "Cannot connect to backend server. Please try again later." });
       }
-    } catch (err) {
-      setErrors({ global: "Server network error. Please check your connection." });
+      return; 
     }
-    return; 
-  }
 
 
     // --- REGISTRATION LOGIC ONLY ---

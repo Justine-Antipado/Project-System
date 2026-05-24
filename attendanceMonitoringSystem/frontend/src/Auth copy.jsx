@@ -377,7 +377,7 @@ export default function Auth() {
                       onChange={handleInputChange}
                       onFocus={() => handleInputFocus("schoolIDNo")}
                       className="omsc-auth-form-input"
-                      placeholder="2024-00001"
+                      placeholder="2024-00-001"
                     />
                     {errors.schoolIDNo && (
                       <span className="omsc-auth-error-text">{errors.schoolIDNo}</span>
