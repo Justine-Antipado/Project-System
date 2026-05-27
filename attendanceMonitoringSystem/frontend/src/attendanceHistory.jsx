@@ -1,96 +1,45 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, Calendar, ChevronDown, Check } from "lucide-react";
+import { Search, Calendar, ChevronDown, Check, Loader2 } from "lucide-react";
+import axios from "axios";
 import "./attendanceHistory.css";
 
-const ATTENDANCE_RECORDS = [
-  {
-    id: 1,
-    date: "September 02, 2025",
-    event: "Student General Assembly",
-    venue: "OMSC Gymnasium",
-    timeIn: "07 : 55 AM",
-    accent: "accent-blue",
-  },
-  {
-    id: 2,
-    date: "January 24, 2026",
-    event: "Meeting",
-    venue: "OMSC Gymnasium",
-    timeIn: "08 : 00 AM",
-    accent: "accent-yellow",
-  },
-  {
-    id: 3,
-    date: "February 18, 2026",
-    event: "Meeting",
-    venue: "OMSC Gymnasium",
-    timeIn: "08 : 00 AM",
-    accent: "accent-green",
-  },
-  {
-    id: 4,
-    date: "September 02, 2025",
-    event: "Student General Assembly",
-    venue: "OMSC Gymnasium",
-    timeIn: "07 : 55 AM",
-    accent: "accent-blue",
-  },
-  {
-    id: 5,
-    date: "September 02, 2025",
-    event: "Student General Assembly",
-    venue: "OMSC Gymnasium",
-    timeIn: "07 : 55 AM",
-    accent: "accent-blue",
-  },
-  {
-    id: 6,
-    date: "September 02, 2025",
-    event: "Student General Assembly",
-    venue: "OMSC Gymnasium",
-    timeIn: "07 : 55 AM",
-    accent: "accent-blue",
-  },
-  {
-    id: 7,
-    date: "September 02, 2025",
-    event: "Student General Assembly",
-    venue: "OMSC Gymnasium",
-    timeIn: "07 : 55 AM",
-    accent: "accent-blue",
-  },
-  {
-    id: 8,
-    date: "September 02, 2025",
-    event: "Student General Assembly",
-    venue: "OMSC Gymnasium",
-    timeIn: "07 : 55 AM",
-    accent: "accent-blue",
-  },
-];
+const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend";
 
 const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
 ];
 
 export default function AttendanceHistory() {
+  const [attendanceRecords, setAttendanceRecords] = useState([]); // Dynamic state para sa records
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown pag nag-click sa labas
+  // 1. KUNIN ANG DATA MULA SA PHP BACKEND
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${API}/get_attendance_history.php`, {
+          withCredentials: true // Importante para gumana ang PHP session
+        });
+        setAttendanceRecords(res.data);
+      } catch (err) {
+        console.error("Error fetching attendance records:", err);
+        setErrorMsg(err.response?.data?.message || "Failed to load attendance history.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, []);
+
+  // Close dropdown kapag nag-click sa labas
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -101,7 +50,8 @@ export default function AttendanceHistory() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filtered = ATTENDANCE_RECORDS.filter((r) => {
+  // 2. FILTER LOGIC
+  const filtered = attendanceRecords.filter((r) => {
     const matchesSearch =
       r.event.toLowerCase().includes(search.toLowerCase()) ||
       r.venue.toLowerCase().includes(search.toLowerCase());
@@ -175,7 +125,7 @@ export default function AttendanceHistory() {
           </div>
         </div>
 
-        {/* ── TABLE ── */}
+        {/* ── TABLE VIEW WITH LOADING & ERROR STATES ── */}
         <div className="history-table-container">
           <div className="table-header-grid">
             <span>Date</span>
@@ -185,14 +135,17 @@ export default function AttendanceHistory() {
           </div>
 
           <div className="history-list">
-            {filtered.length === 0 ? (
-              <p
-                style={{
-                  padding: "2rem",
-                  color: "var(--text-muted)",
-                  textAlign: "center",
-                }}
-              >
+            {loading ? (
+              <div style={{ textAlign: "center", padding: "2rem", color: "var(--text-muted)" }}>
+                <Loader2 className="animate-spin" style={{ margin: "0 auto 10px" }} size={24} />
+                <p>Loading records...</p>
+              </div>
+            ) : errorMsg ? (
+              <p style={{ padding: "2rem", color: "#e63946", textAlign: "center" }}>
+                {errorMsg}
+              </p>
+            ) : filtered.length === 0 ? (
+              <p style={{ padding: "2rem", color: "var(--text-muted)", textAlign: "center" }}>
                 No records found.
               </p>
             ) : (

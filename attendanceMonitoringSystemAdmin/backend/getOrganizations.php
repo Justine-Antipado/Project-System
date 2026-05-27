@@ -10,29 +10,26 @@ header('Access-Control-Allow-Credentials: true');
 
 include_once 'connection.php';
 try {
-
-    $stmt = $pdo->prepare("
+    $stmt = $pdo->prepare('
         SELECT OrgID, OrgName 
         FROM organizations
         ORDER BY OrgName ASC
-    ");
+    ');
 
     $stmt->execute();
 
     $organizations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
-        "success" => true,
-        "data" => $organizations
+        'success' => true,
+        'data' => $organizations
     ]);
-
 } catch (PDOException $e) {
-
     http_response_code(500);
 
     echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
+        'success' => false,
+        'message' => $e->getMessage()
     ]);
 }
 ?>

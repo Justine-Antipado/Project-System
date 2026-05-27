@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($data)) {
     $yearLevel = (isset($data['yearLevel']) && is_numeric($data['yearLevel'])) ? (int) $data['yearLevel'] : null;
 
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    
+
     // Fallback security generation para sa QR content payload fields
-    $generatedQRText = "OMSC-" . $schoolIDNo . "-" . bin2hex(random_bytes(4));
+    $generatedQRText = 'OMSC-' . $schoolIDNo . '-' . bin2hex(random_bytes(4));
 
     try {
         $sql = 'INSERT INTO students (SchoolIDNo, Email, LastName, FirstName, MiddleName, Program, YearLevel, section, StudentQRCode, password) 

@@ -1,41 +1,119 @@
 <?php
-// addEvent.php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+// Set headers para sa Cross-Origin Resource Sharing (CORS) at JSON Content Type
+header('Access-Control-Allow-Origin: http://localhost:5173');
+header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Content-Type: application/json; charset=UTF-8');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
-
-require_once 'db.php';
-
-$data = json_decode(file_get_contents("php://input"), true);
-
-$eventName  = trim($data['EventName']  ?? '');
-$date       = trim($data['Date']       ?? '');
-$venue      = trim($data['Venue']      ?? '');
-$status     = trim($data['Status']     ?? '');
-$semesterId = intval($data['SemesterID'] ?? 0);
-
-if (!$eventName || !$date || !$venue || !$status || !$semesterId) {
-    http_response_code(400);
-    echo json_encode(["error" => "All fields are required."]);
-    exit;
+// I-handle ang preflight OPTIONS request ng Axios
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-$stmt = $conn->prepare(
-    "INSERT INTO events (EventName, Date, Venue, Status, SemesterID)
-     VALUES (?, ?, ?, ?, ?)"
-);
-$stmt->bind_param("ssssi", $eventName, $date, $venue, $status, $semesterId);
+// I-include ang iyong hiwalay na connection script
+require_once 'connection.php';
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true, "EventID" => $stmt->insert_id]);
+// Basahin ang JSON payload mula sa React Frontend
+$data = json_decode(file_get_contents('php://input'), true);
+
+if (
+    empty($data['eventName']) ||
+    empty($data['eventDate']) ||
+    empty($data['venue']) ||
+    empty($data['status']) ||
+    empty($data['program']) ||
+    empty($data['schoolYear']) ||
+    empty($data['semester'])
+) {
+    echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
+    exit();
+}
+
+// Kunin ang mga value mula sa React frontend
+$eventName = trim($data['eventName']);
+$eventDate = trim($data['eventDate']);
+$venue = trim($data['venue']);
+$status = trim($data['status']);
+$program = trim($data['program']);
+$schoolYear = trim($data['schoolYear']);
+$semester = trim($data['semester']);
+
+// I-normalize ang format ng semestre para tugma sa nakasulat sa database mo
+if ($semester === '1st Sem') {
+    $normalizedSemester = '1st Semester';
+} elseif ($semester === '2nd Sem') {
+    $normalizedSemester = '2nd Semester';
 } else {
-    http_response_code(500);
-    echo json_encode(["error" => $stmt->error]);
+    $normalizedSemester = $semester;
 }
 
-$stmt->close();
-$conn->close();
+try {
+    // 1. Hahanapin muna ang YearID mula sa school_years gamit ang YearRange text
+    $syQuery = 'SELECT YearID FROM `school_years` WHERE `YearRange` = :schoolYear LIMIT 1';
+    $stmt1 = $pdo->prepare($syQuery);
+    $stmt1->execute([':schoolYear' => $schoolYear]);
+    $yearRow = $stmt1->fetch();
+
+    if (!$yearRow) {
+        echo json_encode(['status' => 'error', 'message' => 'School Year tracking entry not found.']);
+        exit();
+    }
+
+    $yearId = $yearRow['YearID'];
+
+    // 2. Hahanapin naman ang tamang SemesterID gamit ang nahanap na YearID at ang ginamit na SemesterName
+    $semQuery = 'SELECT SemesterID FROM `semesters` WHERE `YearID` = :yearId AND `SemesterName` = :semesterName LIMIT 1';
+    $stmt2 = $pdo->prepare($semQuery);
+    $stmt2->execute([
+        ':yearId' => $yearId,
+        ':semesterName' => $normalizedSemester
+    ]);
+    $semRow = $stmt2->fetch();
+
+    if (!$semRow) {
+        echo json_encode(['status' => 'error', 'message' => 'Matching Semester for this School Year not found.']);
+        exit();
+    }
+
+    $semesterId = $semRow['SemesterID'];
+
+    // ─── CHECK KUNG MAY DUPLICATE NA EVENT NAME SA SEMESTRE NA ITO ───
+    $checkDuplicateQuery = 'SELECT COUNT(*) FROM `events` WHERE `EventName` = :eventName AND `SemesterID` = :semesterId LIMIT 1';
+    $stmtCheck = $pdo->prepare($checkDuplicateQuery);
+    $stmtCheck->execute([
+        ':eventName' => $eventName,
+        ':semesterId' => $semesterId
+    ]);
+
+    if ($stmtCheck->fetchColumn() > 0) {
+        echo json_encode([
+            'status' => 'duplicate',
+            'message' => 'An event with this name already exists in the selected semester.'
+        ]);
+        exit();
+    }
+
+    // 3. I-save na ang buong Event data kung walang kapareho
+    $insertQuery = 'INSERT INTO `events` (`EventName`, `Date`, `Venue`, `Status`, `Program`, `SemesterID`) 
+                    VALUES (:eventName, :eventDate, :venue, :status, :program, :semesterId)';
+    $stmt3 = $pdo->prepare($insertQuery);
+
+    $success = $stmt3->execute([
+        ':eventName' => $eventName,
+        ':eventDate' => $eventDate,
+        ':venue' => $venue,
+        ':status' => $status,
+        ':program' => $program,
+        ':semesterId' => $semesterId
+    ]);
+
+    if ($success) {
+        echo json_encode(['status' => 'success', 'message' => 'Event created and structured successfully!']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to execute event insertion.']);
+    }
+} catch (PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
+}
 ?>

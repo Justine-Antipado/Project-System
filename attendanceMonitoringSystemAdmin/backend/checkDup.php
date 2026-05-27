@@ -9,19 +9,17 @@ header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Credentials: true');
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 include_once 'connection.php';
 
-
 try {
     // Binago para gumamit ng $pdo variable para pareho sila ng implementation ng register.php mo
-    $stmt = $pdo->query("SELECT SchoolIDNo, Email FROM students");
+    $stmt = $pdo->query('SELECT SchoolIDNo, Email FROM students');
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     echo json_encode($data);
 } catch (PDOException $e) {
     http_response_code(500);

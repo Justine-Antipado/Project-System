@@ -9,44 +9,15 @@ import {
   Check,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+// ─── CONFIGURATIONS & CONSTANTS ───
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
 const PROGRAMS = ["BSIT", "BEED", "BSOA", "BSBA"];
 const YEAR_LEVELS = [1, 2, 3, 4];
 const SECTIONS = ["A", "B", "C", "D"];
-
-// Sample data structure para sa event attendance records
-const INITIAL_MOCK_ATTENDANCE = [
-  {
-    id: "ATT-1001",
-    eventId: "EVT-2026-01",//datap id din nitokung nasa
-    schoolIdNo: "2023-00123",
-    scannedBy: "Pres. Juan Dela Cruz",
-    timestamp: "2026-05-20 08:30 AM",
-    program: "BSIT",
-    yearLevel: 3,
-    section: "A",
-  },
-  {
-    id: "ATT-1002",
-    eventId: "EVT-2026-01",
-    schoolIdNo: "2024-00456",
-    scannedBy: "VP Maria Santos",
-    timestamp: "2026-05-20 08:45 AM",
-    program: "BSBA",
-    yearLevel: 2,
-    section: "B",
-  },
-  {
-    id: "ATT-1003",
-    eventId: "EVT-2026-02",
-    schoolIdNo: "2022-00789",
-    scannedBy: "Sec. Pedro Penduko",
-    timestamp: "2026-05-20 01:15 PM",
-    program: "BEED",
-    yearLevel: 4,
-    section: "C",
-  },
-];
 
 export default function EventAttendance() {
   // ── ROUTING AT URL PARAMS LOGIC ──
@@ -58,8 +29,7 @@ export default function EventAttendance() {
   // Inayos sa 5 columns para magkasya nang saktong-sakto at pantay ang attendance fields
   const eventAttendanceColumns = "1.2fr 1fr 1.2fr 1.2fr 1.5fr";
 
-
-  const [students, setStudents] = useState(INITIAL_MOCK_ATTENDANCE);
+  const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
 
   // ── STATE FOR PROGRAM DROPDOWN ──
@@ -76,6 +46,19 @@ export default function EventAttendance() {
   const [selectedSection, setSelectedSection] = useState("");
   const [isSectionOpen, setIsSectionOpen] = useState(false);
   const sectionDropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (eventId) {
+      axios
+        .get(`${API}/getEventAttendance.php?eventId=${eventId}`)
+        .then((res) => {
+          if (res.data.status === "success") {
+            setStudents(res.data.data);
+          }
+        })
+        .catch((err) => console.error("Error fetching attendance:", err));
+    }
+  }, [eventId]);
 
   // ── CLICK OUTSIDE TO CLOSE DROP DOWNS ──
   useEffect(() => {
@@ -107,10 +90,10 @@ export default function EventAttendance() {
   const filteredStudents = students.filter((student) => {
     // Hinahanap ang tinype ng user sa Attendance ID, Student School ID, Event ID, o Scanned By
     const searchTarget = `
-        ${student.id} 
-        ${student.schoolIdNo} 
-        ${student.eventId} 
-        ${student.scannedBy}
+        ${student.EventAttendanceID} 
+        ${student.SchoolIDNo} 
+        ${student.EventID} 
+        ${student.ScannedByName}
       `.toLowerCase();
 
     const matchesSearch = searchTarget.includes(search.toLowerCase());
@@ -130,14 +113,16 @@ export default function EventAttendance() {
     <>
       <div className="uni-view fade-in">
         <button
-                type="button"
-                className="uni-panel-close-btn"
-                onClick={() => navigate(-1)}
-              >
-                <X size={18} />
-              </button>
+          type="button"
+          className="uni-panel-close-btn"
+          onClick={() => navigate(-1)}
+        >
+          <X size={18} />
+        </button>
         <header className="uni-header">
-  <h1 className="main-title">EVENT ATTENDANCE {eventId ? `#${eventId}` : ""}</h1>
+          <h1 className="main-title">
+            EVENT ATTENDANCE {eventId ? `ID-${eventId}` : ""}
+          </h1>
         </header>
 
         <div className="filter-container">
@@ -300,7 +285,7 @@ export default function EventAttendance() {
           >
             <span>Event Attendance ID</span>
             <span>Event ID</span>
-            <span>Student ID</span>
+            <span>Student ID No.</span>
             <span>Scanned By</span>
             <span>Timestamp</span>
           </div>
@@ -309,23 +294,25 @@ export default function EventAttendance() {
             {filteredStudents.map((student) => {
               return (
                 <div
-                  key={student.id}
+                  key={student.EventAttendanceID}
                   className="uni-table-grid-row"
                   style={{ gridTemplateColumns: eventAttendanceColumns }}
                 >
-                  <span className="uni-id-text">{student.id}</span>
-                  <span className="uni-highlight-text">{student.eventId}</span>
-                  <span>{student.schoolIdNo}</span>
-                  <span>{student.scannedBy}</span>
-                  <span className="uni-sem-text">{student.timestamp}</span>
+                  <span className="uni-id-text">
+                    ID-{student.EventAttendanceID}
+                  </span>
+                  <span className="uni-highlight-text">
+                    ID-{student.EventID}
+                  </span>
+                  <span>{student.SchoolIDNo}</span>
+                  <span>{student.ScannedByName}</span>
+                  <span className="uni-sem-text">{student.Timestamp}</span>
                 </div>
               );
             })}
 
             {filteredStudents.length === 0 && (
-              <div className="uni-no-records">
-                No entries matched your filter parameters.
-              </div>
+              <div className="uni-no-records">No student records found.</div>
             )}
           </div>
         </div>

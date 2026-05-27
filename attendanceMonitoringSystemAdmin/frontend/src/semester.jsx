@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
 export default function Semester() {
   const semesterColumns = "2fr 2fr 2fr";
   const [semesters, setSemesters] = useState([]);
 
   useEffect(() => {
-    axios.get(`${API}/showSemester.php`)
+    axios
+      .get(`${API}/showSemester.php`)
       .then((res) => {
         if (res.data.status === "success") {
           const mapped = res.data.data.map((row) => ({
@@ -31,7 +33,10 @@ export default function Semester() {
         </header>
 
         <div className="uni-table-container">
-          <div className="table-grid-header" style={{ gridTemplateColumns: semesterColumns }}>
+          <div
+            className="table-grid-header"
+            style={{ gridTemplateColumns: semesterColumns }}
+          >
             <span>Semester ID</span>
             <span>School Year</span>
             <span>Semester Name</span>

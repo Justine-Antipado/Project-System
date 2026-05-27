@@ -2,25 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { Plus, Trash2, AlertTriangle, X, Check } from "lucide-react";
 import axios from "axios";
 
-const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
-{/*const INITIAL_MOCK_SCHOOL_YEARS = [
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+{
+  /*const INITIAL_MOCK_SCHOOL_YEARS = [
   { id: "SY2025-2026", yearRange: "2025-2026" },
   { id: "SY2024-2025", yearRange: "2024-2025" },
   { id: "SY2023-2024", yearRange: "2023-2024" },
-];*/}
+];*/
+}
 
 export default function SchoolYear() {
   const schoolYearColumns = "2fr 2fr 2fr";
 
   useEffect(() => {
-      const handleClickOutside = (e) => {
-        if (!e.target.closest(".uni-custom-dropdown-container")) {
-          setActiveDropdown(null);
-        }
-      };
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".uni-custom-dropdown-container")) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Data List State
   const [schoolYears, setSchoolYears] = useState([]);
@@ -49,28 +52,31 @@ export default function SchoolYear() {
   };
 
   const handleConfirmDelete = () => {
-  axios.post(`${API}/deleteSchoolYear.php`, { id: selectedSchoolYear.id })
-    .then((res) => {
-      if (res.data.status === "success") {
-        setSchoolYears((prev) => prev.filter((item) => item.id !== selectedSchoolYear.id));
-        setIsDeleteModalOpen(false);
-        setSelectedSchoolYear(null);
-      } else {
-        alert("Delete failed: " + res.data.message);
-      }
-    })
-    .catch((err) => console.error("Delete error:", err));
-};
+    axios
+      .post(`${API}/deleteSchoolYear.php`, { id: selectedSchoolYear.id })
+      .then((res) => {
+        if (res.data.status === "success") {
+          setSchoolYears((prev) =>
+            prev.filter((item) => item.id !== selectedSchoolYear.id),
+          );
+          setIsDeleteModalOpen(false);
+          setSelectedSchoolYear(null);
+        } else {
+          alert("Delete failed: " + res.data.message);
+        }
+      })
+      .catch((err) => console.error("Delete error:", err));
+  };
 
   const handleOpenAddForm = () => {
     let nextStart = 2026; // Default fallback kung walang laman ang listahan
 
     if (schoolYears.length > 0) {
       // Kunin ang pinakahuling taon mula sa unang item ng listahan
-      const latestRange = schoolYears[0].yearRange; 
+      const latestRange = schoolYears[0].yearRange;
       const parts = latestRange.split("-");
       const latestEndYear = parseInt(parts[1], 10);
-      
+
       if (!isNaN(latestEndYear)) {
         nextStart = latestEndYear; // Ang dulo ng huling SY ang simula ng bagong SY
       }
@@ -81,63 +87,64 @@ export default function SchoolYear() {
       yearStart: nextStart,
       yearEnd: nextStart + 1,
     });
-    
+
     setErrors({});
     setIsPanelOpen(true);
   };
 
   const handleFieldFocus = (fieldName) => {
-  // Clear both yearStart and yearEnd errors together
-  if (fieldName === "yearStart" || fieldName === "yearEnd") {
-    setErrors((prev) => ({ ...prev, yearStart: "", yearEnd: "" }));
-  } else {
-    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-  }
-};
+    // Clear both yearStart and yearEnd errors together
+    if (fieldName === "yearStart" || fieldName === "yearEnd") {
+      setErrors((prev) => ({ ...prev, yearStart: "", yearEnd: "" }));
+    } else {
+      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+    }
+  };
 
   const selectOption = (name, value) => {
-  setFormData((prev) => {
-    const updated = { ...prev, [name]: value };
-    if (name === "yearStart") {
-      updated.yearEnd = value + 1;
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === "yearStart") {
+        updated.yearEnd = value + 1;
+      }
+      return updated;
+    });
+
+    // Clear both year errors on any year dropdown change
+    if (name === "yearStart" || name === "yearEnd") {
+      setErrors((prev) => ({ ...prev, yearStart: "", yearEnd: "" }));
+    } else {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-    return updated;
-  });
 
-  // Clear both year errors on any year dropdown change
-  if (name === "yearStart" || name === "yearEnd") {
-    setErrors((prev) => ({ ...prev, yearStart: "", yearEnd: "" }));
-  } else {
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  }
-
-  setActiveDropdown(null);
-};
+    setActiveDropdown(null);
+  };
 
   const fetchSchoolYears = () => {
-  axios.get(`${API}/showSchoolYear.php`)
-    .then((res) => {
-      if (res.data.status === "success") {
-        const mapped = res.data.data.map((row) => ({
-          id: row.YearID,
-          yearRange: row.YearRange,
-        }));
-        setSchoolYears(mapped);
-      }
-    })
-    .catch((err) => console.error("Fetch error:", err));
-};
+    axios
+      .get(`${API}/showSchoolYear.php`)
+      .then((res) => {
+        if (res.data.status === "success") {
+          const mapped = res.data.data.map((row) => ({
+            id: row.YearID,
+            yearRange: row.YearRange,
+          }));
+          setSchoolYears(mapped);
+        }
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  };
 
-useEffect(() => {
-  fetchSchoolYears();
-}, []);
+  useEffect(() => {
+    fetchSchoolYears();
+  }, []);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
 
     // Validations
-    
+
     if (!formData.yearStart) newErrors.yearStart = "Select Year Start.";
     if (!formData.yearEnd) newErrors.yearEnd = "Select Year End.";
     if (formData.yearStart >= formData.yearEnd) {
@@ -147,30 +154,39 @@ useEffect(() => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-  const generatedId    = `SY${formData.yearStart}-${formData.yearEnd}`;
-  const generatedRange = `${formData.yearStart}-${formData.yearEnd}`;
+      const generatedId = `SY${formData.yearStart}-${formData.yearEnd}`;
+      const generatedRange = `${formData.yearStart}-${formData.yearEnd}`;
 
-  axios.post(`${API}/addSchoolYear.php`, { id: generatedId, yearRange: generatedRange })
-    .then((res) => {
-      if (res.data.status === "success") {
-        // Refresh list from DB instead of manually prepending
-        fetchSchoolYears();
-        setSuccessMsg("School Year and Semesters Created Successfully!");
-        setTimeout(() => {
-          setSuccessMsg("");
-          setIsPanelOpen(false);
-        }, 1500);
-      } else {
-        setErrors({ yearStart: res.data.message, yearEnd: res.data.message, });
-      }
-    })
-    .catch((err) => console.error("Add error:", err));
-}
+      axios
+        .post(`${API}/addSchoolYear.php`, {
+          id: generatedId,
+          yearRange: generatedRange,
+        })
+        .then((res) => {
+          if (res.data.status === "success") {
+            // Refresh list from DB instead of manually prepending
+            fetchSchoolYears();
+            setSuccessMsg("School Year and Semesters Created Successfully!");
+            setTimeout(() => {
+              setSuccessMsg("");
+              setIsPanelOpen(false);
+            }, 1500);
+          } else {
+            setErrors({
+              yearStart: res.data.message,
+              yearEnd: res.data.message,
+            });
+          }
+        })
+        .catch((err) => console.error("Add error:", err));
+    }
   };
 
   // Dropdown Component Block (Inayos para sa numeric at custom values)
   const FormDropdown = ({ label, name, options, value }) => (
-    <div className={`uni-field-group uni-custom-dropdown-container ${errors[name] ? "uni-has-error" : ""}`}>
+    <div
+      className={`uni-field-group uni-custom-dropdown-container ${errors[name] ? "uni-has-error" : ""}`}
+    >
       <label className="uni-label-text">{label}</label>
       <div
         className={`uni-form-input uni-dropdown-trigger ${errors[name] ? "error-ring" : ""} ${activeDropdown === name ? "active" : ""}`}
@@ -221,7 +237,10 @@ useEffect(() => {
         </div>
 
         <div className="uni-table-container">
-          <div className="table-grid-header" style={{ gridTemplateColumns: schoolYearColumns }}>
+          <div
+            className="table-grid-header"
+            style={{ gridTemplateColumns: schoolYearColumns }}
+          >
             <span>School Year ID</span>
             <span>Year Range</span>
             <span>Action</span>
@@ -229,10 +248,17 @@ useEffect(() => {
 
           <div className="uni-list">
             {schoolYears.map((schoolYear) => (
-              <div key={schoolYear.id} className="uni-table-grid-row" style={{ gridTemplateColumns: schoolYearColumns }}>
+              <div
+                key={schoolYear.id}
+                className="uni-table-grid-row"
+                style={{ gridTemplateColumns: schoolYearColumns }}
+              >
                 <span className="uni-id-text">ID-{schoolYear.id}</span>
                 <span>SY{schoolYear.yearRange}</span>
-                <div className="uni-action-buttons-group" style={{ justifyContent: "flex-start" }}>
+                <div
+                  className="uni-action-buttons-group"
+                  style={{ justifyContent: "flex-start" }}
+                >
                   <button
                     className="uni-action-btn delete"
                     title="Delete School Year"
@@ -243,14 +269,29 @@ useEffect(() => {
                 </div>
               </div>
             ))}
+            {schoolYears.length === 0 && (
+              <div className="uni-no-records">
+                No school year records found.
+              </div>
+            )}
           </div>
         </div>
 
         {/* MODAL 1: Dropdown Form na may Pre-filled Smart Values */}
         {isPanelOpen && (
-          <div className="uni-modal-overlay" onClick={() => setIsPanelOpen(false)}>
-            <div className="uni-glass-form-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
-              <button type="button" className="uni-panel-close-btn" onClick={() => setIsPanelOpen(false)}>
+          <div
+            className="uni-modal-overlay"
+            onClick={() => setIsPanelOpen(false)}
+          >
+            <div
+              className="uni-glass-form-card animate-pop-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="uni-panel-close-btn"
+                onClick={() => setIsPanelOpen(false)}
+              >
                 <X size={16} />
               </button>
 
@@ -261,9 +302,15 @@ useEffect(() => {
                 </p>
               </div>
 
-              <form id="schoolYearForm" onSubmit={handleFormSubmit} className="uni-form-stack">
-                {successMsg && <div className="uni-success-banner">{successMsg}</div>}
-                
+              <form
+                id="schoolYearForm"
+                onSubmit={handleFormSubmit}
+                className="uni-form-stack"
+              >
+                {successMsg && (
+                  <div className="uni-success-banner">{successMsg}</div>
+                )}
+
                 <div className="uni-form-row-flex">
                   <FormDropdown
                     label="Year Start"
@@ -289,21 +336,34 @@ useEffect(() => {
 
         {/* MODAL 2: Delete Secure Confirmation Panel */}
         {isDeleteModalOpen && (
-          <div className="uni-modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
-            <div className="uni-confirm-modal-card animate-pop-in" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="uni-modal-overlay"
+            onClick={() => setIsDeleteModalOpen(false)}
+          >
+            <div
+              className="uni-confirm-modal-card animate-pop-in"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="uni-confirm-icon-wrapper">
                 <AlertTriangle size={28} className="warn-icon" />
               </div>
               <h4>Confirm Deletion</h4>
               <p>
                 Are you sure you want to permanently remove{" "}
-                <strong>{selectedSchoolYear?.yearRange}</strong>? This action cannot be reverted.
+                <strong>{selectedSchoolYear?.yearRange}</strong>? This action
+                cannot be reverted.
               </p>
               <div className="uni-confirm-actions">
-                <button className="uni-btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>
+                <button
+                  className="uni-btn-cancel"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                >
                   Cancel
                 </button>
-                <button className="uni-btn-danger-confirm" onClick={handleConfirmDelete}>
+                <button
+                  className="uni-btn-danger-confirm"
+                  onClick={handleConfirmDelete}
+                >
                   Delete Record
                 </button>
               </div>

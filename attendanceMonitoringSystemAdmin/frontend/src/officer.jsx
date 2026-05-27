@@ -2,16 +2,55 @@ import React, { useState, useEffect, useRef } from "react";
 import { Trash2, AlertTriangle, X, Check, Plus, SquarePen } from "lucide-react";
 import axios from "axios";
 
-const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
 const POSITION_OPTIONS = {
-  PADC:  ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
-  YMO:   ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
-  CBAM:  ["Mayor", "Vice Mayor", "Secretary", "Treasurer", "Auditor", "Councilor", "Other"],
-  SSG:   ["Governor", "Vice Governor", "Secretary", "Treasurer", "Auditor", "Other"],
-  Club:  ["President", "Vice President", "Secretary", "Treasurer", "Other"],
+  PADC: [
+    "Mayor",
+    "Vice Mayor",
+    "Secretary",
+    "Treasurer",
+    "Auditor",
+    "Councilor",
+    "Other",
+  ],
+  YMO: [
+    "Mayor",
+    "Vice Mayor",
+    "Secretary",
+    "Treasurer",
+    "Auditor",
+    "Councilor",
+    "Other",
+  ],
+  CBAM: [
+    "Mayor",
+    "Vice Mayor",
+    "Secretary",
+    "Treasurer",
+    "Auditor",
+    "Councilor",
+    "Other",
+  ],
+  SSG: [
+    "Governor",
+    "Vice Governor",
+    "Secretary",
+    "Treasurer",
+    "Auditor",
+    "Other",
+  ],
+  Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
 };
-const DEFAULT_POSITIONS = ["President", "Vice President", "Secretary", "Treasurer", "Auditor", "Other"];
+const DEFAULT_POSITIONS = [
+  "President",
+  "Vice President",
+  "Secretary",
+  "Treasurer",
+  "Auditor",
+  "Other",
+];
 
 export default function Officer() {
   const officerColumns = "2fr 2fr 2fr 2fr 1fr";
@@ -43,10 +82,10 @@ export default function Officer() {
       const res = await axios.get(`${API}/getOfficers.php`);
       if (res.data.success) {
         const mapped = res.data.data.map((o) => ({
-          id:        String(o.OfficersID),
+          id: String(o.OfficersID),
           studentId: o.SchoolIDNo,
-          orgId:     o.OrgName,
-          position:  o.Position,
+          orgId: o.OrgName,
+          position: o.Position,
         }));
         setOfficers(mapped);
       }
@@ -101,9 +140,9 @@ export default function Officer() {
     setFormMode("edit");
     setEditingId(officerItem.id);
     setFormData({
-      studentId:    officerItem.studentId,
+      studentId: officerItem.studentId,
       organization: officerItem.orgId,
-      position:     officerItem.position,
+      position: officerItem.position,
     });
     setErrors({});
     setIsPanelOpen(true);
@@ -152,32 +191,39 @@ export default function Officer() {
         if (formMode === "add") {
           const payload = new FormData();
           payload.append("schoolIDNo", formData.studentId.trim());
-          payload.append("orgName",    formData.organization);
-          payload.append("position",   formData.position);
+          payload.append("orgName", formData.organization);
+          payload.append("position", formData.position);
 
           const res = await axios.post(`${API}/addOfficer.php`, payload);
           if (res.data.success) {
             const d = res.data.data;
-            setOfficers((prev) => [{
-              id:        String(d.OfficersID),
-              studentId: d.SchoolIDNo,
-              orgId:     d.OrgName,
-              position:  d.Position,
-            }, ...prev]);
+            setOfficers((prev) => [
+              {
+                id: String(d.OfficersID),
+                studentId: d.SchoolIDNo,
+                orgId: d.OrgName,
+                position: d.Position,
+              },
+              ...prev,
+            ]);
             setSuccessMsg("Officer Created Successfully!");
           }
         } else {
           const payload = new FormData();
           payload.append("officersId", editingId);
-          payload.append("orgName",    formData.organization);
-          payload.append("position",   formData.position);
+          payload.append("orgName", formData.organization);
+          payload.append("position", formData.position);
 
           const res = await axios.post(`${API}/editOfficer.php`, payload);
           if (res.data.success) {
             setOfficers((prev) =>
               prev.map((item) =>
                 item.id === editingId
-                  ? { ...item, orgId: formData.organization, position: formData.position }
+                  ? {
+                      ...item,
+                      orgId: formData.organization,
+                      position: formData.position,
+                    }
                   : item,
               ),
             );
@@ -189,17 +235,18 @@ export default function Officer() {
           setSuccessMsg("");
           setIsPanelOpen(false);
         }, 1500);
-
-      }  catch (err) {
-  const data = err.response?.data;
-  if (data?.field) {
-    // ✅ Show under the specific field (e.g. studentId)
-    setErrors({ [data.field]: data.message });
-  } else {
-    // Fallback to global banner for other server errors
-    setErrors({ global: data?.message || "Server error. Please try again." });
-  }
-}
+      } catch (err) {
+        const data = err.response?.data;
+        if (data?.field) {
+          // ✅ Show under the specific field (e.g. studentId)
+          setErrors({ [data.field]: data.message });
+        } else {
+          // Fallback to global banner for other server errors
+          setErrors({
+            global: data?.message || "Server error. Please try again.",
+          });
+        }
+      }
     }
   };
 
@@ -328,6 +375,9 @@ export default function Officer() {
                 </div>
               </div>
             ))}
+            {officers.length === 0 && (
+              <div className="uni-no-records">No officers records found.</div>
+            )}
           </div>
         </div>
 
@@ -367,15 +417,19 @@ export default function Officer() {
                   <div className="uni-success-banner">{successMsg}</div>
                 )}
                 {errors.global && (
-                  <div className="uni-error-banner"
-                  style={{
-                    color: "white",
-                    backgroundColor: "#e63946",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    marginBottom: "15px",
-                    textAlign: "center",
-                  }}>{errors.global}</div>
+                  <div
+                    className="uni-error-banner"
+                    style={{
+                      color: "white",
+                      backgroundColor: "#e63946",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      marginBottom: "15px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {errors.global}
+                  </div>
                 )}
 
                 <div className="uni-field-group">
@@ -389,7 +443,11 @@ export default function Officer() {
                     placeholder="e.g. 2024-00001"
                     onFocus={() => handleFieldFocus("studentId")}
                     disabled={formMode === "edit"}
-                    style={formMode === "edit" ? { opacity: 0.6, cursor: "not-allowed" } : {}}
+                    style={
+                      formMode === "edit"
+                        ? { opacity: 0.6, cursor: "not-allowed" }
+                        : {}
+                    }
                   />
                   {errors.studentId && (
                     <span className="uni-error-text">{errors.studentId}</span>
@@ -409,13 +467,18 @@ export default function Officer() {
                   <FormDropdown
                     label="Position"
                     name="position"
-                    options={POSITION_OPTIONS[formData.organization] || DEFAULT_POSITIONS}
+                    options={
+                      POSITION_OPTIONS[formData.organization] ||
+                      DEFAULT_POSITIONS
+                    }
                     value={formData.position}
                   />
                 </div>
 
                 <button type="submit" className="uni-btn-submit">
-                  {formMode === "add" ? "Save New Officer" : "Apply Alterations"}
+                  {formMode === "add"
+                    ? "Save New Officer"
+                    : "Apply Alterations"}
                 </button>
               </form>
             </div>

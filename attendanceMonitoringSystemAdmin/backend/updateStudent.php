@@ -1,10 +1,10 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+header('Access-Control-Allow-Origin: http://localhost:5173');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json');
 
-include_once "connection.php";
+include_once 'connection.php';
 
 // Handle OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -13,13 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Read JSON input
-$data = json_decode(file_get_contents("php://input"), true);
+$data = json_decode(file_get_contents('php://input'), true);
 
 // Check if data exists
 if (!$data) {
     echo json_encode([
-        "status" => "error",
-        "message" => "No JSON data received"
+        'status' => 'error',
+        'message' => 'No JSON data received'
     ]);
     exit();
 }
@@ -35,15 +35,15 @@ if (
     !isset($data['section'])
 ) {
     echo json_encode([
-        "status" => "error",
-        "message" => "Incomplete parameters"
+        'status' => 'error',
+        'message' => 'Incomplete parameters'
     ]);
     exit();
 }
 
 try {
     // SQL Query using named placeholders for PDO
-    $sql = "UPDATE students SET
+    $sql = 'UPDATE students SET
                 SchoolIDNo = :schoolIdNo,
                 FirstName = :firstName,
                 LastName = :lastName,
@@ -51,33 +51,32 @@ try {
                 Program = :program,
                 YearLevel = :yearLevel,
                 Section = :section
-            WHERE StudentID = :id";
+            WHERE StudentID = :id';
 
     // Prepare statement using the $pdo instance from connection.php
     $stmt = $pdo->prepare($sql);
 
     // Bind parameters and execute
     $result = $stmt->execute([
-        ':schoolIdNo'  => $data['schoolIdNo'],
-        ':firstName'   => $data['firstName'],
-        ':lastName'    => $data['lastName'],
-        ':middleName'  => $data['middleName'] ?? '',
-        ':program'     => $data['program'],
-        ':yearLevel'   => intval($data['yearLevel']),
-        ':section'     => $data['section'],
-        ':id'          => $data['id']
+        ':schoolIdNo' => $data['schoolIdNo'],
+        ':firstName' => $data['firstName'],
+        ':lastName' => $data['lastName'],
+        ':middleName' => $data['middleName'] ?? '',
+        ':program' => $data['program'],
+        ':yearLevel' => intval($data['yearLevel']),
+        ':section' => $data['section'],
+        ':id' => $data['id']
     ]);
 
     echo json_encode([
-        "status" => "success",
-        "message" => "Student updated successfully"
+        'status' => 'success',
+        'message' => 'Student updated successfully'
     ]);
-
 } catch (PDOException $e) {
     // If something goes wrong, return the exact database error message
     echo json_encode([
-        "status" => "error",
-        "message" => "Database error: " . $e->getMessage()
+        'status' => 'error',
+        'message' => 'Database error: ' . $e->getMessage()
     ]);
 }
 ?>

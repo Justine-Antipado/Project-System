@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         // Query matches your exact phpMyAdmin columns:
         // StudentID, SchoolIDNo, Email, LastName, FirstName, MiddleName, Program, YearLevel, section, StudentQRCode
-        $sql = "SELECT 
+        $sql = 'SELECT 
                     StudentID, 
                     SchoolIDNo, 
                     Email, 
@@ -37,11 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     section, 
                     StudentQRCode 
                 FROM students 
-                ORDER BY StudentID DESC";
+                ORDER BY StudentID DESC';
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
-        
+
         // Fetch rows into an associative array
         $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -53,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'data' => $students
         ]);
         exit;
-
     } catch (PDOException $e) {
         // Safe database fallback message
         http_response_code(500);

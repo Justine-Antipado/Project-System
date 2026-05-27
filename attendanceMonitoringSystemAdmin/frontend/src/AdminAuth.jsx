@@ -191,11 +191,12 @@ useEffect(() => {
   formPayload.append("schoolIDNo", formData.schoolIDNo);
   formPayload.append("password", formData.password);
 
-  const res = await axios.post(`${API}/admin_login_auth.php`, formPayload);
+  const res = await axios.post(`${API}/admin_login_auth.php`, formPayload, {
+    withCredentials: true,   // ← required for session cookie
+  });
 
-  // Axios throws on 4xx/5xx, so reaching here means 2xx
   setSuccessMsg(res.data.message);
-  localStorage.setItem("studentUser", JSON.stringify(res.data.user));
+  // ── REMOVED: localStorage.setItem(...) ──
   setTimeout(() => navigate("/dashboard"), 1500);
 
 } catch (error) {

@@ -29,7 +29,6 @@ const API =
 const STATUS_OPTIONS = ["Ongoing", "Completed", "Cancelled"];
 const PROGRAM_OPTIONS = ["BSIT", "BSCS", "BSIS"];
 const SEMESTER = ["1st Sem", "2nd Sem"];
-const SCHOOL_YEAR = ["2023-2024", "2024-2025", "2025-2026"];
 const MONTHS = [
   "January",
   "February",
@@ -45,49 +44,6 @@ const MONTHS = [
   "December",
 ];
 
-const INITIAL_MOCK_EVENTS = [
-  {
-    id: 11,
-    name: "Assembly",
-    date: "2026-08-01",
-    venue: "OMSC Gymnasium",
-    status: "Ongoing",
-    Program: "BSIT",
-    semId: "1st Sem",
-    schoolYear: "2025-2026",
-  },
-  {
-    id: 12,
-    name: "Meeting",
-    date: "2025-01-02",
-    venue: "OMSC Gymnasium",
-    status: "Completed",
-    Program: "BSIT",
-    semId: "2nd Sem",
-    schoolYear: "2024-2025",
-  },
-  {
-    id: 13,
-    name: "IT Day",
-    date: "2025-12-10",
-    venue: "OMSC Gymnasium",
-    status: "Completed",
-    Program: "BSIT",
-    semId: "1st Sem",
-    schoolYear: "2025-2026",
-  },
-  {
-    id: 14,
-    name: "Meeting",
-    date: "2026-01-06",
-    venue: "OMSC Gymnasium",
-    status: "Cancelled",
-    Program: "BSIT",
-    semId: "2nd Sem",
-    schoolYear: "2025-2026",
-  },
-];
-
 export default function Event() {
   const navigate = useNavigate();
   const monthDropdownRef = useRef(null);
@@ -96,9 +52,9 @@ export default function Event() {
   const eventColumns = "0.6fr 1fr 1fr 1.2fr 1.2fr 1.1fr 1fr 1.7fr";
 
   // ─── STATE MANAGEMENT ───
-  // Data States
-  const [events, setEvents] = useState(INITIAL_MOCK_EVENTS);
+  const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [termYears, setTermYears] = useState([]);
 
   // Search & Filter States
   const [search, setSearch] = useState("");
@@ -111,7 +67,6 @@ export default function Event() {
   // Modals Controller States
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   // Form Processing States
   const [formMode, setFormMode] = useState("add");
@@ -127,6 +82,33 @@ export default function Event() {
   });
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
+
+  // ─── API FETCH: GET DATA FROM DATABASE ───
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(`${API}/getEvents.php`);
+      setEvents(response.data);
+    } catch (error) {
+      console.error("Error fetching events from database:", error);
+    }
+  };
+
+  const fetchTermYears = async () => {
+    try {
+      const res = await axios.get(`${API}/showSchoolYear.php`);
+      if (res.data.status === "success") {
+        const ranges = res.data.data.map((row) => row.YearRange);
+        setTermYears(ranges);
+      }
+    } catch (error) {
+      console.error("Error fetching term years:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+    fetchTermYears();
+  }, []);
 
   // ─── EFFECTS (EVENT LISTENERS) ───
   useEffect(() => {
@@ -147,13 +129,16 @@ export default function Event() {
 
   // ─── SEARCH & FILTER LOGIC ───
   const filteredEvents = events.filter((r) => {
+    const eventName = r.EventName ? r.EventName.toLowerCase() : "";
+    const venue = r.Venue ? r.Venue.toLowerCase() : "";
+
     const matchesSearch =
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.venue.toLowerCase().includes(search.toLowerCase());
+      eventName.includes(search.toLowerCase()) ||
+      venue.includes(search.toLowerCase());
 
     let matchesMonth = true;
-    if (selectedMonth) {
-      const eventDateObj = new Date(r.date);
+    if (selectedMonth && r.Date) {
+      const eventDateObj = new Date(r.Date);
       const eventMonthName = MONTHS[eventDateObj.getMonth()];
       matchesMonth = eventMonthName === selectedMonth;
     }
@@ -179,15 +164,15 @@ export default function Event() {
 
   const handleOpenEditForm = (eventItem) => {
     setFormMode("edit");
-    setEditingId(eventItem.id);
+    setEditingId(eventItem.EventID);
     setFormData({
-      eventName: eventItem.name,
-      eventDate: eventItem.date,
-      venue: eventItem.venue,
-      status: eventItem.status,
-      program: eventItem.Program,
-      schoolYear: eventItem.schoolYear || "School Year",
-      semester: eventItem.semId,
+      eventName: eventItem.EventName,
+      eventDate: eventItem.Date,
+      venue: eventItem.Venue,
+      status: eventItem.Status,
+      program: eventItem.Program || "BSIT",
+      schoolYear: eventItem.YearRange || "School Year",
+      semester: eventItem.SemesterName || "Semester",
     });
     setErrors({});
     setIsPanelOpen(true);
@@ -198,15 +183,23 @@ export default function Event() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    setEvents((prev) => prev.filter((item) => item.id !== selectedEvent.id));
-    setIsDeleteModalOpen(false);
-    setSelectedEvent(null);
+  const handleConfirmDelete = async () => {
+    try {
+      await axios.post(`${API}/deleteEvent.php`, {
+        EventID: selectedEvent.EventID,
+      });
+      setIsDeleteModalOpen(false);
+      setSelectedEvent(null);
+      await fetchEvents();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleOpenQrModal = (eventItem) => {
-    if (eventItem.status.toLowerCase() === "ongoing") {
-      navigate(`/qrScanner?eventId=${eventItem.id}`);
+    if (eventItem.Status && eventItem.Status.toLowerCase() === "ongoing") {
+      navigate(`/qrScanner?eventId=${eventItem.EventID}`);
     }
   };
 
@@ -249,42 +242,54 @@ export default function Event() {
 
     if (Object.keys(newErrors).length === 0) {
       if (formMode === "add") {
-        const newEvent = {
-          id: events.length > 0 ? Math.max(...events.map((e) => e.id)) + 1 : 11,
-          name: formData.eventName,
-          date: formData.eventDate,
-          venue: formData.venue,
-          status: formData.status,
-          Program: formData.program,
-          schoolYear: formData.schoolYear,
-          semId: formData.semester,
-        };
-        setEvents((prev) => [newEvent, ...prev]);
-        setSuccessMsg("Event Created Successfully!");
+        axios
+          .post(`${API}/addEvent.php`, formData)
+          .then((res) => {
+            if (res.data.status === "success") {
+              setSuccessMsg("Event Created Successfully!");
+              fetchEvents();
+              setTimeout(() => {
+                setSuccessMsg("");
+                setIsPanelOpen(false);
+              }, 1500);
+            } else if (res.data.status === "duplicate") {
+              // I-inject ang error galing sa backend sa eventName state input field
+              setErrors((prev) => ({
+                ...prev,
+                eventName: res.data.message,
+              }));
+            } else {
+              alert(res.data.message);
+            }
+          })
+          .catch((err) => console.error("Error creating event:", err));
       } else {
-        setEvents((prev) =>
-          prev.map((item) =>
-            item.id === editingId
-              ? {
-                  ...item,
-                  name: formData.eventName,
-                  date: formData.eventDate,
-                  venue: formData.venue,
-                  status: formData.status,
-                  Program: formData.program,
-                  schoolYear: formData.schoolYear,
-                  semId: formData.semester,
-                }
-              : item,
-          ),
-        );
-        setSuccessMsg("Event Configuration Updated Successfully!");
-      }
+        // I-add ang EventID sa formData para alam ng backend kung aling record ang i-uupdate
+        const updateData = { ...formData, EventID: editingId };
 
-      setTimeout(() => {
-        setSuccessMsg("");
-        setIsPanelOpen(false);
-      }, 1500);
+        axios
+          .post(`${API}/editEvent.php`, updateData)
+          .then((res) => {
+            if (res.data.status === "success") {
+              setSuccessMsg("Event Configuration Updated Successfully!");
+              fetchEvents(); // I-refresh ang listahan galing sa database
+
+              setTimeout(() => {
+                setSuccessMsg("");
+                setIsPanelOpen(false);
+              }, 1500);
+            } else if (res.data.status === "duplicate") {
+              // I-inject ang duplicate error galing sa backend sa eventName state input field
+              setErrors((prev) => ({
+                ...prev,
+                eventName: res.data.message,
+              }));
+            } else {
+              alert(res.data.message);
+            }
+          })
+          .catch((err) => console.error("Error updating event:", err));
+      }
     }
   };
 
@@ -326,16 +331,13 @@ export default function Event() {
     </div>
   );
 
-  // ─── RENDER INTERFACE (JSX) ───
   return (
     <>
       <div className="uni-view fade-in">
-        {/* Header Seksyon */}
         <header className="uni-header">
           <h1 className="main-title">EVENTS</h1>
         </header>
 
-        {/* Filters at Search Controls */}
         <div className="filter-container">
           <div className="search-wrapper">
             <Search size={18} className="search-icon" />
@@ -354,7 +356,6 @@ export default function Event() {
               Add Event
             </button>
 
-            {/* Custom Month Dropdown */}
             <div className="custom-dropdown-uni" ref={monthDropdownRef}>
               <div
                 className={`dropdown-trigger-uni ${isMonthOpen ? "active" : ""}`}
@@ -400,9 +401,7 @@ export default function Event() {
           </div>
         </div>
 
-        {/* Master Table Seksyon */}
         <div className="uni-table-container">
-          {/* Table Header */}
           <div
             className="table-grid-header"
             style={{ gridTemplateColumns: eventColumns }}
@@ -417,37 +416,40 @@ export default function Event() {
             <span className="text-left-aligned">Action</span>
           </div>
 
-          {/* Table Body List */}
           <div className="uni-list">
             {filteredEvents.map((event) => {
-              const isOngoing = event.status.toLowerCase() === "ongoing";
+              const isOngoing =
+                event.Status && event.Status.toLowerCase() === "ongoing";
               return (
                 <div
-                  key={event.id}
+                  key={event.EventID}
                   className="uni-table-grid-row"
                   style={{ gridTemplateColumns: eventColumns }}
                 >
-                  <span className="uni-id-text">{event.id}</span>
-                  <span className="uni-highlight-text">{event.name}</span>
+                  <span className="uni-id-text">ID-{event.EventID}</span>
+                  <span className="uni-highlight-text">{event.EventName}</span>
                   <span>
-                    {new Date(event.date).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    {event.Date
+                      ? new Date(event.Date).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "No Date"}
                   </span>
-                  <span>{event.venue}</span>
+                  <span>{event.Venue}</span>
                   <div>
                     <span
-                      className={`uni-status-badge ${event.status.toLowerCase()}`}
+                      className={`uni-status-badge ${event.Status ? event.Status.toLowerCase() : ""}`}
                     >
-                      {event.status}
+                      {event.Status}
                     </span>
                   </div>
                   <span>{event.Program}</span>
-                  <span className="uni-sem-text">{event.semId}</span>
+                  <span className="uni-sem-text">
+                    {event.SemesterName || event.SemesterID}
+                  </span>
 
-                  {/* Action Buttons */}
                   <div className="uni-action-buttons-group">
                     <button
                       className="uni-action-btn delete"
@@ -471,7 +473,7 @@ export default function Event() {
                     </button>
 
                     <button
-                      className={`uni-action-btn edit ${editingId === event.id ? "active-edit" : ""}`}
+                      className={`uni-action-btn edit ${editingId === event.EventID ? "active-edit" : ""}`}
                       title="Edit Configuration"
                       onClick={() => handleOpenEditForm(event)}
                     >
@@ -482,7 +484,7 @@ export default function Event() {
                       className="uni-action-btn attendance"
                       title="View Attendance"
                       onClick={() =>
-                        navigate(`/eventAttendance?eventId=${event.id}`)
+                        navigate(`/eventAttendance?eventId=${event.EventID}`)
                       }
                     >
                       <Users size={16} />
@@ -493,14 +495,11 @@ export default function Event() {
             })}
 
             {filteredEvents.length === 0 && (
-              <div className="uni-no-records">
-                No entries matched your filter parameters.
-              </div>
+              <div className="uni-no-records">No event records found.</div>
             )}
           </div>
         </div>
 
-        {/* MODAL 1: Form Panel (Add / Edit Event) */}
         {isPanelOpen && (
           <div
             className="uni-modal-overlay"
@@ -522,7 +521,7 @@ export default function Event() {
                 <h3 className="uni-form-heading">
                   {formMode === "add"
                     ? "Create New Event"
-                    : `Modify Event #${editingId}`}
+                    : `Modify Event ID-${editingId}`}
                 </h3>
                 <p className="uni-form-subheading">
                   {formMode === "add"
@@ -604,7 +603,7 @@ export default function Event() {
                   <FormDropdown
                     label="School Year"
                     name="schoolYear"
-                    options={SCHOOL_YEAR}
+                    options={termYears}
                     value={formData.schoolYear}
                   />
                   <FormDropdown
@@ -623,7 +622,6 @@ export default function Event() {
           </div>
         )}
 
-        {/* MODAL 2: Delete Secure Confirmation Panel */}
         {isDeleteModalOpen && (
           <div
             className="uni-modal-overlay"
@@ -639,8 +637,8 @@ export default function Event() {
               <h4>Confirm Deletion</h4>
               <p>
                 Are you sure you want to permanently remove{" "}
-                <strong>{selectedEvent?.name}</strong>? This action cannot be
-                reverted.
+                <strong>{selectedEvent?.EventName}</strong>? This action cannot
+                be reverted.
               </p>
               <div className="uni-confirm-actions">
                 <button

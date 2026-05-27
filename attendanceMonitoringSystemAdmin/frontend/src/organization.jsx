@@ -263,6 +263,11 @@ export default function Organization() {
                 </div>
               </div>
             ))}
+            {filteredOrganizations.length === 0 && (
+              <div className="uni-no-records">
+                No organization records found.
+              </div>
+            )}
           </div>
         </div>
 

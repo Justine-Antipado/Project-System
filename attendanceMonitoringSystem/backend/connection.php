@@ -1,8 +1,7 @@
 <?php
-$dsn = "mysql:host=localhost;dbname=ams_db;charset=utf8mb4";
-$db_username = "root";
-$db_password = "";
-
+$dsn = 'mysql:host=localhost;dbname=ams_db;charset=utf8mb4';
+$db_username = 'root';
+$db_password = '';
 
 $PDO_code = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -12,8 +11,8 @@ $PDO_code = [
 
 try {
     $pdo = new PDO($dsn, $db_username, $db_password, $PDO_code);
-    //echo "Database connected successfully!<br>";
+    // echo "Database connected successfully!<br>";
 } catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    echo 'Connection failed: ' . $e->getMessage();
 }
 ?>

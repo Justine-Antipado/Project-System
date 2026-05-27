@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import PrintableReport from "./PrintableReport";
-// Idinagdag ang mga tamang icons mula sa lucide-react para hindi mag-error ang code mo
+import axios from "axios";
 import {
   BookOpen,
   GraduationCap,
@@ -12,183 +12,17 @@ import {
   CalendarDays,
 } from "lucide-react";
 
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
+
 const PROGRAMS = ["BSIT", "BEED", "BSOA", "BSBA"];
 const YEAR_LEVELS = [1, 2, 3, 4];
 const SECTIONS = ["A", "B", "C", "D"];
-const SEMESTER = ["1st Semester", "2nd Semester"];
-const EVENTS = ["Event 1", "Event 2", "Event 3", "Event 4"];
-
-// ── 🛠️ NA-UPDATE NA MOCK DATA (MAY 'event' PROPERTY NA ANG BAWAT ESTUDYANTE) ──
-const MOCK_STUDENTS = [
-  {
-    id: 1,
-    name: "Juan Dela Cruz",
-    event: "Event 1",
-    program: "BSIT",
-    year: 3,
-    section: "A",
-    semester: "1st Semester",
-  },
-
-  {
-    id: 2,
-    name: "Maria Clara Santos",
-    event: "Event 2",
-    program: "BSBA",
-    year: 4,
-    section: "B",
-    semester: "1st Semester",
-  },
-  {
-    id: 3,
-    name: "Crisostomo Ibarra",
-    event: "Event 3",
-    program: "BSIT",
-    year: 2,
-    section: "C",
-    semester: "2nd Semester",
-  },
-  {
-    id: 4,
-    name: "Jane Doe",
-    event: "Event 1",
-    program: "BEED",
-    year: 1,
-    section: "A",
-    semester: "1st Semester",
-  },
-
-  {
-    id: 5,
-    name: "John Smith",
-    event: "Event 4",
-    program: "BSOA",
-    year: 2,
-    section: "D",
-    semester: "1st Semester",
-  },
-  {
-    id: 6,
-    name: "Pedro Penduko",
-    event: "Event 2",
-    program: "BSIT",
-    year: 4,
-    section: "A",
-    semester: "2nd Semester",
-  },
-  {
-    id: 7,
-    name: "Gabriela Silang",
-    event: "Event 1",
-    program: "BEED",
-    year: 3,
-    section: "B",
-    semester: "1st Semester",
-  },
-  {
-    id: 8,
-    name: "Andres Bonifacio",
-    event: "Event 3",
-    program: "BSBA",
-    year: 2,
-    section: "A",
-    semester: "2nd Semester",
-  },
-  {
-    id: 9,
-    name: "Melchora Aquino",
-    event: "Event 4",
-    program: "BSOA",
-    year: 4,
-    section: "C",
-    semester: "1st Semester",
-  },
-  {
-    id: 10,
-    name: "Emilio Aguinaldo",
-    event: "Event 1",
-    program: "BSIT",
-    year: 1,
-    section: "B",
-    semester: "1st Semester",
-  },
-  {
-    id: 11,
-    name: "Jose Rizal",
-    event: "Event 2",
-    program: "BSBA",
-    year: 3,
-    section: "D",
-    semester: "2nd Semester",
-  },
-  {
-    id: 12,
-    name: "Apolinario Mabini",
-    event: "Event 3",
-    program: "BSIT",
-    year: 2,
-    section: "A",
-    semester: "1st Semester",
-  },
-  {
-    id: 13,
-    name: "Marcelo H. Del Pilar",
-    event: "Event 4",
-    program: "BEED",
-    year: 4,
-    section: "B",
-    semester: "2nd Semester",
-  },
-  {
-    id: 14,
-    name: "Juan Luna",
-    event: "Event 1",
-    program: "BSBA",
-    year: 1,
-    section: "C",
-    semester: "1st Semester",
-  },
-  {
-    id: 15,
-    name: "Antonio Luna",
-    event: "Event 2",
-    program: "BSOA",
-    year: 3,
-    section: "A",
-    semester: "2nd Semester",
-  },
-  {
-    id: 16,
-    name: "Jane Doe",
-    event: "Event 1",
-    program: "BEED",
-    year: 1,
-    section: "A",
-    semester: "1st Semester",
-  },
-  {
-    id: 17,
-    name: "Jane Doe",
-    event: "Event 1",
-    program: "BEED",
-    year: 1,
-    section: "A",
-    semester: "1st Semester",
-  },
-  {
-    id: 18,
-    name: "Juan Cruz",
-    event: "Event 1",
-    program: "BSIT",
-    year: 3,
-    section: "A",
-    semester: "1st Semester",
-  },
-];
 
 export default function Report() {
-  const [students, setStudents] = useState(MOCK_STUDENTS);
-  const [filter, setSearch] = useState("");
+  const [students, setStudents] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const reportColumns = "0.8fr 2.5fr 1.2fr 1.2fr 1fr 1fr 1.5fr";
 
@@ -213,54 +47,62 @@ export default function Report() {
   const sectionDropdownRef = useRef(null);
 
   // ── 5. STATE PARA SA SEMESTER DROPDOWN ──
-  const [selectedSemester, setSelectedSemester] = useState("");
+  // selectedSemester holds the full event object { semesterId, semester (label) }
+  const [selectedSemester, setSelectedSemester] = useState(null);
   const [isSemesterOpen, setIsSemesterOpen] = useState(false);
   const semesterDropdownRef = useRef(null);
 
-  // ── 🎯 AKTIBONG FILTER LOGIC ──
-  const filteredStudents = students.filter((student) => {
-    return (
-      (selectedEvent === "" || student.event === selectedEvent) &&
-      (selectedProgram === "" || student.program === selectedProgram) &&
-      (selectedYear === "" || student.year === Number(selectedYear)) &&
-      (selectedSection === "" || student.section === selectedSection) &&
-      (selectedSemester === "" || student.semester === selectedSemester)
-    );
-  });
+  // ── 🔃 LOAD EVENTS ON MOUNT ──
+  useEffect(() => {
+    axios
+      .get(`${API}/events.php`)
+      .then((res) => {
+        if (res.data.success) setEvents(res.data.data);
+      })
+      .catch((err) => console.error("Failed to load events:", err));
+  }, []);
+
+  // ── 🔃 FETCH ATTENDANCE ON FILTER CHANGE ──
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`${API}/get_attendance.php`, {
+        params: {
+          ...(selectedEvent              && { event:      selectedEvent }),
+          ...(selectedProgram            && { program:    selectedProgram }),
+          ...(selectedYear               && { year:       selectedYear }),
+          ...(selectedSection            && { section:    selectedSection }),
+          ...(selectedSemester           && { semesterId: selectedSemester.semesterId }),
+        },
+      })
+      .then((res) => {
+        if (res.data.success) setStudents(res.data.data);
+      })
+      .catch((err) => console.error("Failed to load attendance:", err))
+      .finally(() => setLoading(false));
+  }, [selectedEvent, selectedProgram, selectedYear, selectedSection, selectedSemester]);
+
+  // ── Derive unique semesters from loaded events ──
+  const semesterOptions = events.reduce((acc, evt) => {
+    if (!acc.find((s) => s.semesterId === evt.semesterId)) {
+      acc.push({ semesterId: evt.semesterId, semester: evt.semester });
+    }
+    return acc;
+  }, []);
 
   // ── CLICK OUTSIDE TO CLOSE DROP DOWNS ──
   useEffect(() => {
     function handleClickOutside(event) {
-      if (
-        eventDropdownRef.current &&
-        !eventDropdownRef.current.contains(event.target)
-      ) {
+      if (eventDropdownRef.current && !eventDropdownRef.current.contains(event.target))
         setIsEventOpen(false);
-      }
-      if (
-        programDropdownRef.current &&
-        !programDropdownRef.current.contains(event.target)
-      ) {
+      if (programDropdownRef.current && !programDropdownRef.current.contains(event.target))
         setIsProgramOpen(false);
-      }
-      if (
-        yearDropdownRef.current &&
-        !yearDropdownRef.current.contains(event.target)
-      ) {
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target))
         setIsYearOpen(false);
-      }
-      if (
-        sectionDropdownRef.current &&
-        !sectionDropdownRef.current.contains(event.target)
-      ) {
+      if (sectionDropdownRef.current && !sectionDropdownRef.current.contains(event.target))
         setIsSectionOpen(false);
-      }
-      if (
-        semesterDropdownRef.current &&
-        !semesterDropdownRef.current.contains(event.target)
-      ) {
+      if (semesterDropdownRef.current && !semesterDropdownRef.current.contains(event.target))
         setIsSemesterOpen(false);
-      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -300,17 +142,17 @@ export default function Report() {
                   >
                     All Events
                   </div>
-                  {EVENTS.map((evt) => (
+                  {events.map((evt) => (
                     <div
-                      key={evt}
-                      className={`dropdown-item ${selectedEvent === evt ? "selected" : ""}`}
+                      key={evt.id}
+                      className={`dropdown-item ${selectedEvent === evt.name ? "selected" : ""}`}
                       onClick={() => {
-                        setSelectedEvent(evt);
+                        setSelectedEvent(evt.name);
                         setIsEventOpen(false);
                       }}
                     >
-                      {evt}
-                      {selectedEvent === evt && (
+                      {evt.name}
+                      {selectedEvent === evt.name && (
                         <Check size={14} className="check-icon" />
                       )}
                     </div>
@@ -417,9 +259,7 @@ export default function Report() {
               >
                 <Layers size={18} className="icon-left" />
                 <span>
-                  {selectedSection
-                    ? `Section ${selectedSection}`
-                    : "Select Sec"}
+                  {selectedSection ? `Section ${selectedSection}` : "Select Sec"}
                 </span>
                 <ChevronDown
                   size={16}
@@ -457,14 +297,14 @@ export default function Report() {
               )}
             </div>
 
-            {/* ── 5. CUSTOM SEMESTER DROPDOWN ── */}
+            {/* ── 5. CUSTOM SEMESTER DROPDOWN (dynamic, from events) ── */}
             <div className="custom-dropdown-uni" ref={semesterDropdownRef}>
               <div
                 className={`dropdown-trigger-uni ${isSemesterOpen ? "active" : ""}`}
                 onClick={() => setIsSemesterOpen(!isSemesterOpen)}
               >
                 <CalendarDays size={18} className="icon-left" />
-                <span>{selectedSemester || "Select Sem"}</span>
+                <span>{selectedSemester ? selectedSemester.semester : "Select Sem"}</span>
                 <ChevronDown
                   size={16}
                   className={`arrow ${isSemesterOpen ? "rotate" : ""}`}
@@ -474,25 +314,25 @@ export default function Report() {
               {isSemesterOpen && (
                 <div className="dropdown-menu fade-in-up">
                   <div
-                    className={`dropdown-item ${selectedSemester === "" ? "selected" : ""}`}
+                    className={`dropdown-item ${selectedSemester === null ? "selected" : ""}`}
                     onClick={() => {
-                      setSelectedSemester("");
+                      setSelectedSemester(null);
                       setIsSemesterOpen(false);
                     }}
                   >
                     All Semesters
                   </div>
-                  {SEMESTER.map((sem) => (
+                  {semesterOptions.map((sem) => (
                     <div
-                      key={sem}
-                      className={`dropdown-item ${selectedSemester === sem ? "selected" : ""}`}
+                      key={sem.semesterId}
+                      className={`dropdown-item ${selectedSemester?.semesterId === sem.semesterId ? "selected" : ""}`}
                       onClick={() => {
                         setSelectedSemester(sem);
                         setIsSemesterOpen(false);
                       }}
                     >
-                      {sem}
-                      {selectedSemester === sem && (
+                      {sem.semester}
+                      {selectedSemester?.semesterId === sem.semesterId && (
                         <Check size={14} className="check-icon" />
                       )}
                     </div>
@@ -509,8 +349,7 @@ export default function Report() {
           disabled={!selectedEvent || !selectedSemester}
           style={{
             opacity: !selectedEvent || !selectedSemester ? 0.4 : 1,
-            cursor:
-              !selectedEvent || !selectedSemester ? "not-allowed" : "pointer",
+            cursor: !selectedEvent || !selectedSemester ? "not-allowed" : "pointer",
           }}
         >
           <Printer size={16} />
@@ -531,25 +370,28 @@ export default function Report() {
             <span>Semester</span>
           </div>
           <div className="uni-list">
-            {filteredStudents.map((student) => (
-              <div
-                key={student.id}
-                className="uni-table-grid-row"
-                style={{ gridTemplateColumns: reportColumns }}
-              >
-                <span className="uni-id-text">{student.id}</span>
-                <span className="uni-highlight-text">{student.name}</span>
-                <span className="uni-event-text" style={{ fontWeight: "500" }}>
-                  {student.event}
-                </span>{" "}
-                {/* ✅ Na-render na ang Event dito */}
-                <span>{student.program}</span>
-                <span>Year {student.year}</span>
-                <span>Section {student.section}</span>
-                <span className="uni-sem-text">{student.semester}</span>
-              </div>
-            ))}
-            {filteredStudents.length === 0 && (
+            {loading ? (
+              <div className="uni-no-records">Loading...</div>
+            ) : students.length > 0 ? (
+              students.map((student) => (
+                <div
+                  key={student.id}
+                  className="uni-table-grid-row"
+                  style={{ gridTemplateColumns: reportColumns }}
+                >
+                  <span className="uni-id-text">{student.id}</span>
+                  <span className="uni-highlight-text">{student.name}</span>
+                  <span className="uni-event-text" style={{ fontWeight: "500" }}>
+                    {student.event}
+                  </span>
+                  {/* ✅ Na-render na ang Event dito */}
+                  <span>{student.program}</span>
+                  <span>Year {student.year}</span>
+                  <span>Section {student.section}</span>
+                  <span className="uni-sem-text">{student.semester}</span>
+                </div>
+              ))
+            ) : (
               <div className="uni-no-records">
                 No entries matched your filter parameters.
               </div>
@@ -559,9 +401,9 @@ export default function Report() {
 
         {/* 2. DITO MO IPAPASA ANG FILTERED DATA PARA TUGMA ANG SCREEN AT PAPEL */}
         <PrintableReport
-          students={filteredStudents}
+          students={students}
           selectedEvent={selectedEvent}
-          selectedSemester={selectedSemester}
+          selectedSemester={selectedSemester?.semester ?? ""}
           selectedProgram={selectedProgram}
           selectedYear={selectedYear}
           selectedSection={selectedSection}

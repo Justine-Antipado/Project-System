@@ -51,7 +51,7 @@
 }
 
 /* Unang Card (Edit Account Info) - Bigyan ng mataas na priority kapag may dropdown */
-.glass-card:has(.dropdown-trigger-settings.active) {
+.glass-card:has(.dropdown-trigger.active) {
   z-index: 50;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .form-input:focus,
-.dropdown-trigger-settings.active {
+.dropdown-trigger.active {
   outline: none;
   background: var(--omsc-dark-muted) !important;
   border-color: var(--omsc-yellow) !important;
@@ -213,11 +213,11 @@
 }
 
 /* Itaas ang z-index ng aktibong lalagyan ng dropdown */
-.custom-dropdown-container:has(.dropdown-trigger-settings.active) {
+.custom-dropdown-container:has(.dropdown-trigger.active) {
   z-index: 100;
 }
 
-.dropdown-trigger-settings {
+.dropdown-trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -225,14 +225,14 @@
   user-select: none;
 }
 
-.dropdown-trigger-settings::after {
+.dropdown-trigger::after {
   content: "▼";
   font-size: 0.65rem;
   color: var(--text-muted);
   transition: transform 0.25s ease;
 }
 
-.dropdown-trigger-settings.active::after {
+.dropdown-trigger.active::after {
   transform: rotate(180deg);
   color: var(--omsc-yellow);
 }

@@ -1,22 +1,41 @@
-import React from "react";
+//import React from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { LayoutDashboard, History, Settings, LogOut } from "lucide-react";
 // I-import dito ang iyong logo file
 import omscLogo from "./assets/omsc.logo.png";
 import "./layout.css";
 import "./style.css";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Layout() {
   const navigate = useNavigate();
 
-  const currentUser = {
-    name: "Ricardo Santiago",
-    id: "24-1-03962 - BSIT",
-  };
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
+useEffect(() => {
+  axios
+    .get("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/get_session.php", {
+      withCredentials: true,
+    })
+    .then((res) => {
+      if (res.data.authenticated) {
+        setCurrentUser(res.data.user);
+      }
+    })
+    .catch(() => {
+      navigate("/Auth"); // walang session → balik login
+    });
+}, []);
+
+  const handleLogout = async () => {
+  await axios.get(
+    "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/logout.php",
+    { withCredentials: true }
+  );
+
+  navigate("/Auth");
+};
 
   return (
     <>
@@ -80,8 +99,17 @@ export default function Layout() {
                 <span className="user-icon-placeholder">👤</span>
               </div>
               <div className="user-details">
-                <p className="user-name">{currentUser.name}</p>
-                <p className="user-id">{currentUser.id}</p>
+                <p className="user-name">
+  {currentUser
+    ? `${currentUser.FirstName} ${currentUser.LastName}`
+    : "Loading..."}
+</p>
+
+<p className="user-id">
+  {currentUser
+    ? `${currentUser.SchoolIDNo} - ${currentUser.Program}`
+    : ""}
+</p>
               </div>
             </div>
 
