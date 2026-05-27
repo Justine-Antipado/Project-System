@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QrCode, CameraOff, Play, Square, Layers, CheckCircle, X, ArrowLeft } from 'lucide-react'; // Idinagdag ang ArrowLeft
 import { Html5Qrcode } from 'html5-qrcode';
+import { useLocation, useNavigate } from "react-router-dom";
+
+import axios from 'axios';
 
 const INITIAL_ATTENDANCE_RECORDS = [
   { id: 101, lastName: "Antipado", firstName: "Justine", middleName: "Magpantay", program: "BSIT", yearLevel: 2, time: "08:01 AM" },
@@ -23,7 +26,9 @@ export default function QrScannerDashboard() {
   const [isScanning, setIsScanning] = useState(false);
   const [attendanceList, setAttendanceList] = useState(INITIAL_ATTENDANCE_RECORDS);
   const [showToast, setShowToast] = useState(false);
-  
+  const queryParams = new URLSearchParams(location.search);
+  const eventId = queryParams.get("eventId") || "";
+
   const [scannedProfile, setScannedProfile] = useState({
     lastName: "Gomez",
     firstName: "Ricardo",
@@ -283,7 +288,7 @@ export default function QrScannerDashboard() {
             <div style={{ width: '40px', height: '40px', backgroundColor: '#1e293b', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', color: '#eab308' }}>
               <QrCode size={22} />
             </div>
-            <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.025em', margin: 0 }}>ATTENDANCE SCANNER</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.025em', margin: 0 }}>ATTENDANCE SCANNER {eventId ? `ID-${eventId}` : ""}</h1>
           </div>
         </div>
       </header>
