@@ -1,6 +1,6 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 
 require_once 'connection.php';
 
@@ -22,15 +22,14 @@ try {
     $events = $stmt->fetchAll();
 
     echo json_encode([
-        "success" => true,
-        "data"    => $events
+        'success' => true,
+        'data' => $events
     ]);
-
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
+        'success' => false,
+        'message' => $e->getMessage()
     ]);
 }
 ?>

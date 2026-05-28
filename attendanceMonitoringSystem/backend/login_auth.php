@@ -7,7 +7,7 @@ if (ob_get_level()) {
 header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Credentials: true'); // CRITICAL: Para sa PHP session cookies 
+header('Access-Control-Allow-Credentials: true');  // CRITICAL: Para sa PHP session cookies
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -37,7 +37,7 @@ if (empty($schoolIDNo) || empty($password)) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM students WHERE SchoolIDNo = :schoolIDNo LIMIT 1");
+    $stmt = $pdo->prepare('SELECT * FROM students WHERE SchoolIDNo = :schoolIDNo LIMIT 1');
     $stmt->execute([':schoolIDNo' => $schoolIDNo]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -67,9 +67,8 @@ try {
     http_response_code(200);
     echo json_encode([
         'message' => 'Login successful!',
-        'user' => $user // Pwede mo pa rin ibalik kung gusto mo gamitin sa React state
+        'user' => $user  // Pwede mo pa rin ibalik kung gusto mo gamitin sa React state
     ]);
-
 } catch (PDOException $e) {
     header('Content-Type: application/json');
     http_response_code(500);

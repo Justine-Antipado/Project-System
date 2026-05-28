@@ -30,9 +30,9 @@ if (!$schoolIDNo) {
 
 try {
     // 1. Kunin ang full profile ng student (kasama StudentID, QRCode, etc.)
-    $stmt = $pdo->prepare("SELECT StudentID, SchoolIDNo, LastName, FirstName, MiddleName,
+    $stmt = $pdo->prepare('SELECT StudentID, SchoolIDNo, LastName, FirstName, MiddleName,
                                   Program, YearLevel, section, StudentQRCode
-                           FROM students WHERE SchoolIDNo = :id LIMIT 1");
+                           FROM students WHERE SchoolIDNo = :id LIMIT 1');
     $stmt->execute([':id' => $schoolIDNo]);
     $student = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -42,30 +42,29 @@ try {
         exit();
     }
 
-    $studentID = (int)$student['StudentID'];
+    $studentID = (int) $student['StudentID'];
 
     // 2. Bilang ng events na naattend — gamit ang StudentID (int), hindi SchoolIDNo
     $stmtCount = $pdo->prepare(
-        "SELECT COUNT(*) as total_attended FROM event_attendance WHERE StudentID = :sid"
+        'SELECT COUNT(*) as total_attended FROM event_attendance WHERE StudentID = :sid'
     );
     $stmtCount->execute([':sid' => $studentID]);
-    $totalEvents = (int)($stmtCount->fetch(PDO::FETCH_ASSOC)['total_attended'] ?? 0);
+    $totalEvents = (int) ($stmtCount->fetch(PDO::FETCH_ASSOC)['total_attended'] ?? 0);
 
     // 3. Attendance rate — based sa total events na naipost
-    $stmtTotal = $pdo->query("SELECT COUNT(*) as total FROM events");
-    $totalAllEvents = (int)($stmtTotal->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
+    $stmtTotal = $pdo->query('SELECT COUNT(*) as total FROM events');
+    $totalAllEvents = (int) ($stmtTotal->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
 
     $attendanceRate = $totalAllEvents > 0
         ? round(($totalEvents / $totalAllEvents) * 100)
         : 0;
 
     // 4. Ibalik lahat
-    $student['totalEvents']    = $totalEvents;
+    $student['totalEvents'] = $totalEvents;
     $student['attendanceRate'] = $attendanceRate;
 
     http_response_code(200);
     echo json_encode($student);
-
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['message' => 'DB error: ' . $e->getMessage()]);

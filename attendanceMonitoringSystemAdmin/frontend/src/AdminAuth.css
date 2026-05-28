@@ -1,7 +1,7 @@
 /* --- NEW COLOR PALETTE (Based on provided images) --- */
 :root {
   --omsc-dark-blue-ap: #0a1d37; /* From Logo and Nav */
-   --omsc-yellow-ap: #facc15; /* Accent from Logo/Nav */
+  --omsc-yellow-ap: #facc15; /* Accent from Logo/Nav */
   --primary-green-ap: #5e7d63; /* Original primary, retained for some elements */
 
   --bg-page-ap: #f0f2f5; /* Soft Gray Page Background */
@@ -247,8 +247,8 @@
   border: 1px solid #eee;
   z-index: 9999;
 
-  -ms-overflow-style: none;  /* IE at Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE at Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .ap-dropdown-overlay::-webkit-scrollbar {
@@ -480,7 +480,7 @@
 .ap-accent-line {
   width: 60px;
   height: 4px;
-  background: var( --omsc-yellow-ap);
+  background: var(--omsc-yellow-ap);
   margin: 1rem auto 2rem;
   border-radius: 2px;
 }

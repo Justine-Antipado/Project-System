@@ -5,7 +5,10 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 session_start();
 include_once 'connection.php';
@@ -16,7 +19,7 @@ if (!isset($_SESSION['studentUser'])) {
     exit();
 }
 
-$studentID   = $_SESSION['studentUser']['StudentID'];
+$studentID = $_SESSION['studentUser']['StudentID'];
 $oldPassword = isset($_POST['oldPassword']) ? trim($_POST['oldPassword']) : null;
 $newPassword = isset($_POST['newPassword']) ? trim($_POST['newPassword']) : null;
 
@@ -28,7 +31,7 @@ if (!$oldPassword || !$newPassword) {
 
 try {
     // Fetch current hashed password
-    $stmt = $pdo->prepare("SELECT Password FROM students WHERE StudentID = :studentID LIMIT 1");
+    $stmt = $pdo->prepare('SELECT Password FROM students WHERE StudentID = :studentID LIMIT 1');
     $stmt->execute([':studentID' => $studentID]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -49,7 +52,7 @@ try {
 
     // Hash new password and update
     $hashedNew = password_hash($newPassword, PASSWORD_BCRYPT);
-    $update = $pdo->prepare("UPDATE students SET Password = :password WHERE StudentID = :studentID");
+    $update = $pdo->prepare('UPDATE students SET Password = :password WHERE StudentID = :studentID');
     $update->execute([':password' => $hashedNew, ':studentID' => $studentID]);
 
     echo json_encode(['success' => true, 'message' => 'Password changed successfully!']);

@@ -5,7 +5,10 @@ header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 session_start();
 include_once 'connection.php';
@@ -19,6 +22,6 @@ if (!isset($_SESSION['adminUser'])) {
 http_response_code(200);
 echo json_encode([
     'authenticated' => true,
-    'user'          => $_SESSION['adminUser']
+    'user' => $_SESSION['adminUser']
 ]);
 ?>

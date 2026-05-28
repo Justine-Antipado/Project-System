@@ -68,11 +68,11 @@ export default function Report() {
     axios
       .get(`${API}/get_attendance.php`, {
         params: {
-          ...(selectedEvent              && { event:      selectedEvent }),
-          ...(selectedProgram            && { program:    selectedProgram }),
-          ...(selectedYear               && { year:       selectedYear }),
-          ...(selectedSection            && { section:    selectedSection }),
-          ...(selectedSemester           && { semesterId: selectedSemester.semesterId }),
+          ...(selectedEvent && { event: selectedEvent }),
+          ...(selectedProgram && { program: selectedProgram }),
+          ...(selectedYear && { year: selectedYear }),
+          ...(selectedSection && { section: selectedSection }),
+          ...(selectedSemester && { semesterId: selectedSemester.semesterId }),
         },
       })
       .then((res) => {
@@ -80,7 +80,13 @@ export default function Report() {
       })
       .catch((err) => console.error("Failed to load attendance:", err))
       .finally(() => setLoading(false));
-  }, [selectedEvent, selectedProgram, selectedYear, selectedSection, selectedSemester]);
+  }, [
+    selectedEvent,
+    selectedProgram,
+    selectedYear,
+    selectedSection,
+    selectedSemester,
+  ]);
 
   // ── Derive unique semesters from loaded events ──
   const semesterOptions = events.reduce((acc, evt) => {
@@ -93,15 +99,30 @@ export default function Report() {
   // ── CLICK OUTSIDE TO CLOSE DROP DOWNS ──
   useEffect(() => {
     function handleClickOutside(event) {
-      if (eventDropdownRef.current && !eventDropdownRef.current.contains(event.target))
+      if (
+        eventDropdownRef.current &&
+        !eventDropdownRef.current.contains(event.target)
+      )
         setIsEventOpen(false);
-      if (programDropdownRef.current && !programDropdownRef.current.contains(event.target))
+      if (
+        programDropdownRef.current &&
+        !programDropdownRef.current.contains(event.target)
+      )
         setIsProgramOpen(false);
-      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target))
+      if (
+        yearDropdownRef.current &&
+        !yearDropdownRef.current.contains(event.target)
+      )
         setIsYearOpen(false);
-      if (sectionDropdownRef.current && !sectionDropdownRef.current.contains(event.target))
+      if (
+        sectionDropdownRef.current &&
+        !sectionDropdownRef.current.contains(event.target)
+      )
         setIsSectionOpen(false);
-      if (semesterDropdownRef.current && !semesterDropdownRef.current.contains(event.target))
+      if (
+        semesterDropdownRef.current &&
+        !semesterDropdownRef.current.contains(event.target)
+      )
         setIsSemesterOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -259,7 +280,9 @@ export default function Report() {
               >
                 <Layers size={18} className="icon-left" />
                 <span>
-                  {selectedSection ? `Section ${selectedSection}` : "Select Sec"}
+                  {selectedSection
+                    ? `Section ${selectedSection}`
+                    : "Select Sec"}
                 </span>
                 <ChevronDown
                   size={16}
@@ -304,7 +327,9 @@ export default function Report() {
                 onClick={() => setIsSemesterOpen(!isSemesterOpen)}
               >
                 <CalendarDays size={18} className="icon-left" />
-                <span>{selectedSemester ? selectedSemester.semester : "Select Sem"}</span>
+                <span>
+                  {selectedSemester ? selectedSemester.semester : "Select Sem"}
+                </span>
                 <ChevronDown
                   size={16}
                   className={`arrow ${isSemesterOpen ? "rotate" : ""}`}
@@ -349,7 +374,8 @@ export default function Report() {
           disabled={!selectedEvent || !selectedSemester}
           style={{
             opacity: !selectedEvent || !selectedSemester ? 0.4 : 1,
-            cursor: !selectedEvent || !selectedSemester ? "not-allowed" : "pointer",
+            cursor:
+              !selectedEvent || !selectedSemester ? "not-allowed" : "pointer",
           }}
         >
           <Printer size={16} />
@@ -381,7 +407,10 @@ export default function Report() {
                 >
                   <span className="uni-id-text">{student.id}</span>
                   <span className="uni-highlight-text">{student.name}</span>
-                  <span className="uni-event-text" style={{ fontWeight: "500" }}>
+                  <span
+                    className="uni-event-text"
+                    style={{ fontWeight: "500" }}
+                  >
                     {student.event}
                   </span>
                   {/* ✅ Na-render na ang Event dito */}

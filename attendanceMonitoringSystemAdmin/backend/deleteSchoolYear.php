@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-include_once __DIR__ . '/connection.php';
+include_once '/connection.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 

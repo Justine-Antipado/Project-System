@@ -8,6 +8,7 @@ const API =
   "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend";
 
 export default function Settings() {
+  const [showOldPass, setShowOldPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmNewPass, setShowConfirmNewPass] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -121,26 +122,28 @@ export default function Settings() {
     }
     setErrors({});
 
-    
-
     try {
-// ── STEP 1: Check for duplicate email (excluding current user's own email) ──
-    const checkRes = await axios.get(`${API}/checkDup.php`, {
-      withCredentials: true,
-    });
-    const existingUsers = checkRes.data;
+      // ── STEP 1: Check for duplicate email (excluding current user's own email) ──
+      const checkRes = await axios.get(`${API}/checkDup.php`, {
+        withCredentials: true,
+      });
+      const existingUsers = checkRes.data;
 
-    const isEmailDuplicate = existingUsers.some(
-      (user) =>
-        user.Email.toLowerCase().trim() === formData.email.toLowerCase().trim() &&
-        user.SchoolIDNo.toLowerCase().trim() !== formData.schoolIDNo.toLowerCase().trim()
+      const isEmailDuplicate = existingUsers.some(
+        (user) =>
+          user.Email.toLowerCase().trim() ===
+            formData.email.toLowerCase().trim() &&
+          user.SchoolIDNo.toLowerCase().trim() !==
+            formData.schoolIDNo.toLowerCase().trim(),
         // ↑ exclude themselves — same email is fine if it's their own account
-    );
+      );
 
-    if (isEmailDuplicate) {
-      setErrors({ email: "This email is already in use by another account." });
-      return;
-    }
+      if (isEmailDuplicate) {
+        setErrors({
+          email: "This email is already in use by another account.",
+        });
+        return;
+      }
 
       const data = new FormData();
       data.append("email", formData.email);
@@ -277,14 +280,19 @@ export default function Settings() {
             <form className="auth-form" onSubmit={handleUpdateProfileSubmit}>
               {successMsg && <div className="success-banner">{successMsg}</div>}
               {errors.global && (
-                <div className="error-banner" style={{
+                <div
+                  className="error-banner"
+                  style={{
                     color: "white",
                     backgroundColor: "#e63946",
                     padding: "10px",
                     borderRadius: "5px",
                     marginBottom: "15px",
                     textAlign: "center",
-                  }}>{errors.global}</div>
+                  }}
+                >
+                  {errors.global}
+                </div>
               )}
 
               <div className="registration-stack">
@@ -418,20 +426,30 @@ export default function Settings() {
               )}
 
               <div className="registration-stack">
+                {/* Current Password */}
                 <div
                   className={`field-group ${passwordErrors.old ? "has-error" : ""}`}
                 >
                   <label className="label-text">Current Password</label>
-                  <input
-                    type="password"
-                    className="form-input"
-                    placeholder="••••••••"
-                    value={passData.old}
-                    onFocus={() => handleInputFocus("old")}
-                    onChange={(e) =>
-                      setPassData({ ...passData, old: e.target.value })
-                    }
-                  />
+                  <div className="input-pill-wrapper input-with-icon">
+                    <input
+                      type={showOldPass ? "text" : "password"} // Binago mula sa laging "password"
+                      className="form-input"
+                      placeholder="••••••••"
+                      value={passData.old}
+                      onFocus={() => handleInputFocus("old")}
+                      onChange={(e) =>
+                        setPassData({ ...passData, old: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="eye-btn-pill eye-btn"
+                      onClick={() => setShowOldPass(!showOldPass)} // Toggle state kapag kini-click
+                    >
+                      {showOldPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   {passwordErrors.old && (
                     <span className="error-text">{passwordErrors.old}</span>
                   )}

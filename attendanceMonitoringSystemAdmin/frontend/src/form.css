@@ -141,7 +141,7 @@
   transition: var(--transition-smooth);
 
   /* Itago ang scrollbar sa Firefox at IE/Edge */
-  scrollbar-width: none; 
+  scrollbar-width: none;
   -ms-overflow-style: none;
 }
 

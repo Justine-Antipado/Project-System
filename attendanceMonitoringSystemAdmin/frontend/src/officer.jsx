@@ -5,8 +5,9 @@ import axios from "axios";
 const API =
   "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
-const POSITION_OPTIONS = {
-  PADC: [
+// Isang malinis na central reference para sa mga posisyon base sa uri ng grupo
+const positionTemplates = {
+  localGov: [
     "Mayor",
     "Vice Mayor",
     "Secretary",
@@ -15,42 +16,34 @@ const POSITION_OPTIONS = {
     "Councilor",
     "Other",
   ],
-  YMO: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  CBAM: [
-    "Mayor",
-    "Vice Mayor",
-    "Secretary",
-    "Treasurer",
-    "Auditor",
-    "Councilor",
-    "Other",
-  ],
-  SSG: [
+  studentGov: [
     "Governor",
     "Vice Governor",
     "Secretary",
+    "Assistant Sec",
     "Treasurer",
+    "Assistant Treasurer",
     "Auditor",
+    "Assistant Auditor",
+    "PIO",
+    "Peace Officers",
+    "Business Managers",
     "Other",
   ],
-  Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
+  defaultClub: [
+    "President",
+    "Vice President",
+    "Secretary",
+    "Asst. Secretary",
+    "Treasurer",
+    "Asst. Treasurer",
+    "Auditor",
+    "PIO",
+    "Project Manager",
+    "Councilor",
+    "Other",
+  ],
 };
-const DEFAULT_POSITIONS = [
-  "President",
-  "Vice President",
-  "Secretary",
-  "Treasurer",
-  "Auditor",
-  "Other",
-];
 
 export default function Officer() {
   const officerColumns = "2fr 2fr 2fr 2fr 1fr";
@@ -73,9 +66,9 @@ export default function Officer() {
   });
 
   const [officers, setOfficers] = useState([]);
-  const [organizationOptions, setOrganizationOptions] = useState([]);
+  const [organizationsRaw, setOrganizationsRaw] = useState([]); // I-save ang buong object mula sa DB
 
-  // ─── Fetch ───────────────────────────────────────────────────────────────
+  // ─── Fetch System Functions ───────────────────────────────────────────────
 
   const fetchOfficers = async () => {
     try {
@@ -98,7 +91,7 @@ export default function Officer() {
     try {
       const res = await axios.get(`${API}/getOrganizations.php`);
       if (res.data.success === true) {
-        setOrganizationOptions(res.data.data.map((org) => org.OrgName));
+        setOrganizationsRaw(res.data.data); // Iniimbak ang kabuuan para makuha ang OrgType mamaya
       }
     } catch (err) {
       console.error("Failed to fetch organizations:", err);
@@ -109,6 +102,25 @@ export default function Officer() {
     fetchOfficers();
     fetchOrganizations();
   }, []);
+
+  // Dynamic filter para malaman kung anong posisyon ang ibabalik sa UI dropdown
+  const getDynamicPositions = () => {
+    const selectedOrg = formData.organization;
+    if (selectedOrg === "Select Org/Club" || !selectedOrg) return [];
+
+    const found = organizationsRaw.find((o) => o.OrgName === selectedOrg);
+    if (found && found.OrgType) {
+      return positionTemplates[found.OrgType] || positionTemplates.defaultClub;
+    }
+
+    // Fallback static structure kung walang nakuhang OrgType property sa table row
+    if (["PADC", "YMO", "CBAM"].includes(selectedOrg)) {
+      return positionTemplates.localGov;
+    } else if (selectedOrg === "SSG") {
+      return positionTemplates.studentGov;
+    }
+    return positionTemplates.defaultClub;
+  };
 
   // ─── Click outside dropdown ───────────────────────────────────────────────
 
@@ -156,6 +168,7 @@ export default function Officer() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFieldFocus = (fieldName) => {
@@ -171,81 +184,85 @@ export default function Officer() {
       return updated;
     });
     setActiveDropdown(null);
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
-    if (!formData.studentId.trim())
+    // Strict Validations para hindi makalusot ang mga Text Placeholders papuntang PHP
+    if (!formData.studentId.trim()) {
       newErrors.studentId = "Student ID is required.";
-    if (formData.organization === "Select Org/Club" || !formData.organization)
-      newErrors.organization = "Select Organization.";
-    if (formData.position === "Select Position" || !formData.position)
-      newErrors.position = "Select Position.";
+    }
+    if (formData.organization === "Select Org/Club" || !formData.organization) {
+      newErrors.organization = "Please select an organization.";
+    }
+    if (formData.position === "Select Position" || !formData.position) {
+      newErrors.position = "Please select an active position.";
+    }
 
-    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-    if (Object.keys(newErrors).length === 0) {
-      try {
-        if (formMode === "add") {
-          const payload = new FormData();
-          payload.append("schoolIDNo", formData.studentId.trim());
-          payload.append("orgName", formData.organization);
-          payload.append("position", formData.position);
+    try {
+      if (formMode === "add") {
+        const payload = new FormData();
+        payload.append("schoolIDNo", formData.studentId.trim());
+        payload.append("orgName", formData.organization);
+        payload.append("position", formData.position);
 
-          const res = await axios.post(`${API}/addOfficer.php`, payload);
-          if (res.data.success) {
-            const d = res.data.data;
-            setOfficers((prev) => [
-              {
-                id: String(d.OfficersID),
-                studentId: d.SchoolIDNo,
-                orgId: d.OrgName,
-                position: d.Position,
-              },
-              ...prev,
-            ]);
-            setSuccessMsg("Officer Created Successfully!");
-          }
-        } else {
-          const payload = new FormData();
-          payload.append("officersId", editingId);
-          payload.append("orgName", formData.organization);
-          payload.append("position", formData.position);
-
-          const res = await axios.post(`${API}/editOfficer.php`, payload);
-          if (res.data.success) {
-            setOfficers((prev) =>
-              prev.map((item) =>
-                item.id === editingId
-                  ? {
-                      ...item,
-                      orgId: formData.organization,
-                      position: formData.position,
-                    }
-                  : item,
-              ),
-            );
-            setSuccessMsg("Officer Updated Successfully!");
-          }
+        const res = await axios.post(`${API}/addOfficer.php`, payload);
+        if (res.data.success) {
+          const d = res.data.data;
+          setOfficers((prev) => [
+            {
+              id: String(d.OfficersID),
+              studentId: d.SchoolIDNo,
+              orgId: d.OrgName,
+              position: d.Position,
+            },
+            ...prev,
+          ]);
+          setSuccessMsg("Officer Created Successfully!");
         }
+      } else {
+        const payload = new FormData();
+        payload.append("officersId", editingId);
+        payload.append("orgName", formData.organization);
+        payload.append("position", formData.position);
 
-        setTimeout(() => {
-          setSuccessMsg("");
-          setIsPanelOpen(false);
-        }, 1500);
-      } catch (err) {
-        const data = err.response?.data;
-        if (data?.field) {
-          // ✅ Show under the specific field (e.g. studentId)
-          setErrors({ [data.field]: data.message });
-        } else {
-          // Fallback to global banner for other server errors
-          setErrors({
-            global: data?.message || "Server error. Please try again.",
-          });
+        const res = await axios.post(`${API}/editOfficer.php`, payload);
+        if (res.data.success) {
+          setOfficers((prev) =>
+            prev.map((item) =>
+              item.id === editingId
+                ? {
+                    ...item,
+                    orgId: formData.organization,
+                    position: formData.position,
+                  }
+                : item,
+            ),
+          );
+          setSuccessMsg("Officer Updated Successfully!");
         }
+      }
+
+      setTimeout(() => {
+        setSuccessMsg("");
+        setIsPanelOpen(false);
+      }, 1500);
+    } catch (err) {
+      const data = err.response?.data;
+      if (data?.field) {
+        setErrors({ [data.field]: data.message });
+      } else {
+        setErrors({
+          global: data?.message || "Server connection error. Please try again.",
+        });
       }
     }
   };
@@ -265,7 +282,7 @@ export default function Officer() {
     }
   };
 
-  // ─── Sub-component ────────────────────────────────────────────────────────
+  // ─── Sub-component Dropdown Control ───────────────────────────────────────
 
   const FormDropdown = ({ label, name, options, value }) => (
     <div
@@ -312,8 +329,6 @@ export default function Officer() {
       {errors[name] && <span className="uni-error-text">{errors[name]}</span>}
     </div>
   );
-
-  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -381,7 +396,6 @@ export default function Officer() {
           </div>
         </div>
 
-        {/* MODAL 1: Add / Edit Panel */}
         {isPanelOpen && (
           <div
             className="uni-modal-overlay"
@@ -461,16 +475,13 @@ export default function Officer() {
                   <FormDropdown
                     label="Organization"
                     name="organization"
-                    options={organizationOptions}
+                    options={organizationsRaw.map((org) => org.OrgName)}
                     value={formData.organization}
                   />
                   <FormDropdown
                     label="Position"
                     name="position"
-                    options={
-                      POSITION_OPTIONS[formData.organization] ||
-                      DEFAULT_POSITIONS
-                    }
+                    options={getDynamicPositions()}
                     value={formData.position}
                   />
                 </div>
@@ -485,7 +496,6 @@ export default function Officer() {
           </div>
         )}
 
-        {/* MODAL 2: Delete Confirmation */}
         {isDeleteModalOpen && (
           <div
             className="uni-modal-overlay"

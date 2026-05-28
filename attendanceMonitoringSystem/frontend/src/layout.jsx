@@ -13,29 +13,32 @@ export default function Layout() {
 
   const [currentUser, setCurrentUser] = useState(null);
 
-useEffect(() => {
-  axios
-    .get("http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/get_session.php", {
-      withCredentials: true,
-    })
-    .then((res) => {
-      if (res.data.authenticated) {
-        setCurrentUser(res.data.user);
-      }
-    })
-    .catch(() => {
-      navigate("/Auth"); // walang session → balik login
-    });
-}, []);
+  useEffect(() => {
+    axios
+      .get(
+        "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/get_session.php",
+        {
+          withCredentials: true,
+        },
+      )
+      .then((res) => {
+        if (res.data.authenticated) {
+          setCurrentUser(res.data.user);
+        }
+      })
+      .catch(() => {
+        navigate("/Auth"); // walang session → balik login
+      });
+  }, []);
 
   const handleLogout = async () => {
-  await axios.get(
-    "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/logout.php",
-    { withCredentials: true }
-  );
+    await axios.get(
+      "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend/logout.php",
+      { withCredentials: true },
+    );
 
-  navigate("/Auth");
-};
+    navigate("/Auth");
+  };
 
   return (
     <>
@@ -100,16 +103,16 @@ useEffect(() => {
               </div>
               <div className="user-details">
                 <p className="user-name">
-  {currentUser
-    ? `${currentUser.FirstName} ${currentUser.LastName}`
-    : "Loading..."}
-</p>
+                  {currentUser
+                    ? `${currentUser.FirstName} ${currentUser.LastName}`
+                    : "Loading..."}
+                </p>
 
-<p className="user-id">
-  {currentUser
-    ? `${currentUser.SchoolIDNo} - ${currentUser.Program}`
-    : ""}
-</p>
+                <p className="user-id">
+                  {currentUser
+                    ? `${currentUser.SchoolIDNo} - ${currentUser.Program}`
+                    : ""}
+                </p>
               </div>
             </div>
 

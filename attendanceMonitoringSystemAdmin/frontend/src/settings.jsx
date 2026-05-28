@@ -8,38 +8,24 @@ const API =
   "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystemAdmin/backend";
 
 export default function Settings() {
+  const [showOldPass, setShowOldPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmNewPass, setShowConfirmNewPass] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
 
-  // ── MOCK / STATIC OPTIONS ──
-  const organizations = [
-    "PADC",
-    "YMO",
-    "CBAM",
-    "SSG",
-    "Club",
-    "kalbo",
-    "kupal",
-  ];
-
-  const termYears = [
-    "2021-2022",
-    "2022-2023",
-    "2023-2024",
-    "2024-2025",
-    "2025-2026",
-    "2026-2027",
-  ];
+  // ── FETCHED FROM BACKEND ──
+  const [organizations, setOrganizations] = useState([]);
+  const [termYears, setTermYears] = useState([]);
 
   const sections = ["A", "B", "C", "D", "E"];
   const programs = ["BSIT", "BSCS", "BSHM", "BSBA", "BEED"];
   const years = ["1", "2", "3", "4"];
 
-  const positionOptions = {
-    PADC: [
+  // Central template base sa uri ng grupo para sa malilinis na posisyon
+  const positionTemplates = {
+    localGov: [
       "Mayor",
       "Vice Mayor",
       "Secretary",
@@ -48,35 +34,33 @@ export default function Settings() {
       "Councilor",
       "Other",
     ],
-    YMO: [
-      "Mayor",
-      "Vice Mayor",
-      "Secretary",
-      "Treasurer",
-      "Auditor",
-      "Councilor",
-      "Other",
-    ],
-    CBAM: [
-      "Mayor",
-      "Vice Mayor",
-      "Secretary",
-      "Treasurer",
-      "Auditor",
-      "Councilor",
-      "Other",
-    ],
-    SSG: [
+    studentGov: [
       "Governor",
       "Vice Governor",
       "Secretary",
+      "Assistant Sec",
       "Treasurer",
+      "Assistant Treasurer",
       "Auditor",
+      "Assistant Auditor",
+      "PIO",
+      "Peace Officers",
+      "Business Managers",
       "Other",
     ],
-    Club: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
-    kalbo: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
-    kupal: ["President", "Vice President", "Secretary", "Treasurer", "Other"],
+    defaultClub: [
+      "President",
+      "Vice President",
+      "Secretary",
+      "Asst. Secretary",
+      "Treasurer",
+      "Asst. Treasurer",
+      "Auditor",
+      "PIO",
+      "Project Manager",
+      "Councilor",
+      "Other",
+    ],
   };
 
   // ── INITIAL DATA FORM STATE ──
@@ -94,10 +78,45 @@ export default function Settings() {
     term_year: "",
   });
 
-  // ── 🔄 FETCH PROFILE FROM BACKEND ──
+  // ── FETCH ORGANIZATIONS ──
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const res = await axios.get(`${API}/get_organizations.php`, {
+          withCredentials: true,
+        });
+        if (res.data.success) {
+          // Itinatabi ang buong array para magamit ang OrgType kung mayroon man
+          setOrganizations(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch organizations:", err);
+      }
+    };
+    fetchOrganizations();
+  }, []);
+
+  // ── FETCH TERM YEARS / SEMESTERS ──
+  useEffect(() => {
+    const fetchTermYears = async () => {
+      try {
+        const res = await axios.get(`${API}/get_semesters.php`, {
+          withCredentials: true,
+        });
+        if (res.data.success) {
+          setTermYears(res.data.data.map((row) => row.YearRange));
+        }
+      } catch (err) {
+        console.error("Failed to fetch term years:", err);
+      }
+    };
+    fetchTermYears();
+  }, []);
+
+  // ── FETCH PROFILE FROM BACKEND ──
   useEffect(() => {
     const fetchProfile = async () => {
-      setIsLoading(true);
+      //setIsLoading(true);
       try {
         const res = await axios.get(`${API}/adminProfile.php`, {
           withCredentials: true,
@@ -120,12 +139,7 @@ export default function Settings() {
           });
         }
       } catch (err) {
-        console.error(
-          "Failed to load profile, using mock data placeholders:",
-          err,
-        );
-      } finally {
-        setIsLoading(false);
+        console.error("Failed to load profile:", err);
       }
     };
     fetchProfile();
@@ -137,8 +151,34 @@ export default function Settings() {
   const [successMsg, setSuccessMsg] = useState("");
   const [passwordSuccessMsg, setPasswordSuccessMsg] = useState("");
 
-  // Derive available position options from selected org
-  const currentPositions = positionOptions[formData.organization] ?? [];
+  // ── DYNAMIC POSITION FILTERING (Database Connected) ──
+  const getCurrentPositions = () => {
+    const selectedOrgName = formData.organization;
+    if (!selectedOrgName) return [];
+
+    // Hanapin ang piniling organisasyon sa listahan mula sa database
+    const foundOrg = organizations.find((o) => o.OrgName === selectedOrgName);
+
+    // 1. Kung may OrgType galing sa database table niyo, ito ang unahin
+    if (foundOrg && foundOrg.OrgType) {
+      if (positionTemplates[foundOrg.OrgType]) {
+        return positionTemplates[foundOrg.OrgType];
+      }
+    }
+
+    // 2. Fallback system base sa pangalan kung walang OrgType kolum ang database niyo
+    if (["PADC", "YMO", "CBAM"].includes(selectedOrgName)) {
+      return positionTemplates.localGov;
+    }
+    if (selectedOrgName === "SSG") {
+      return positionTemplates.studentGov;
+    }
+
+    // Default listahan para sa ibang clubs/organizations
+    return positionTemplates.defaultClub;
+  };
+
+  const currentPositions = getCurrentPositions();
 
   const validatePassword = (pass) => ({
     length: pass.length >= 8,
@@ -184,12 +224,11 @@ export default function Settings() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // ── 🚀 LIVE UPDATE PROFILE SUBMIT (CONNECTED VIA AXIOS) ──
+  // ── UPDATE PROFILE SUBMIT ──
   const handleUpdateProfileSubmit = async (e) => {
     e.preventDefault();
     setSuccessMsg("");
 
-    // Front-end Validations
     const newErrors = {};
     if (!formData.email.trim()) newErrors.email = "Email is required.";
     if (!formData.lastName.trim()) newErrors.lastName = "Last Name required.";
@@ -209,34 +248,55 @@ export default function Settings() {
     setErrors({});
 
     try {
-      setIsLoading(true);
-      // Ipapadala ang buong formData sa iyong update endpoint
-      const res = await axios.post(`${API}/updateProfile.php`, formData, {
+      //setIsLoading(true);
+
+      const checkRes = await axios.get(`${API}/checkDup.php`, {
         withCredentials: true,
       });
+      const existingUsers = checkRes.data;
 
-      if (res.data.success) {
-        setSuccessMsg("Profile updated successfully!");
-        setTimeout(() => setSuccessMsg(""), 3000);
-      } else {
-        setErrors({
-          global:
-            res.data.message || "Failed to update database profile records.",
-        });
-      }
-    } catch (err) {
-      console.error("Connection Error during profile update:", err);
-      // Fallback transition simulation para hindi ka ma-stuck kung offline pa ang api
-      setSuccessMsg(
-        "Profile updated successfully! (Local Sandbox Fallback Mode)",
+      const isEmailDuplicate = existingUsers.some(
+        (user) =>
+          user.Email.toLowerCase().trim() ===
+            formData.email.toLowerCase().trim() &&
+          user.SchoolIDNo.toLowerCase().trim() !==
+            formData.schoolIDNo.toLowerCase().trim(),
       );
+
+      if (isEmailDuplicate) {
+        setErrors({
+          email: "This email is already in use by another account.",
+        });
+        return;
+      }
+
+      const res = await axios.post(
+        `${API}/update_Profile.php`,
+        {
+          email: formData.email,
+          lastName: formData.lastName,
+          firstName: formData.firstName,
+          middleName: formData.middleName,
+          program: formData.program,
+          yearLevel: formData.yearLevel,
+          section: formData.section,
+          organization: formData.organization,
+          position: formData.position,
+          term_year: formData.term_year,
+        },
+        { withCredentials: true },
+      );
+
+      setSuccessMsg(res.data.message || "Profile updated successfully!");
       setTimeout(() => setSuccessMsg(""), 3000);
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      setErrors({
+        global: err.response?.data?.message || "Update failed. Try again.",
+      });
     }
   };
 
-  // ── 🔑 CHANGE PASSWORD SUBMIT ──
+  // ── CHANGE PASSWORD SUBMIT ──
   const handleChangePasswordSubmit = async (e) => {
     e.preventDefault();
     const newPassErrors = {};
@@ -256,25 +316,28 @@ export default function Settings() {
     setPasswordErrors({});
 
     try {
-      const res = await axios.post(`${API}/changePassword.php`, passData, {
-        withCredentials: true,
-      });
-      if (res.data.success) {
-        setPasswordSuccessMsg("Password changed successfully!");
-        setPassData({ old: "", new: "", confirm: "" });
-        setTimeout(() => setPasswordSuccessMsg(""), 3000);
-      }
+      const res = await axios.post(
+        `${API}/changePassword.php`,
+        {
+          old: passData.old,
+          new: passData.new,
+          confirm: passData.confirm,
+        },
+        { withCredentials: true },
+      );
+
+      setPasswordSuccessMsg(
+        res.data.message || "Password changed successfully!",
+      );
+      setPassData({ old: "", new: "", confirm: "" });
+      setTimeout(() => setPasswordSuccessMsg(""), 3000);
     } catch (err) {
-      console.error(err);
-      setPasswordErrors({
-        old:
-          err.response?.data?.message ||
-          "Failed to alter password security keys.",
-      });
+      const msg = err.response?.data?.message || "Password change failed.";
+      setPasswordErrors({ old: msg });
     }
   };
 
-  // ── DROPDOWN REUSABLE NODE COMPONENT ──
+  // ── DROPDOWN REUSABLE COMPONENT ──
   const CustomDropdown = ({
     label,
     name,
@@ -317,6 +380,7 @@ export default function Settings() {
                   selectOption(name, opt);
                 }}
               >
+                {/* TINANGGAL ANG EQUAL SIGN DITO */}
                 {opt}
                 {value === opt && <Check size={14} className="check-icon" />}
               </div>
@@ -328,12 +392,14 @@ export default function Settings() {
     </div>
   );
 
-  if (isLoading)
+  {
+    /*if (isLoading)
     return (
       <div className="settings-view fade-in">
         <p>Processing request with system database engine...</p>
       </div>
-    );
+    );*/
+  }
 
   return (
     <div className="settings-view fade-in">
@@ -383,7 +449,6 @@ export default function Settings() {
               )}
 
               <div className="registration-stack">
-                {/* School ID — read-only */}
                 <div className="field-group">
                   <label className="label-text">School ID No.</label>
                   <input
@@ -463,7 +528,6 @@ export default function Settings() {
                   />
                 </div>
 
-                {/* Program | Year | Section */}
                 <div className="input-row-flex dropdown-row">
                   <CustomDropdown
                     label="Program"
@@ -485,12 +549,11 @@ export default function Settings() {
                   />
                 </div>
 
-                {/* Organization | Position | Term Year */}
                 <div className="input-row-flex dropdown-row">
                   <CustomDropdown
                     label="Organization"
                     name="organization"
-                    options={organizations}
+                    options={organizations.map((org) => org.OrgName)}
                     value={formData.organization}
                   />
                   <CustomDropdown
@@ -540,30 +603,41 @@ export default function Settings() {
                   className={`field-group ${passwordErrors.old ? "has-error" : ""}`}
                 >
                   <label className="label-text">Current Password</label>
-                  <input
-                    type="password"
-                    className="form-input"
-                    placeholder="••••••••"
-                    value={passData.old}
-                    onFocus={() => handleInputFocus("old")}
-                    onChange={(e) =>
-                      setPassData({ ...passData, old: e.target.value })
-                    }
-                  />
+                  <div className="input-pill-wrapper input-with-icon">
+                    <input
+                      type={showOldPass ? "text" : "password"} // Dynamic type base sa state
+                      className="form-input"
+                      placeholder="••••••••"
+                      value={passData.old}
+                      onFocus={() => handleInputFocus("old")}
+                      onChange={(e) =>
+                        setPassData({ ...passData, old: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="eye-btn-pill eye-btn"
+                      onClick={() => setShowOldPass(!showOldPass)} // Toggle state kapag kini-click
+                    >
+                      {showOldPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   {passwordErrors.old && (
                     <span className="error-text">{passwordErrors.old}</span>
                   )}
                 </div>
-
                 <div className="input-row-flex">
-                  {/* New Password */}
                   <div
                     className={`field-group ${passwordErrors.new ? "has-error" : ""}`}
                     style={{ position: "relative" }}
                   >
                     <label className="label-text">New Password</label>
                     <div
-                      className={`input-pill-wrapper input-with-icon ${passData.new && !allChangePassReqsMet ? "error-ring" : ""}`}
+                      className={`input-pill-wrapper input-with-icon ${
+                        passData.new && !allChangePassReqsMet
+                          ? "error-ring"
+                          : ""
+                      }`}
                     >
                       <input
                         type={showNewPass ? "text" : "password"}
@@ -585,7 +659,9 @@ export default function Settings() {
                       </button>
                     </div>
                     <div
-                      className={`password-popup-tooltip password-requirements-popup ${shouldShowChangePassPopup ? "visible" : ""}`}
+                      className={`password-popup-tooltip password-requirements-popup ${
+                        shouldShowChangePassPopup ? "visible" : ""
+                      }`}
                     >
                       <div className="popup-arrow"></div>
                       <p
@@ -623,13 +699,16 @@ export default function Settings() {
                     )}
                   </div>
 
-                  {/* Confirm Password */}
                   <div
                     className={`field-group ${passwordErrors.confirm ? "has-error" : ""}`}
                   >
                     <label className="label-text">Confirm New Password</label>
                     <div
-                      className={`input-pill-wrapper input-with-icon ${passData.confirm && passData.new !== passData.confirm ? "error-ring" : ""}`}
+                      className={`input-pill-wrapper input-with-icon ${
+                        passData.confirm && passData.new !== passData.confirm
+                          ? "error-ring"
+                          : ""
+                      }`}
                     >
                       <input
                         type={showConfirmNewPass ? "text" : "password"}

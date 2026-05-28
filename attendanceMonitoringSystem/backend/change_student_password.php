@@ -30,13 +30,12 @@ if (!isset($_SESSION['studentUser'])) {
 }
 
 try {
-
     $studentID = $_SESSION['studentUser']['StudentID'];
 
     $oldPassword = trim($_POST['oldPassword']);
     $newPassword = trim($_POST['newPassword']);
 
-    $stmt = $pdo->prepare("SELECT Password FROM students WHERE StudentID = :studentID");
+    $stmt = $pdo->prepare('SELECT Password FROM students WHERE StudentID = :studentID');
     $stmt->execute([':studentID' => $studentID]);
 
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -67,11 +66,11 @@ try {
 
     $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-    $updateStmt = $pdo->prepare("
+    $updateStmt = $pdo->prepare('
         UPDATE students 
         SET Password = :password
         WHERE StudentID = :studentID
-    ");
+    ');
 
     $updateStmt->execute([
         ':password' => $hashedPassword,
@@ -82,9 +81,7 @@ try {
         'success' => true,
         'message' => 'Password changed successfully'
     ]);
-
 } catch (PDOException $e) {
-
     http_response_code(500);
 
     echo json_encode([

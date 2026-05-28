@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 
-
-
 const API =
   "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend";
 
@@ -187,26 +185,27 @@ export default function Auth() {
       setErrors({});
 
       // Hanapin ang part ng Login submission sa Auth.js mo at palitan ng ganito:
-try {
-  const dataToSend = new FormData();
-  dataToSend.append("schoolIDNo", formData.schoolIDNo);
-  dataToSend.append("password", formData.password);
+      try {
+        const dataToSend = new FormData();
+        dataToSend.append("schoolIDNo", formData.schoolIDNo);
+        dataToSend.append("password", formData.password);
 
-  // Idinagdag ang { withCredentials: true } sa dulo ng axios call
-  const res = await axios.post(`${API}/login_auth.php`, dataToSend, {
-    withCredentials: true
-  });
+        // Idinagdag ang { withCredentials: true } sa dulo ng axios call
+        const res = await axios.post(`${API}/login_auth.php`, dataToSend, {
+          withCredentials: true,
+        });
 
-  setSuccessMsg(res.data.message);
-  
-  // BURAHIN MO NA ITONG LINE NA ITO:
-  // localStorage.setItem("studentUser", JSON.stringify(res.data.user));
+        setSuccessMsg(res.data.message);
 
-  setTimeout(() => navigate("/studentDashboard"), 1500);
-} catch (error) {
-  const msg = error.response?.data?.message || "Invalid School ID or Password.";
-  setErrors({ schoolIDNo: msg, password: msg });
-}
+        // BURAHIN MO NA ITONG LINE NA ITO:
+        // localStorage.setItem("studentUser", JSON.stringify(res.data.user));
+
+        setTimeout(() => navigate("/studentDashboard"), 1500);
+      } catch (error) {
+        const msg =
+          error.response?.data?.message || "Invalid School ID or Password.";
+        setErrors({ schoolIDNo: msg, password: msg });
+      }
       return;
     }
 

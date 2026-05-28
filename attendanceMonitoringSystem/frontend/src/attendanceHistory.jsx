@@ -3,11 +3,22 @@ import { Search, Calendar, ChevronDown, Check, Loader2 } from "lucide-react";
 import axios from "axios";
 import "./attendanceHistory.css";
 
-const API = "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend";
+const API =
+  "http://localhost/Attendance%20Project%20System/attendanceMonitoringSystem/backend";
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 export default function AttendanceHistory() {
@@ -25,12 +36,14 @@ export default function AttendanceHistory() {
       try {
         setLoading(true);
         const res = await axios.get(`${API}/get_attendance_history.php`, {
-          withCredentials: true // Importante para gumana ang PHP session
+          withCredentials: true, // Importante para gumana ang PHP session
         });
         setAttendanceRecords(res.data);
       } catch (err) {
         console.error("Error fetching attendance records:", err);
-        setErrorMsg(err.response?.data?.message || "Failed to load attendance history.");
+        setErrorMsg(
+          err.response?.data?.message || "Failed to load attendance history.",
+        );
       } finally {
         setLoading(false);
       }
@@ -136,16 +149,38 @@ export default function AttendanceHistory() {
 
           <div className="history-list">
             {loading ? (
-              <div style={{ textAlign: "center", padding: "2rem", color: "var(--text-muted)" }}>
-                <Loader2 className="animate-spin" style={{ margin: "0 auto 10px" }} size={24} />
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "2rem",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Loader2
+                  className="animate-spin"
+                  style={{ margin: "0 auto 10px" }}
+                  size={24}
+                />
                 <p>Loading records...</p>
               </div>
             ) : errorMsg ? (
-              <p style={{ padding: "2rem", color: "#e63946", textAlign: "center" }}>
+              <p
+                style={{
+                  padding: "2rem",
+                  color: "#e63946",
+                  textAlign: "center",
+                }}
+              >
                 {errorMsg}
               </p>
             ) : filtered.length === 0 ? (
-              <p style={{ padding: "2rem", color: "var(--text-muted)", textAlign: "center" }}>
+              <p
+                style={{
+                  padding: "2rem",
+                  color: "var(--text-muted)",
+                  textAlign: "center",
+                }}
+              >
                 No records found.
               </p>
             ) : (

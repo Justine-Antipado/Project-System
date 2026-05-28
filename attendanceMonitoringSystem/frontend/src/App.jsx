@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Auth from './Auth';
+import Auth from "./Auth";
 import Layout from "./Layout";
 import StudentDashboard from "./studentDashboard";
 import AttendanceHistory from "./attendanceHistory";

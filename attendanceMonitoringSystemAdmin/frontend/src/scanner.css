@@ -26,7 +26,6 @@
 }
 
 /* 2. Html5Qrcode Library Inner Layout Overrides */
-/* Sinisiguro nito na ang camera video ay magiging responsive at sakop ang buong container */
 #reader {
   width: 100% !important;
   height: 100% !important;

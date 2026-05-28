@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
-
+session_start();
 // 2. Include your database connection setup
 include_once 'connection.php';
 

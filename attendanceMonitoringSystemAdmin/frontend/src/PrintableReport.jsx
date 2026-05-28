@@ -152,7 +152,8 @@ export default function PrintableReport({
       <div className="printable-report-wrapper">
         <div className="print-main-title">Report</div>
         <div className="print-event-subtitle">
-          {selectedEvent || "All Events"} {selectedSemester ? `— ${selectedSemester}` : ""}
+          {selectedEvent || "All Events"}{" "}
+          {selectedSemester ? `— ${selectedSemester}` : ""}
         </div>
 
         {sortedKeys.map((key) => {

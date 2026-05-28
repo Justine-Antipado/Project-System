@@ -1,16 +1,16 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 
-require_once 'connection.php'; // your PDO connection file
+require_once 'connection.php';  // your PDO connection file
 
 try {
     // ── Collect optional filter params from query string ──
-    $eventName   = $_GET['event']     ?? '';
-    $program     = $_GET['program']   ?? '';
-    $year        = $_GET['year']      ?? '';
-    $section     = $_GET['section']   ?? '';
-    $semester    = $_GET['semester']  ?? '';
+    $eventName = $_GET['event'] ?? '';
+    $program = $_GET['program'] ?? '';
+    $year = $_GET['year'] ?? '';
+    $section = $_GET['section'] ?? '';
+    $semester = $_GET['semester'] ?? '';
 
     // ── Base query (matches your SQL comment exactly) ──
     $sql = "
@@ -34,19 +34,19 @@ try {
 
     // ── Append WHERE clauses only when a filter is provided ──
     if ($eventName !== '') {
-        $sql .= " AND e.EventName = :event";
+        $sql .= ' AND e.EventName = :event';
         $params[':event'] = $eventName;
     }
     if ($program !== '') {
-        $sql .= " AND s.Program = :program";
+        $sql .= ' AND s.Program = :program';
         $params[':program'] = $program;
     }
     if ($year !== '') {
-        $sql .= " AND s.YearLevel = :year";
+        $sql .= ' AND s.YearLevel = :year';
         $params[':year'] = (int) $year;
     }
     if ($section !== '') {
-        $sql .= " AND s.Section = :section";
+        $sql .= ' AND s.Section = :section';
         $params[':section'] = $section;
     }
     if ($semester !== '') {
@@ -55,22 +55,21 @@ try {
         $params[':semester'] = $semester;
     }
 
-    $sql .= " ORDER BY ea.Timestamp DESC";
+    $sql .= ' ORDER BY ea.Timestamp DESC';
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $students = $stmt->fetchAll();
 
     echo json_encode([
-        "success" => true,
-        "data"    => $students
+        'success' => true,
+        'data' => $students
     ]);
-
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
+        'success' => false,
+        'message' => $e->getMessage()
     ]);
 }
 ?>
