@@ -685,7 +685,7 @@ export default function Auth() {
                   {isLogin ? "Sign In" : "Sign Up"}
                 </button>
 
-                <button
+                {/*<button
                   type="button"
                   className="omsc-auth-btn omsc-auth-btn-google"
                   onClick={handleGoogleLogin}
@@ -696,7 +696,7 @@ export default function Auth() {
                     className="omsc-auth-google-icon"
                   />
                   Continue with Google
-                </button>
+                </button>*/}
 
                 <div className="omsc-auth-or-divider">OR</div>
                 <button

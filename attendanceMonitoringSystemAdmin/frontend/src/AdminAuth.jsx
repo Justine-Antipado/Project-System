@@ -709,7 +709,7 @@ export default function AdminAuth() {
               <button type="submit" className="ap-btn ap-btn-primary">
                 {isLogin ? "Sign In" : "Sign Up"}
               </button>
-              <button
+              {/*<button
                 type="button"
                 className="ap-btn ap-btn-oauth"
                 onClick={handleGoogleLogin}
@@ -720,7 +720,7 @@ export default function AdminAuth() {
                   className="ap-oauth-icon"
                 />
                 Continue with Google
-              </button>
+              </button>*/}
               <div className="ap-text-divider">OR</div>
               <button
                 type="button"
